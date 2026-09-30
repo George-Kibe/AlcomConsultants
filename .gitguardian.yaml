@@ -1,0 +1,6 @@
+# Throwaway credentials used only by tests and the ephemeral CI database.
+version: 2
+secret:
+  ignored_paths:
+    - "backend/**/tests/**"
+    - ".github/workflows/ci.yml"

@@ -1,0 +1,26 @@
+import { defineConfig, devices } from "@playwright/test";
+
+const PORT = Number(process.env.PORT ?? 3000);
+const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+
+export default defineConfig({
+  testDir: "./e2e",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
+  use: { baseURL, trace: "on-first-retry" },
+  projects: [
+    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+  ],
+  // Run against a production build unless an external URL (e.g. the Docker stack) is given.
+  webServer: process.env.E2E_BASE_URL
+    ? undefined
+    : {
+        command: "npm run start:standalone",
+        env: { PORT: String(PORT), HOSTNAME: "127.0.0.1" },
+        url: `${baseURL}/healthz`,
+        reuseExistingServer: !process.env.CI,
+      },
+});

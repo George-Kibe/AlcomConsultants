@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (lint, types, tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      db:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_DB: alcom
+          POSTGRES_USER: alcom
+          POSTGRES_PASSWORD: alcom
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U alcom" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgis://alcom:alcom@localhost:5432/alcom
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install GeoDjango system libraries
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy .
+      - run: uv run python manage.py makemigrations --check --dry-run
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
+      - run: uv run pytest --cov --cov-report=term-missing --cov-report=xml
+      - name: Audit dependencies
+        run: uv export --no-dev --no-hashes --format requirements-txt | uvx pip-audit -r /dev/stdin --strict
+
+  frontend:
+    name: Frontend (lint, types, tests, e2e)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 7
+      - name: Audit dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  docker:
+    name: Production images build
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - name: Build backend
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          target: prod
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+      - name: Build frontend
+        uses: docker/build-push-action@v7
+        with:
+          context: frontend
+          target: prod
+          push: false
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend

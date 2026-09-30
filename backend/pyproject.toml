@@ -1,0 +1,95 @@
+[project]
+name = "alcom-backend"
+version = "0.1.0"
+description = "Alcom Consultants Limited — API"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "django>=5.2,<5.3",                 # LTS, supported until April 2028
+    "djangorestframework>=3.16",
+    "django-filter>=25.1",
+    "drf-spectacular>=0.28",
+    "django-environ>=0.12",
+    "django-redis>=6.0",
+    "psycopg[binary,pool]>=3.2",
+    "celery[redis]>=5.5",
+    "gunicorn>=23.0",
+    "sentry-sdk[django,celery]>=2.30",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+    "pytest-django>=4.11",
+    "pytest-cov>=6.2",
+    "factory-boy>=3.3",
+    "ruff>=0.12",
+    "mypy>=1.17",
+    "django-stubs[compatible-mypy]>=5.2,<5.3",
+    "djangorestframework-stubs>=3.16",
+]
+
+[tool.uv]
+package = false
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+extend-exclude = ["**/migrations/*.py"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",   # pycodestyle / pyflakes
+    "I",             # isort
+    "B",             # bugbear
+    "UP",            # pyupgrade
+    "DJ",            # flake8-django
+    "S",             # bandit (security)
+    "SIM", "C4", "RUF", "PTH", "T20",
+]
+ignore = ["RUF012"]  # mutable class attrs are idiomatic in Django Meta/DRF
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "S105", "S106"]
+"config/settings/*.py" = ["F405"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.14"
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+strict_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+exclude = ["migrations/"]
+
+[[tool.mypy.overrides]]
+module = ["*.tests.*", "conftest"]
+disallow_untyped_defs = false
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+addopts = "--strict-markers --reuse-db -p no:cacheprovider"
+
+[tool.coverage.run]
+source = ["apps", "config"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "config/wsgi.py",
+    "config/asgi.py",
+    "config/settings/dev.py",
+    "config/settings/prod.py",
+]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
