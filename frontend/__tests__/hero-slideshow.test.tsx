@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { HeroSlideshow } from "@/components/site/hero-slideshow";
+import { HeroSlideshow, INTERVAL_MS } from "@/components/site/hero-slideshow";
 import { heroSlides } from "@/lib/hero-slides";
 import { mediaMatches } from "@/vitest.setup";
 
@@ -33,7 +33,7 @@ describe("HeroSlideshow", () => {
   test("advances automatically and preloads one slide ahead", () => {
     const { container } = render(<HeroSlideshow slides={heroSlides} />);
 
-    act(() => vi.advanceTimersByTime(6000));
+    act(() => vi.advanceTimersByTime(INTERVAL_MS));
 
     expect(currentDot()).toBe(1);
     expect(container.querySelectorAll("img")).toHaveLength(3);
@@ -47,7 +47,7 @@ describe("HeroSlideshow", () => {
     expect(currentDot()).toBe(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Play slideshow" }));
-    act(() => vi.advanceTimersByTime(6000));
+    act(() => vi.advanceTimersByTime(INTERVAL_MS));
     expect(currentDot()).toBe(1);
   });
 
@@ -59,7 +59,7 @@ describe("HeroSlideshow", () => {
     );
     expect(currentDot()).toBe(9);
 
-    act(() => vi.advanceTimersByTime(6000));
+    act(() => vi.advanceTimersByTime(INTERVAL_MS));
     expect(currentDot()).toBe(0);
   });
 

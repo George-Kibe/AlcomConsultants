@@ -46,17 +46,17 @@ export default function Home() {
         />
         <div
           aria-hidden
-          className="from-brand-navy via-brand-navy/80 to-brand-navy/40 sm:via-brand-navy/70 sm:to-brand-navy/20 absolute inset-0 -z-10 bg-gradient-to-t sm:bg-gradient-to-r"
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/45 to-black/30 sm:bg-gradient-to-r sm:from-black/70 sm:via-black/35 sm:via-45% sm:to-transparent sm:to-80%"
         />
         <div className="container-page flex min-h-[600px] flex-col justify-center gap-8 pt-16 pb-24 sm:min-h-[640px] sm:py-20">
           <div className="max-w-2xl">
-            <p className="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20">
+            <p className="mb-3 inline-flex rounded-full bg-black/35 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm">
               Property agency · Management · Valuations
             </p>
-            <h1 className="text-4xl leading-tight font-bold sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-5xl lg:text-6xl">
               Find, manage and value property across Kenya
             </h1>
-            <p className="mt-4 max-w-xl text-lg text-white/85">
+            <p className="mt-4 max-w-xl text-lg font-medium text-white text-shadow-black/60 text-shadow-lg">
               Homes, land and commercial space to buy or rent, and expert help
               looking after the property you own.
             </p>
