@@ -1,6 +1,7 @@
 """Settings shared by every environment. Values come from environment variables."""
 
 from pathlib import Path
+from typing import Any
 
 import environ
 
@@ -159,13 +160,20 @@ CELERY_TASK_SOFT_TIME_LIMIT = 4 * 60
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # ------------------------------------------------------------------ email
-EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = env("EMAIL_HOST", default="mailpit")
-EMAIL_PORT = env.int("EMAIL_PORT", default=1025)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
-EMAIL_TIMEOUT = 20
+# Development: Gmail SMTP (app password). Production: the alcomconsultants.co.ke mail provider.
+MAILERS: dict[str, dict[str, Any]] = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
+        "OPTIONS": {
+            "host": env("EMAIL_HOST", default="smtp.gmail.com"),
+            "port": env.int("EMAIL_PORT", default=587),
+            "username": env("EMAIL_HOST_USER", default=""),
+            "password": env("EMAIL_HOST_PASSWORD", default=""),
+            "use_tls": env.bool("EMAIL_USE_TLS", default=True),
+            "timeout": 20,
+        },
+    },
+}
 DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL", default="Alcom Consultants <no-reply@alcomconsultants.co.ke>"
 )

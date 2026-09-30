@@ -21,7 +21,6 @@ up: ## Start the dev stack (http://localhost:8080)
 	$(COMPOSE) up -d
 	@echo "Site:    http://localhost:8080"
 	@echo "API:     http://localhost:8080/api/v1/docs/"
-	@echo "Mailpit: http://localhost:8025"
 
 down: ## Stop the dev stack
 	$(COMPOSE) down

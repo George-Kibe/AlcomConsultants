@@ -6,8 +6,8 @@ updates:
     groups:
       python-minor: { update-types: [minor, patch] }
     ignore:
-      - dependency-name: django  # stay on the LTS line; upgrade majors deliberately
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: django  # major upgrades are planned deliberately (6.1 -> 6.2 LTS is allowed)
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /frontend

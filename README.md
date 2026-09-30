@@ -5,7 +5,7 @@ Property listings, property management and valuations for **alcomconsultants.co.
 | Part | Stack |
 |---|---|
 | `frontend/` | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4 |
-| `backend/` | Django 5.2 LTS, Django REST Framework, Celery, Python 3.14 |
+| `backend/` | Django 6.1, Django REST Framework, Celery, Python 3.14 |
 | Data | PostgreSQL 18 + PostGIS 3.6, Redis 8 |
 | Infra | Docker Compose, Nginx, GitHub Actions |
 
@@ -16,6 +16,9 @@ Planning docs: [requirements](docs/REQUIREMENTS.md) · [architecture](docs/ARCHI
 
 Prerequisites: Docker (with Compose v2), Node 24 LTS (for editor tooling and frontend tests),
 and optionally [uv](https://docs.astral.sh/uv/) for backend tooling outside Docker.
+
+Development emails go through Gmail SMTP: add your Gmail address and an app password to `.env`
+(until then they are printed in `make logs s=backend`).
 
 ```bash
 make setup          # creates .env from .env.example and builds images
@@ -29,7 +32,6 @@ make superuser      # create an admin account
 | http://localhost:8080/api/v1/docs/ | API docs (Swagger) |
 | http://localhost:8080/api/v1/health/ | API health check |
 | http://localhost:8080/django-admin/ | Django admin |
-| http://localhost:8025 | Mailpit (captured dev emails) |
 
 Run `make help` for all commands (tests, lint, migrations, logs…).
 

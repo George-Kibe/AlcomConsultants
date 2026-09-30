@@ -5,28 +5,28 @@ description = "Alcom Consultants Limited — API"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
 dependencies = [
-    "django>=5.2,<5.3",                 # LTS, supported until April 2028
-    "djangorestframework>=3.16",
-    "django-filter>=25.1",
-    "drf-spectacular>=0.28",
-    "django-environ>=0.12",
-    "django-redis>=6.0",
-    "psycopg[binary,pool]>=3.2",
-    "celery[redis]>=5.5",
-    "gunicorn>=23.0",
-    "sentry-sdk[django,celery]>=2.30",
+    "django>=6.1.1,<6.2",               # move to 6.2 LTS when released (April 2027)
+    "djangorestframework>=3.18.1",
+    "django-filter>=26.1",
+    "drf-spectacular>=0.30.0",
+    "django-environ>=0.14.0",
+    "django-redis>=7.0.0",
+    "psycopg[binary,pool]>=3.3.6",
+    "celery[redis]>=5.6.3",
+    "gunicorn>=26.2.0",
+    "sentry-sdk[django,celery]>=2.71.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.4",
-    "pytest-django>=4.11",
-    "pytest-cov>=6.2",
-    "factory-boy>=3.3",
-    "ruff>=0.12",
-    "mypy>=1.17",
-    "django-stubs[compatible-mypy]>=5.2,<5.3",
-    "djangorestframework-stubs>=3.16",
+    "pytest>=9.1.1",
+    "pytest-django>=4.14.0",
+    "pytest-cov>=7.1.0",
+    "factory-boy>=3.3.3",
+    "ruff>=0.16.9",
+    "mypy>=2.3.1",
+    "django-stubs[compatible-mypy]>=6.1.1,<6.2",
+    "djangorestframework-stubs>=3.18.1",
 ]
 
 [tool.uv]
@@ -77,6 +77,10 @@ django_settings_module = "config.settings.test"
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
 addopts = "--strict-markers --reuse-db -p no:cacheprovider"
+filterwarnings = [
+    "error::DeprecationWarning",  # surface Django 7.0 deprecations early
+    "error::PendingDeprecationWarning",
+]
 
 [tool.coverage.run]
 source = ["apps", "config"]

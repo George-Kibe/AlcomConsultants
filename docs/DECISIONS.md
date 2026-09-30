@@ -52,3 +52,7 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Claude drafts legal texts; a lawyer reviews them. No EARB/VRB numbers displayed. No legacy migration.
 - Brand colours/fonts extracted from the logo (proposed for approval).
 - Full testing: pytest, Vitest, Playwright in CI. Solo developer: feature branches → PR → `main`, conventional commits.
+
+### Framework versions (updated 2026-09-30)
+- **Django 6.1** (latest release) instead of 5.2 LTS. 6.1 is not an LTS release; its security support ends around December 2027. **Upgrade to Django 6.2 LTS after its release (April 2027).**
+- Development email uses Gmail SMTP directly (no local mail catcher). Production uses the domain mail provider.
