@@ -37,7 +37,7 @@ Versions follow DECISIONS.md: latest LTS where an LTS exists, otherwise latest s
 | API types | `drf-spectacular` OpenAPI schema → `openapi-typescript` generated client types |
 | Maps | Leaflet + react-leaflet + OSM tiles; marker clustering |
 | Images | Cloudinary (`next-cloudinary` on the frontend, `cloudinary` + `django-cloudinary-storage` on the backend) |
-| Backend | Python (latest stable), Django (LTS), Django REST Framework, django-filter |
+| Backend | Python 3.14, Django 6.1 (upgrade to 6.2 LTS when released), Django REST Framework, django-filter |
 | Auth | `django-allauth` (headless mode): session cookies + CSRF, email verification, TOTP 2FA |
 | Database | PostgreSQL (latest stable) + PostGIS; full-text search via `SearchVector`/GIN indexes |
 | Async | Celery + Redis (also used for cache and throttling) |
@@ -73,7 +73,7 @@ Versions follow DECISIONS.md: latest LTS where an LTS exists, otherwise latest s
 │   └── Dockerfile
 ├── nginx/                      # dev proxy config; edge proxy (TLS) for prod + staging
 ├── compose.yaml                # shared service definitions
-├── compose.override.yaml       # dev overrides, auto-merged (hot reload, Mailpit, Nginx)
+├── compose.override.yaml       # dev overrides, auto-merged (hot reload, Nginx)
 ├── compose.prod.yaml           # prod/staging overrides (GHCR images, hardening)
 ├── .github/workflows/          # ci.yml, deploy.yml
 └── docs/

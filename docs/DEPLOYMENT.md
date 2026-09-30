@@ -3,7 +3,7 @@
 ## Environments
 | Env | URL | Where | Notes |
 |---|---|---|---|
-| Development | `localhost:8080` | Developer machine, `make up` (`docker compose up`) | Hot reload, Mailpit/Gmail SMTP, debug on |
+| Development | `localhost:8080` | Developer machine, `make up` (`docker compose up`) | Hot reload, Gmail SMTP, debug on |
 | Staging | `https://staging.alcomconsultants.co.ke` | Same VPS, Compose project `alcom-staging` | Separate DB/Redis/volumes, basic auth, `noindex`, deployed on merge to `main` |
 | Production | `https://alcomconsultants.co.ke` (+ `www` → 301 to apex) | VPS, Compose project `alcom-prod` | Deployed on version tag (`v*`) after staging is verified |
 

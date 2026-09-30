@@ -54,8 +54,3 @@ services:
     depends_on:
       - frontend
       - backend
-
-  mailpit:
-    image: axllent/mailpit:latest
-    ports:
-      - "127.0.0.1:8025:8025"  # web UI

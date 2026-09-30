@@ -23,7 +23,7 @@ STORAGES = {
 }
 
 # ------------------------------------------------------------------ admins / errors
-ADMINS = [("Alcom Admin", email) for email in env.list("DJANGO_ADMINS", default=[])]
+ADMINS: list[str] = env.list("DJANGO_ADMINS", default=[])
 
 SENTRY_DSN = env("SENTRY_DSN", default="")
 if SENTRY_DSN:

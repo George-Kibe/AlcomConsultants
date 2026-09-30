@@ -8,7 +8,7 @@ No hard deadline; quality first. Each phase ends with passing CI, deployment to 
 - Monorepo structure, `.gitignore`, `.editorconfig`, pre-commit (ruff, prettier, eslint)
 - Django project (settings split, custom User model, core app, health endpoint, DRF, OpenAPI)
 - Next.js cleanup/config (standalone output, env handling, lint/format, Vitest, Playwright)
-- Docker: backend/frontend Dockerfiles (multi-stage, non-root), Compose dev/prod, Postgres+PostGIS, Redis, Celery, Mailpit
+- Docker: backend/frontend Dockerfiles (multi-stage, non-root), Compose dev/prod, Postgres+PostGIS, Redis, Celery
 - GitHub repo, CI workflow, Dependabot
 
 ### Phase 1: Design system and public shell
