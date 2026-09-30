@@ -89,3 +89,19 @@ test("navigation works on this viewport", async ({ page, isMobile }) => {
     "Our services",
   );
 });
+
+test("hero slideshow rotates and can be paused", async ({ page }) => {
+  await page.goto("/");
+  const current = page.locator(
+    'button[aria-label^="Show photo"][aria-current="true"]',
+  );
+  await expect(current).toHaveAttribute("aria-label", /^Show photo 1 of 10/);
+
+  await expect(current).toHaveAttribute("aria-label", /^Show photo 2 of 10/, {
+    timeout: 8000,
+  });
+
+  await page.getByRole("button", { name: "Pause slideshow" }).click();
+  await page.waitForTimeout(6500);
+  await expect(current).toHaveAttribute("aria-label", /^Show photo 2 of 10/);
+});

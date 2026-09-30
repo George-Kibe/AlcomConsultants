@@ -22,7 +22,7 @@ export function Logo({ className, onDark = false }: LogoProps) {
         alt=""
         width={364}
         height={256}
-        priority
+        loading="eager"
         className={cn("h-9 w-auto", onDark ? "hidden" : "dark:hidden")}
       />
       <Image
@@ -30,7 +30,7 @@ export function Logo({ className, onDark = false }: LogoProps) {
         alt=""
         width={364}
         height={256}
-        priority
+        loading="eager"
         className={cn("h-9 w-auto", onDark ? "block" : "hidden dark:block")}
       />
       <span className="flex flex-col leading-none">

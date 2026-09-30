@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   BadgeCheckIcon,
@@ -9,7 +8,9 @@ import {
 
 import { CtaBand } from "@/components/site/cta-band";
 import { HeroSearch } from "@/components/site/hero-search";
+import { HeroSlideshow } from "@/components/site/hero-slideshow";
 import { ServicesGrid } from "@/components/site/services-grid";
+import { heroSlides } from "@/lib/hero-slides";
 
 // TODO(content): review marketing copy with Alcom.
 const reasons = [
@@ -39,19 +40,15 @@ export default function Home() {
   return (
     <>
       <section className="bg-brand-navy relative isolate overflow-hidden text-white">
-        <Image
-          src="/images/nairobi.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="-z-20 object-cover"
+        <HeroSlideshow
+          slides={heroSlides}
+          controlsClassName="absolute bottom-4 left-1/2 -translate-x-1/2 sm:right-6 sm:bottom-6 sm:left-auto sm:translate-x-0"
         />
         <div
           aria-hidden
           className="from-brand-navy via-brand-navy/80 to-brand-navy/40 sm:via-brand-navy/70 sm:to-brand-navy/20 absolute inset-0 -z-10 bg-gradient-to-t sm:bg-gradient-to-r"
         />
-        <div className="container-page flex min-h-[560px] flex-col justify-center gap-8 py-16 sm:min-h-[620px]">
+        <div className="container-page flex min-h-[600px] flex-col justify-center gap-8 pt-16 pb-24 sm:min-h-[640px] sm:py-20">
           <div className="max-w-2xl">
             <p className="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20">
               Property agency · Management · Valuations
