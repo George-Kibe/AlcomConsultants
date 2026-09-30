@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const pages = [
-  { path: "/", h1: /Find, manage and value property/ },
+  { path: "/", h1: /We find, manage, sell and value property/ },
   { path: "/properties", h1: "Properties" },
   { path: "/services", h1: "Our services" },
   { path: "/services/property-agency", h1: "Property Agency" },
@@ -98,10 +98,20 @@ test("hero slideshow rotates and can be paused", async ({ page }) => {
   await expect(current).toHaveAttribute("aria-label", /^Show photo 1 of 10/);
 
   await expect(current).toHaveAttribute("aria-label", /^Show photo 2 of 10/, {
-    timeout: 8000,
+    timeout: 6000,
   });
 
   await page.getByRole("button", { name: "Pause slideshow" }).click();
-  await page.waitForTimeout(6500);
+  await page.waitForTimeout(4500);
   await expect(current).toHaveAttribute("aria-label", /^Show photo 2 of 10/);
+});
+
+test("home shows featured properties that link to listings", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const section = page.getByRole("region", { name: "Featured properties" });
+  await expect(section.getByRole("article")).toHaveCount(6);
+  await section.getByRole("link", { name: "4 Bedroom Villa" }).click();
+  await expect(page).toHaveURL(/\/properties$/);
 });

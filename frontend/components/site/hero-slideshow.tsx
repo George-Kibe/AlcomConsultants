@@ -7,7 +7,7 @@ import { cn } from "cn";
 
 import type { HeroSlide } from "@/lib/hero-slides";
 
-const INTERVAL_MS = 6000;
+export const INTERVAL_MS = 4000;
 
 function subscribeReducedMotion(onChange: () => void) {
   const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -101,8 +101,8 @@ export function HeroSlideshow({
               className={cn(
                 "object-cover transition-[opacity,scale] ease-out motion-reduce:transition-none",
                 i === index
-                  ? "scale-110 opacity-100 duration-[1200ms,7000ms] motion-reduce:scale-100"
-                  : "scale-100 opacity-0 duration-[1200ms,0ms]",
+                  ? "scale-105 opacity-100 duration-[1000ms,5000ms] motion-reduce:scale-100"
+                  : "scale-100 opacity-0 duration-[1000ms,0ms]",
               )}
             />
           ) : null,

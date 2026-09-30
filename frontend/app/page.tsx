@@ -7,10 +7,12 @@ import {
 } from "lucide-react";
 
 import { CtaBand } from "@/components/site/cta-band";
+import { FeaturedProperties } from "@/components/site/featured-properties";
 import { HeroSearch } from "@/components/site/hero-search";
 import { HeroSlideshow } from "@/components/site/hero-slideshow";
 import { ServicesGrid } from "@/components/site/services-grid";
 import { heroSlides } from "@/lib/hero-slides";
+import { sampleFeaturedProperties } from "@/lib/sample-properties";
 
 // TODO(content): review marketing copy with Alcom.
 const reasons = [
@@ -46,17 +48,17 @@ export default function Home() {
         />
         <div
           aria-hidden
-          className="from-brand-navy via-brand-navy/80 to-brand-navy/40 sm:via-brand-navy/70 sm:to-brand-navy/20 absolute inset-0 -z-10 bg-gradient-to-t sm:bg-gradient-to-r"
+          className="absolute inset-0 -z-10 bg-linear-to-t from-black/70 via-black/45 to-black/30 sm:bg-linear-to-r sm:from-black/70 sm:via-black/35 sm:via-45% sm:to-transparent sm:to-80%"
         />
-        <div className="container-page flex min-h-[600px] flex-col justify-center gap-8 pt-16 pb-24 sm:min-h-[640px] sm:py-20">
+        <div className="container-page flex min-h-150 flex-col justify-center gap-8 pt-16 pb-24 sm:min-h-160 sm:py-20">
           <div className="max-w-2xl">
-            <p className="mb-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20">
+            <p className="mb-3 inline-flex rounded-full bg-black/35 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm">
               Property agency · Management · Valuations
             </p>
-            <h1 className="text-4xl leading-tight font-bold sm:text-5xl lg:text-6xl">
-              Find, manage and value property across Kenya
+            <h1 className="text-4xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-5xl lg:text-6xl">
+              We find, manage, sell and value property across Kenya
             </h1>
-            <p className="mt-4 max-w-xl text-lg text-white/85">
+            <p className="mt-4 max-w-xl text-lg font-medium text-white text-shadow-black/60 text-shadow-lg">
               Homes, land and commercial space to buy or rent, and expert help
               looking after the property you own.
             </p>
@@ -65,26 +67,30 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        className="container-page py-16 sm:py-20"
-        aria-labelledby="services-heading"
-      >
-        <div className="mb-10 max-w-2xl">
-          <h2 id="services-heading" className="text-3xl font-bold sm:text-4xl">
-            How we can help
-          </h2>
-          <p className="text-muted-foreground mt-3 text-lg">
-            Whether you are buying, renting, investing or already own property,
-            we have you covered.
-          </p>
-        </div>
-        <ServicesGrid />
-      </section>
+      <FeaturedProperties properties={sampleFeaturedProperties} />
 
       <section
         className="bg-muted/60 py-16 sm:py-20"
-        aria-labelledby="why-heading"
+        aria-labelledby="services-heading"
       >
+        <div className="container-page">
+          <div className="mb-10 max-w-2xl">
+            <h2
+              id="services-heading"
+              className="text-3xl font-bold sm:text-4xl"
+            >
+              How we can help
+            </h2>
+            <p className="text-muted-foreground mt-3 text-lg">
+              Whether you are buying, renting, investing or already own
+              property, we have you covered.
+            </p>
+          </div>
+          <ServicesGrid />
+        </div>
+      </section>
+
+      <section className="py-16 sm:py-20" aria-labelledby="why-heading">
         <div className="container-page">
           <div className="mb-10 max-w-2xl">
             <h2 id="why-heading" className="text-3xl font-bold sm:text-4xl">
