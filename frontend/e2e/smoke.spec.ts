@@ -105,3 +105,13 @@ test("hero slideshow rotates and can be paused", async ({ page }) => {
   await page.waitForTimeout(4500);
   await expect(current).toHaveAttribute("aria-label", /^Show photo 2 of 10/);
 });
+
+test("home shows featured properties that link to listings", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const section = page.getByRole("region", { name: "Featured properties" });
+  await expect(section.getByRole("article")).toHaveCount(6);
+  await section.getByRole("link", { name: "4 Bedroom Villa" }).click();
+  await expect(page).toHaveURL(/\/properties$/);
+});

@@ -7,10 +7,12 @@ import {
 } from "lucide-react";
 
 import { CtaBand } from "@/components/site/cta-band";
+import { FeaturedProperties } from "@/components/site/featured-properties";
 import { HeroSearch } from "@/components/site/hero-search";
 import { HeroSlideshow } from "@/components/site/hero-slideshow";
 import { ServicesGrid } from "@/components/site/services-grid";
 import { heroSlides } from "@/lib/hero-slides";
+import { sampleFeaturedProperties } from "@/lib/sample-properties";
 
 // TODO(content): review marketing copy with Alcom.
 const reasons = [
@@ -65,26 +67,30 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        className="container-page py-16 sm:py-20"
-        aria-labelledby="services-heading"
-      >
-        <div className="mb-10 max-w-2xl">
-          <h2 id="services-heading" className="text-3xl font-bold sm:text-4xl">
-            How we can help
-          </h2>
-          <p className="text-muted-foreground mt-3 text-lg">
-            Whether you are buying, renting, investing or already own property,
-            we have you covered.
-          </p>
-        </div>
-        <ServicesGrid />
-      </section>
+      <FeaturedProperties properties={sampleFeaturedProperties} />
 
       <section
         className="bg-muted/60 py-16 sm:py-20"
-        aria-labelledby="why-heading"
+        aria-labelledby="services-heading"
       >
+        <div className="container-page">
+          <div className="mb-10 max-w-2xl">
+            <h2
+              id="services-heading"
+              className="text-3xl font-bold sm:text-4xl"
+            >
+              How we can help
+            </h2>
+            <p className="text-muted-foreground mt-3 text-lg">
+              Whether you are buying, renting, investing or already own
+              property, we have you covered.
+            </p>
+          </div>
+          <ServicesGrid />
+        </div>
+      </section>
+
+      <section className="py-16 sm:py-20" aria-labelledby="why-heading">
         <div className="container-page">
           <div className="mb-10 max-w-2xl">
             <h2 id="why-heading" className="text-3xl font-bold sm:text-4xl">

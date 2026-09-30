@@ -60,7 +60,7 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 ### Design system (Phase 1, 2026-09-30)
 - **Theme**: light by default with a user dark-mode toggle (next-themes, remembered per browser).
 - **Font**: Montserrat (Google Fonts, self-hosted by `next/font`); replaced Outfit at the client's request.
-- **Colours**: logo navy `#27225C`, green `#3EB354`, red `#EC232C`. The logo green/red fail WCAG AA as text on white, so text and buttons use darker variants (`#1E7B36`, `#C4161F`); logo colours are kept for decoration. Dark mode uses a navy-tinted palette. All tokens live in `frontend/app/globals.css`.
+- **Colours**: logo navy `#27225C`, green `#3EB354`, red `#EC232C`. The logo green/red fail WCAG AA as text on white, so text and buttons use darker variants (`#1E7B36`, `#C4161F`); logo colours are kept for decoration. Dark mode is near-neutral charcoal (`#121216`) with off-white primary buttons; the earlier navy/purple tint was too strong. All tokens live in `frontend/app/globals.css`.
 - **Components**: shadcn/ui (Radix base, "nova" preset), lucide icons; brand icons (WhatsApp, social) are local SVGs because lucide dropped brand marks.
 - **Logo assets**: generated from the original PNG into `public/brand/` (transparent, mark-only, and light variants for dark backgrounds); favicon and Apple icon in `app/`.
 - **Accessibility**: every page is checked with axe (WCAG 2 A/AA) in light and dark themes on mobile and desktop in CI.
@@ -70,3 +70,7 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - 4 s per slide with a gentle zoom and a light neutral overlay (text stays legible via shadow); visible pause/play and per-photo dots (WCAG 2.2.2); no autoplay for reduced-motion users; pauses while the tab is hidden.
 - Only the first photo loads up front (Next.js `preload`), then one slide ahead, so first load is ~360 KB of images on desktop and ~190 KB on mobile.
 - Served from `frontend/public/hero/` (2400px, compressed) until Cloudinary credentials are available.
+
+### Featured properties (2026-09-30)
+- Home page shows 6 featured properties between the hero and "How we can help": swipeable row on mobile, grid on tablet/desktop.
+- **Until the listings API exists (Phase 2) the cards use SAMPLE data** (`frontend/lib/sample-properties.ts`, Unsplash photos). They must be replaced by real featured listings before launch. Card links go to `/properties` until listing detail pages exist.
