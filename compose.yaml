@@ -4,6 +4,8 @@
 
 x-backend: &backend
   env_file: .env
+  environment:
+    DATABASE_URL: postgis://${POSTGRES_USER:-alcom}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-alcom}
   depends_on:
     db:
       condition: service_healthy

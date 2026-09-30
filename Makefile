@@ -10,8 +10,11 @@ BACKEND      := $(COMPOSE) exec backend
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-setup: ## First-time setup: create .env and build images
-	@test -f .env || (cp .env.example .env && echo "Created .env — review it before continuing")
+setup: ## First-time setup: create .env with generated secrets and build images
+	@test -f .env || { \
+		sed -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')|" \
+		    -e "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')|" \
+		    .env.example > .env && echo "Created .env with generated secrets"; }
 	$(COMPOSE) build
 
 up: ## Start the dev stack (http://localhost:8080)
