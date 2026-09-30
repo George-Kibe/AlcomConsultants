@@ -181,6 +181,10 @@ dc exec backend python manage.py shell
 | `400 Bad Request` from Django | The domain is missing from `DJANGO_ALLOWED_HOSTS` in `.env`. |
 | Admin shows 404 | `ADMIN_PATH` in `deploy/edge/.env` must equal `DJANGO_ADMIN_URL` in `.env` (including the trailing `/`). Recreate Nginx afterwards. |
 | Build killed / out of memory | Add swap (step 1). |
+| Deploy workflow: `Permission denied (publickey)` | The deploy public key isn't in `~/.ssh/authorized_keys` of `SSH_USER`, or `SSH_USER`/`SSH_HOST` is wrong. |
+| Deploy workflow: `Host key verification failed` | `SSH_KNOWN_HOSTS` is missing or outdated: re-run `ssh-keyscan -H <host>` and update the secret. |
+| Deploy workflow: `denied` when pulling images | On GitHub: Packages → `alcom-backend` / `alcom-frontend-prod` → Package settings → Manage Actions access → add this repository (Read). |
+| Deploy workflow failed with "rolled back" | The new version was unhealthy and the previous one is live again. See the workflow log, then `dc logs` on the server. |
 
 ## Backups
 - **VPS provider snapshots**, as decided in DECISIONS.md. Schedule them daily in the provider's panel.
