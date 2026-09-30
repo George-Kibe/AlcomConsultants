@@ -14,6 +14,14 @@ updates:
     schedule: { interval: weekly }
     groups:
       npm-minor: { update-types: [minor, patch] }
+    ignore:
+      # Majors blocked until the toolchain supports them — re-check when Next.js upgrades.
+      - dependency-name: eslint             # eslint-config-next plugins need ESLint 9
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript         # typescript-eslint does not support TS 7 yet
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"      # must match the Node 24 LTS runtime
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directories: [/backend, /frontend]
