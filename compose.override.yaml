@@ -1,0 +1,61 @@
+# Development overrides — merged automatically by `docker compose up`.
+
+x-backend-dev: &backend-dev
+  build:
+    context: ./backend
+    target: dev
+    args:
+      UV_SYNC_ARGS: ""  # include dev dependencies
+  image: alcom-backend:dev
+  user: "${UID:-1000}:${GID:-1000}"
+  volumes:
+    - ./backend:/app
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.dev
+
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  backend:
+    <<: *backend-dev
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  worker:
+    <<: *backend-dev
+    command: ["celery", "-A", "config", "worker", "--loglevel=INFO", "--concurrency=2"]
+
+  beat:
+    <<: *backend-dev
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    image: alcom-frontend:dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NEXT_PUBLIC_SITE_URL: http://localhost:8080
+      WATCHPACK_POLLING: "true"
+
+  nginx:
+    image: nginx:1.30-alpine
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+    depends_on:
+      - frontend
+      - backend
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:8025:8025"  # web UI

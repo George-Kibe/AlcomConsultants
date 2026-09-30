@@ -1,0 +1,65 @@
+# Shared service definitions.
+#   Development: `docker compose up` (auto-merges compose.override.yaml)
+#   Production:  `docker compose -f compose.yaml -f compose.prod.yaml up -d`
+
+x-backend: &backend
+  env_file: .env
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-alcom}
+      POSTGRES_USER: ${POSTGRES_USER:-alcom}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    <<: *backend
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/v1/health/"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+  worker:
+    <<: *backend
+    command: ["celery", "-A", "config", "worker", "--loglevel=INFO", "--concurrency=2"]
+
+  beat:
+    <<: *backend
+    command: ["celery", "-A", "config", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+
+  frontend:
+    environment:
+      API_INTERNAL_URL: http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  redis-data:

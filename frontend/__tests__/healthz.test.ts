@@ -1,0 +1,10 @@
+import { expect, test } from "vitest";
+
+import { GET } from "@/app/healthz/route";
+
+test("health route reports ok", async () => {
+  const response = GET();
+
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ status: "ok" });
+});

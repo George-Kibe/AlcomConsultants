@@ -1,0 +1,70 @@
+# Production / staging overrides. One stack per environment, selected with COMPOSE_PROJECT_NAME
+# (alcom-prod / alcom-staging). The shared edge Nginx (TLS) reaches each stack over the
+# external `edge` network using the per-stack aliases below.
+
+x-backend-prod: &backend-prod
+  image: ghcr.io/${GHCR_OWNER:-george-kibe}/alcom-backend:${APP_VERSION:?set APP_VERSION}
+  env_file: .env
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  logging: &logging
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+  db:
+    restart: unless-stopped
+    shm_size: 256mb
+    logging: *logging
+
+  redis:
+    restart: unless-stopped
+    logging: *logging
+
+  backend:
+    <<: *backend-prod
+    volumes:
+      - static:/app/staticfiles-shared
+    command: >
+      sh -c "cp -r /app/staticfiles/. /app/staticfiles-shared/ &&
+             exec gunicorn config.wsgi:application -c gunicorn.conf.py"
+    networks:
+      default:
+      edge:
+        aliases:
+          - ${COMPOSE_PROJECT_NAME}-backend
+
+  worker:
+    <<: *backend-prod
+
+  beat:
+    <<: *backend-prod
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER:-george-kibe}/alcom-frontend-${DEPLOY_ENV:?set DEPLOY_ENV}:${APP_VERSION}
+    restart: unless-stopped
+    volumes:
+      - next-cache:/app/.next/cache
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+    networks:
+      default:
+      edge:
+        aliases:
+          - ${COMPOSE_PROJECT_NAME}-frontend
+
+volumes:
+  static:
+    name: ${COMPOSE_PROJECT_NAME}-static  # mounted read-only by the edge Nginx
+  next-cache:
+
+networks:
+  edge:
+    external: true

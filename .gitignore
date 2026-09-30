@@ -1,0 +1,35 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+backend/staticfiles/
+celerybeat-schedule*
+
+# Node / Next.js (see also frontend/.gitignore)
+node_modules/
+
+# Local Claude settings
+.claude/settings.local.json
+
+# Large local images: site photos go to Cloudinary; design references stay local
+frontend/public/images/
+docs/inspirationl_images/
