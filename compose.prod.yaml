@@ -1,9 +1,13 @@
 # Production / staging overrides. One stack per environment, selected with COMPOSE_PROJECT_NAME
-# (alcom-prod / alcom-staging). The shared edge Nginx (TLS) reaches each stack over the
-# external `edge` network using the per-stack aliases below.
+# (alcom-prod / alcom-staging). The shared edge Nginx (TLS, deploy/edge/) reaches each stack
+# over the external `edge` network using the per-stack aliases below.
+#
+# Images are built on the server by deploy/deploy.sh (tagged with the git commit). The GHCR
+# image names let CI push/pull the same images later without changing this file.
 
 x-backend-prod: &backend-prod
   image: ghcr.io/${GHCR_OWNER:-george-kibe}/alcom-backend:${APP_VERSION:?set APP_VERSION}
+  pull_policy: missing
   env_file: .env
   restart: unless-stopped
   read_only: true
@@ -29,6 +33,11 @@ services:
 
   backend:
     <<: *backend-prod
+    build:
+      context: ./backend
+      target: prod
+      args:
+        APP_VERSION: ${APP_VERSION}
     volumes:
       - static:/app/staticfiles-shared
     command: >
@@ -42,12 +51,29 @@ services:
 
   worker:
     <<: *backend-prod
+    # The image's HTTP health check is for gunicorn; ask Celery itself instead.
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A config inspect ping -d celery@$$HOSTNAME --timeout 10 | grep -q pong"]
+      interval: 60s
+      timeout: 20s
+      start_period: 30s
+      retries: 3
 
   beat:
     <<: *backend-prod
+    healthcheck:
+      disable: true # scheduler has no endpoint to probe; restart policy covers crashes
 
   frontend:
     image: ghcr.io/${GHCR_OWNER:-george-kibe}/alcom-frontend-${DEPLOY_ENV:?set DEPLOY_ENV}:${APP_VERSION}
+    pull_policy: missing
+    build:
+      context: ./frontend
+      target: prod
+      args:
+        APP_VERSION: ${APP_VERSION}
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:?set SITE_URL}
+        NEXT_PUBLIC_SITE_ENV: ${SITE_ENV:?set SITE_ENV}
     restart: unless-stopped
     volumes:
       - next-cache:/app/.next/cache
