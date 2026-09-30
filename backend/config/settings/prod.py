@@ -16,6 +16,11 @@ SECURE_HSTS_PRELOAD = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+# ------------------------------------------------------------------ proxy
+# One reverse proxy (edge Nginx) sits in front: use X-Forwarded-For for DRF throttling,
+# otherwise every visitor would share the proxy's IP and one rate limit.
+REST_FRAMEWORK["NUM_PROXIES"] = 1
+
 # ------------------------------------------------------------------ static (hashed names)
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},

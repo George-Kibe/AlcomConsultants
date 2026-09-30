@@ -1,0 +1,47 @@
+# Edge reverse proxy: terminates TLS for every app stack on this server.
+#   First time:  ./init-cert.sh   (obtains the Let's Encrypt certificate)
+#   Then:        docker compose up -d
+#   Renewal:     ./renew-certs.sh (run twice a day from cron)
+name: edge
+
+services:
+  nginx:
+    image: nginx:1.30-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in deploy/edge/.env}
+      APP_STACK: ${APP_STACK:?set APP_STACK}
+      ADMIN_PATH: ${ADMIN_PATH:?set ADMIN_PATH}
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates:ro # rendered into conf.d at start-up
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+      - ../../nginx/snippets/proxy.conf:/etc/nginx/proxy.conf:ro # shared with the dev proxy
+      - certbot-www:/var/www/certbot:ro
+      - letsencrypt:/etc/letsencrypt:ro
+      - app-static:/srv/app/static:ro
+    networks:
+      - edge
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  certbot:
+    image: certbot/certbot:v5.8.0
+    profiles: ["tools"] # only run on demand (init-cert.sh / renew-certs.sh)
+    volumes:
+      - certbot-www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+
+volumes:
+  certbot-www:
+  letsencrypt:
+  app-static:
+    external: true
+    name: ${APP_STACK}-static # created by the app stack's backend service
+
+networks:
+  edge:
+    external: true

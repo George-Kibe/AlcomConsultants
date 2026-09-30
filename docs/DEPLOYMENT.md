@@ -1,52 +1,168 @@
 # Deployment
 
-## Environments
-| Env | URL | Where | Notes |
-|---|---|---|---|
-| Development | `localhost:8080` | Developer machine, `make up` (`docker compose up`) | Hot reload, Gmail SMTP, debug on |
-| Staging | `https://staging.alcomconsultants.co.ke` | Same VPS, Compose project `alcom-staging` | Separate DB/Redis/volumes, basic auth, `noindex`, deployed on merge to `main` |
-| Production | `https://alcomconsultants.co.ke` (+ `www` → 301 to apex) | VPS, Compose project `alcom-prod` | Deployed on version tag (`v*`) after staging is verified |
+## Overview
 
-## Routing (Nginx)
-| Path | Upstream |
+```
+Internet ──► edge Nginx (deploy/edge, ports 80/443, Let's Encrypt TLS)
+                 │  Docker network "edge"
+                 ├──► alcom-prod-frontend:3000   (Next.js)
+                 ├──► alcom-prod-backend:8000    (/api/, admin path)
+                 └──  /static/ served from the alcom-prod-static volume
+             App stack (compose.yaml + compose.prod.yaml, project "alcom-prod"):
+                 frontend · backend · worker · beat · db (PostGIS) · redis
+```
+
+- The **app stack** is built on the server from the git checkout by `deploy/deploy.sh`, with images tagged by commit.
+- The **edge stack** (`deploy/edge/`) is the only thing that publishes ports. It serves every app stack on the server, so staging can be added later without a second proxy.
+- Certificates come from Let's Encrypt. The first one is obtained with `init-cert.sh`, and renewal runs twice daily from cron via `renew-certs.sh`.
+
+| Environment | URL | How |
+|---|---|---|
+| Development | http://localhost:8080 | `make up` |
+| Production | https://alcomconsultants.co.ke (`www` redirects to the apex) | this runbook |
+| Staging | https://staging.alcomconsultants.co.ke | later: second app stack + server block |
+
+## First deployment (runbook)
+
+Run everything on the VPS. Commands assume Ubuntu/Debian and a user with `sudo`.
+
+### 1. Prepare the server
+```bash
+lsb_release -ds; nproc; free -h; df -h /     # OS, CPUs, RAM, disk
+
+sudo apt update && sudo apt -y upgrade
+sudo apt -y install git curl ufw fail2ban unattended-upgrades
+sudo timedatectl set-timezone Africa/Nairobi
+
+# Firewall: SSH, HTTP, HTTPS only
+sudo ufw allow OpenSSH && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp
+sudo ufw --force enable && sudo ufw status
+```
+If the server has **less than 4 GB RAM**, add swap so image builds don't run out of memory:
+```bash
+sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+### 2. Install Docker
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER && newgrp docker   # use docker without sudo
+docker --version && docker compose version
+```
+
+### 3. Point the domain at the server
+At the domain registrar, create these records, replacing `SERVER_IP` with the server's IP address:
+
+| Type | Name | Value |
+|---|---|---|
+| A | `@` | `SERVER_IP` |
+| A | `www` | `SERVER_IP` |
+
+Delete any existing **AAAA** (IPv6) records for `@` or `www` that don't point to this server; Let's Encrypt checks IPv6 first. Wait until both names resolve to the server; this can take a few minutes. Don't request the certificate before then:
+```bash
+curl -4 -s ifconfig.me; echo                     # this server's IP
+getent hosts alcomconsultants.co.ke www.alcomconsultants.co.ke
+```
+
+### 4. Get the code
+```bash
+sudo mkdir -p /opt/alcom && sudo chown $USER: /opt/alcom
+git clone https://github.com/George-Kibe/AlcomConsultants.git /opt/alcom
+cd /opt/alcom
+```
+
+### 5. Configure the app
+```bash
+cp deploy/.env.production.example .env
+sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 24)|" .env
+sed -i "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$(openssl rand -base64 48 | tr -d '\n/+=')|" .env
+sed -i "s|^DJANGO_ADMIN_URL=.*|DJANGO_ADMIN_URL=manage-$(openssl rand -hex 4)/|" .env
+grep -E '^(SITE_URL|SITE_ENV|DJANGO_ADMIN_URL)=' .env   # note the admin path
+nano .env                                                # review; optional email/Sentry
+```
+`SITE_ENV=staging` keeps search engines out, via `robots.txt`, while placeholder content is live. Change it to `production` at launch, then redeploy.
+
+### 6. Build and start the app
+```bash
+./deploy/deploy.sh          # first build takes several minutes
+docker compose -f compose.yaml -f compose.prod.yaml exec backend python manage.py createsuperuser
+```
+
+### 7. Configure the edge proxy and get the certificate
+```bash
+cd /opt/alcom/deploy/edge
+cp .env.example .env
+ADMIN=$(grep '^DJANGO_ADMIN_URL=' ../../.env | cut -d= -f2)
+sed -i "s|^ADMIN_PATH=.*|ADMIN_PATH=$ADMIN|" .env
+sed -i "s|^LETSENCRYPT_EMAIL=.*|LETSENCRYPT_EMAIL=you@example.com|" .env   # your email
+cat .env
+
+./init-cert.sh              # Let's Encrypt certificate for the apex and www
+docker compose up -d        # start Nginx with HTTPS
+```
+
+### 8. Automate certificate renewal
+```bash
+./renew-certs.sh --dry-run  # full renewal rehearsal against Let's Encrypt staging
+( crontab -l 2>/dev/null; echo "17 3,15 * * * /opt/alcom/deploy/edge/renew-certs.sh >> /var/log/alcom-cert-renew.log 2>&1" ) | crontab -
+sudo touch /var/log/alcom-cert-renew.log && sudo chown $USER: /var/log/alcom-cert-renew.log
+crontab -l
+```
+Certificates last 90 days, and certbot renews them once they are within 30 days of expiry.
+
+### 9. Verify
+```bash
+curl -sI http://alcomconsultants.co.ke | head -3         # 301 -> https
+curl -sI https://www.alcomconsultants.co.ke | head -3    # 301 -> apex
+curl -s https://alcomconsultants.co.ke/api/v1/health/    # {"status":"ok",...}
+curl -s https://alcomconsultants.co.ke/robots.txt        # Disallow: / while SITE_ENV=staging
+```
+Then open https://alcomconsultants.co.ke in a browser, log in to the admin at `https://alcomconsultants.co.ke/<DJANGO_ADMIN_URL>`, and check the TLS grade at https://www.ssllabs.com/ssltest/.
+
+## Deploying updates
+```bash
+cd /opt/alcom && ./deploy/deploy.sh    # pull, build, migrate, restart
+```
+Only change the edge stack when `deploy/edge/` changes: `cd deploy/edge && docker compose up -d --force-recreate`.
+
+## Everyday commands
+```bash
+cd /opt/alcom
+alias dc='docker compose -f compose.yaml -f compose.prod.yaml'
+dc ps                              # status and health
+dc logs -f --tail=100 backend      # follow logs (frontend, worker, db, …)
+dc restart frontend
+dc exec backend python manage.py shell
+(cd deploy/edge && docker compose logs -f nginx)
+```
+
+## Troubleshooting
+| Symptom | Check |
 |---|---|
-| `/api/` | Django |
-| `/<secret-admin-path>/` | Django admin |
-| `/static/` | Django static files (served by Nginx from a volume) |
-| everything else | Next.js |
-
-TLS: Let's Encrypt via Certbot (HTTP-01), auto-renew with a scheduled job and Nginx reload. No Cloudflare.
-
-## DNS Records (to set at the registrar)
-- `A @` → VPS IP; `A www` → VPS IP; `A staging` → VPS IP
-- Email: MX + SPF + DKIM + DMARC for the domain mail provider (to confirm provider)
-
-## CI/CD (GitHub Actions)
-1. **CI (every PR)**: lint (ruff, eslint), type-check (mypy optional, tsc), tests (pytest with Postgres service, Vitest, Playwright against Compose), build images.
-2. **Deploy staging (merge to `main`)**: build and push images to GHCR tagged with the commit SHA → SSH to VPS → `docker compose pull && up -d` → run migrations → health check.
-3. **Deploy production (tag `v*`)**: promote the same backend image SHA → migrate → health check → notify.
-   The frontend image is built per environment (`alcom-frontend-staging`, `alcom-frontend-prod`) because `NEXT_PUBLIC_*` values and prerendered pages are baked in at build time.
-
-## Server Baseline (VPS)
-- Non-root deploy user with SSH key only; password login and root login disabled.
-- UFW: allow 22, 80, 443 only. fail2ban.
-- Unattended security upgrades.
-- Docker Engine + Compose plugin; log rotation for containers.
-- VPS specs: **to confirm**. Run `nproc; free -h; df -h; lsb_release -a` on the server and share the output.
+| `init-cert.sh` fails | DNS points at this server (step 3); port 80 open (`sudo ufw status`); nothing else on port 80 (`sudo ss -ltnp 'sport = :80'`). Let's Encrypt allows 5 failed validations per hour. Rehearse with `./init-cert.sh --staging`, then delete the test cert (`docker compose run --rm certbot delete --cert-name alcomconsultants.co.ke`) before the real run. |
+| `502 Bad Gateway` | App stack not running or unhealthy: `dc ps`, `dc logs backend frontend`. |
+| `400 Bad Request` from Django | The domain is missing from `DJANGO_ALLOWED_HOSTS` in `.env`. |
+| Admin shows 404 | `ADMIN_PATH` in `deploy/edge/.env` must equal `DJANGO_ADMIN_URL` in `.env` (including the trailing `/`). Recreate Nginx afterwards. |
+| Build killed / out of memory | Add swap (step 1). |
 
 ## Backups
-- **VPS provider snapshots** (chosen). See the risk note in DECISIONS.md.
-- Provider snapshots should be scheduled at least daily if the provider allows.
+- **VPS provider snapshots**, as decided in DECISIONS.md. Schedule them daily in the provider's panel.
+- Recommended before real client data: a daily database dump to off-site storage.
+  ```bash
+  dc exec -T db pg_dump -U alcom alcom | gzip > ~/alcom-$(date +%F).sql.gz
+  ```
 
-## Monitoring
-- Sentry for Django and Next.js (separate projects, `environment` tag for staging/prod).
-- Health endpoints: `/api/v1/health/` (DB + Redis check), Next.js `/healthz` (outside `/api`, which Nginx routes to Django).
+## Security in place
+- Only ports 22, 80 and 443 are open. Only the edge Nginx publishes ports; the database and Redis are reachable only inside Docker.
+- TLS: Mozilla intermediate profile, HTTP/2, HSTS, with HTTP→HTTPS and www→apex redirects.
+- Headers: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`. `server_tokens` is off.
+- The API is rate limited at Nginx (10 req/s per IP, burst 40, answers `429`) and in Django (DRF throttling using the real client IP).
+- Django admin lives at a secret path. API docs are staff-only. Cookies are `Secure`/`HttpOnly`.
+- App containers run as non-root, with read-only filesystems where possible and `no-new-privileges`.
 
-## Go-Live Checklist (to expand in the deployment phase)
-- [ ] DNS propagated, TLS valid (A+ on SSL Labs)
-- [ ] `DEBUG=False`, secure settings pass `manage.py check --deploy`
-- [ ] Email SPF/DKIM/DMARC pass (mail-tester ≥ 9/10)
-- [ ] Sitemap submitted in Search Console, GA4 receiving events after consent
-- [ ] Legal pages reviewed by lawyer
-- [ ] Snapshot schedule confirmed and one restore tested
-- [ ] Lighthouse mobile ≥ 90
+## Later
+- **CI/CD:** GitHub Actions builds images, pushes them to GHCR and deploys over SSH. The compose files already use GHCR image names.
+- **Staging** at `staging.alcomconsultants.co.ke`: a second app stack (`COMPOSE_PROJECT_NAME=alcom-staging`) plus a server block in the edge config, with basic auth.
+- **Sentry** DSNs and uptime monitoring.

@@ -49,6 +49,8 @@ RUN DJANGO_SETTINGS_MODULE=config.settings.prod \
     DJANGO_SECRET_KEY=build-only \
     DATABASE_URL=postgis://build:build@localhost/build \
     python manage.py collectstatic --noinput
+# Mount point for the volume the edge Nginx serves /static/ from (must be writable by app).
+RUN mkdir -p /app/staticfiles-shared && chown app:app /app/staticfiles-shared
 ARG APP_VERSION=dev
 ENV APP_VERSION=${APP_VERSION} DJANGO_SETTINGS_MODULE=config.settings.prod
 USER app
