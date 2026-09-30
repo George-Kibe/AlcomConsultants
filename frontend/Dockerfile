@@ -27,7 +27,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # NEXT_PUBLIC_* values are inlined into the client bundle at build time.
 ARG NEXT_PUBLIC_SITE_URL=http://localhost:8080
-ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+ARG NEXT_PUBLIC_SITE_ENV=development
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_PUBLIC_SITE_ENV=${NEXT_PUBLIC_SITE_ENV}
 RUN npm run build
 
 # ---------------------------------------------------------------- production

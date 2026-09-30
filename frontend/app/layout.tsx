@@ -1,36 +1,67 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Outfit } from "next/font/google";
+
+import { Footer } from "@/components/site/footer";
+import { Header } from "@/components/site/header";
+import { WhatsAppFab } from "@/components/site/whatsapp-fab";
+import { ThemeProvider } from "@/components/theme-provider";
+import { siteConfig } from "@/lib/site-config";
+
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080",
-  ),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Alcom Consultants Limited",
-    template: "%s | Alcom Consultants",
+    default: `${siteConfig.name} | Property Agency, Management & Valuations`,
+    template: `%s | ${siteConfig.shortName}`,
   },
-  description:
-    "Property sales, rentals, property management and valuations across Kenya.",
+  description: siteConfig.description,
+  applicationName: siteConfig.shortName,
+  openGraph: {
+    type: "website",
+    locale: "en_KE",
+    siteName: siteConfig.name,
+  },
+  twitter: { card: "summary_large_image" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0c1f" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="en-KE" className={outfit.variable} suppressHydrationWarning>
+      <body className="flex min-h-dvh flex-col antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <a
+            href="#main"
+            className="bg-primary text-primary-foreground sr-only z-50 rounded-lg px-4 py-2 focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+          >
+            Skip to content
+          </a>
+          <Header />
+          <main id="main" className="flex flex-1 flex-col">
+            {children}
+          </main>
+          <Footer />
+          <WhatsAppFab />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -12,11 +12,14 @@ No hard deadline; quality first. Each phase ends with passing CI, deployment to 
 - GitHub repo, CI workflow, Dependabot
 
 ### Phase 1: Design system and public shell
-- Brand tokens from the logo (colours, typography, spacing), shadcn/ui setup
-- Header/nav (mobile menu), footer, layout, 404/500 pages
-- Home page (hero search, featured listings placeholder, services, CTA)
-- Static pages: About, Services, Contact (with FAQs), legal page stubs
-- **Staging live**: VPS hardening, Nginx, Let's Encrypt, deploy workflow
+- [x] Brand tokens from the logo (colours, typography, spacing), shadcn/ui setup, light/dark theme
+- [x] Header/nav (mobile menu), footer with Nairobi skyline, floating WhatsApp button, 404/error pages
+- [x] Home page (hero + search hand-off, services, why Alcom, CTA)
+- [x] Static pages: About, Services (+ one page per service), Contact (with FAQs), Properties placeholder, legal page stubs
+- [x] Automated WCAG 2 AA checks (axe) on every page in both themes, mobile + desktop
+- [ ] Real company details and copy review (placeholders marked `TODO(content)`)
+- [ ] Images on Cloudinary (needs credentials)
+- [ ] **Staging live**: VPS hardening, edge Nginx, Let's Encrypt, deploy workflow (needs VPS access + DNS)
 
 ### Phase 2: Listings core
 - Locations (Kenya counties → areas → neighbourhoods seed data), property types, amenities

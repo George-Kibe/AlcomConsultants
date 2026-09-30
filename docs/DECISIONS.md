@@ -56,3 +56,17 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 ### Framework versions (updated 2026-09-30)
 - **Django 6.1** (latest release) instead of 5.2 LTS. 6.1 is not an LTS release; its security support ends around December 2027. **Upgrade to Django 6.2 LTS after its release (April 2027).**
 - Development email uses Gmail SMTP directly (no local mail catcher). Production uses the domain mail provider.
+
+### Design system (Phase 1, 2026-09-30)
+- **Theme**: light by default with a user dark-mode toggle (next-themes, remembered per browser).
+- **Font**: Outfit (Google Fonts, self-hosted by `next/font`).
+- **Colours**: logo navy `#27225C`, green `#3EB354`, red `#EC232C`. The logo green/red fail WCAG AA as text on white, so text and buttons use darker variants (`#1E7B36`, `#C4161F`); logo colours are kept for decoration. Dark mode uses a navy-tinted palette. All tokens live in `frontend/app/globals.css`.
+- **Components**: shadcn/ui (Radix base, "nova" preset), lucide icons; brand icons (WhatsApp, social) are local SVGs because lucide dropped brand marks.
+- **Logo assets**: generated from the original PNG into `public/brand/` (transparent, mark-only, and light variants for dark backgrounds); favicon and Apple icon in `app/`.
+- **Accessibility**: every page is checked with axe (WCAG 2 A/AA) in light and dark themes on mobile and desktop in CI.
+
+### Home page hero (2026-09-30)
+- Crossfading slideshow of **10 photos**: 3 of Alcom's own Nairobi skyline shots + 7 Unsplash photos (free for commercial use under the Unsplash License; sources recorded in `frontend/lib/hero-slides.ts`). Replace stock photos with real Alcom properties over time.
+- 6 s per slide with a slow zoom; visible pause/play and per-photo dots (WCAG 2.2.2); no autoplay for reduced-motion users; pauses while the tab is hidden.
+- Only the first photo loads up front (Next.js `preload`), then one slide ahead, so first load is ~360 KB of images on desktop and ~190 KB on mobile.
+- Served from `frontend/public/hero/` (2400px, compressed) until Cloudinary credentials are available.
