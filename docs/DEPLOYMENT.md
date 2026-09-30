@@ -12,7 +12,7 @@ Internet ──► edge Nginx (deploy/edge, ports 80/443, Let's Encrypt TLS)
                  frontend · backend · worker · beat · db (PostGIS) · redis
 ```
 
-- The **app stack** is built on the server from the git checkout by `deploy/deploy.sh`, with images tagged by commit.
+- The **app stack** runs images tagged by commit. CI builds them and pushes them to GHCR, and `deploy/deploy.sh --pull` starts them. A manual `deploy.sh` builds on the server instead.
 - The **edge stack** (`deploy/edge/`) is the only thing that publishes ports. It serves every app stack on the server, so staging can be added later without a second proxy.
 - Certificates come from Let's Encrypt. The first one is obtained with `init-cert.sh`, and renewal runs twice daily from cron via `renew-certs.sh`.
 
@@ -121,11 +121,46 @@ curl -s https://alcomconsultants.co.ke/robots.txt        # Disallow: / while SIT
 ```
 Then open https://alcomconsultants.co.ke in a browser, log in to the admin at `https://alcomconsultants.co.ke/<DJANGO_ADMIN_URL>`, and check the TLS grade at https://www.ssllabs.com/ssltest/.
 
-## Deploying updates
-```bash
-cd /opt/alcom && ./deploy/deploy.sh    # pull, build, migrate, restart
+## Automatic deployments (push to main)
+
 ```
-Only change the edge stack when `deploy/edge/` changes: `cd deploy/edge && docker compose up -d --force-recreate`.
+git push origin main
+   └─► CI workflow: lint, types, unit + e2e tests, then build images and push them to GHCR
+          └─► (only if CI passed) Deploy workflow: SSH to the server →
+                 ./deploy/deploy.sh --pull <commit>  →  pull images, migrate, restart
+                 →  health gate (auto-rollback on failure)  →  check the live site over HTTPS
+```
+
+- Only commits that pass CI are deployed, and deploys run one at a time.
+- The server runs the exact images CI tested; nothing is compiled on the VPS.
+- If the new version isn't healthy, `deploy.sh` restores the previous one and the workflow fails. GitHub emails you about failed runs.
+- Database migrations are **not** rolled back automatically, so keep them backwards-compatible.
+- Re-deploy manually from GitHub: **Actions → Deploy → Run workflow**. On the server: `cd /opt/alcom && ./deploy/deploy.sh`, which builds locally.
+- Don't edit tracked files on the server. Each deploy resets the checkout to the deployed commit; `.env` files are untracked and kept.
+
+### One-time setup
+**1. Deploy key.** GitHub Actions logs in with its own SSH key. Add its public key to the deploy user's `~/.ssh/authorized_keys` on the server:
+```bash
+echo "ssh-ed25519 AAAA… github-actions-deploy@alcom" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
+
+**2. GitHub settings**, under Settings → Environments → `production` and Settings → Secrets and variables → Actions:
+
+| Kind | Name | Value |
+|---|---|---|
+| Environment secret | `SSH_HOST` | server IP or hostname |
+| Environment secret | `SSH_USER` | user that owns `/opt/alcom` and is in the `docker` group |
+| Environment secret | `SSH_PORT` | only if SSH isn't on 22 |
+| Environment secret | `SSH_PRIVATE_KEY` | private half of the deploy key |
+| Environment secret | `SSH_KNOWN_HOSTS` | output of `ssh-keyscan -H <SSH_HOST>` (pins the server's identity) |
+| Repository variable | `SITE_URL` | `https://alcomconsultants.co.ke` |
+| Repository variable | `SITE_ENV` | `staging` (blocks indexing) → `production` at launch |
+| Repository variable | `APP_DIR` | only if the checkout isn't `/opt/alcom` |
+
+`SITE_URL`/`SITE_ENV` are baked into the frontend image at build time, so change them in GitHub, not only in the server's `.env`.
+
+**3. First run.** Push to `main`, or run **Actions → Deploy → Run workflow**, and watch it in the Actions tab.
 
 ## Everyday commands
 ```bash
@@ -163,6 +198,5 @@ dc exec backend python manage.py shell
 - App containers run as non-root, with read-only filesystems where possible and `no-new-privileges`.
 
 ## Later
-- **CI/CD:** GitHub Actions builds images, pushes them to GHCR and deploys over SSH. The compose files already use GHCR image names.
 - **Staging** at `staging.alcomconsultants.co.ke`: a second app stack (`COMPOSE_PROJECT_NAME=alcom-staging`) plus a server block in the edge config, with basic auth.
 - **Sentry** DSNs and uptime monitoring.

@@ -1,0 +1,86 @@
+name: Deploy
+
+# Ships every push to main that passes CI. CI has already built and pushed the images
+# for that commit to GHCR; this job tells the server to pull and start them.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch: # manual re-deploy of the latest main from the Actions tab
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false # never interrupt a deploy half-way
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    name: Deploy to production
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ vars.SITE_URL || 'https://alcomconsultants.co.ke' }}
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://alcomconsultants.co.ke' }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+      APP_DIR: ${{ vars.APP_DIR || '/opt/alcom' }}
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<CONFIG
+          Host server
+            HostName $SSH_HOST
+            User $SSH_USER
+            Port $SSH_PORT
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            ServerAliveInterval 30
+          CONFIG
+
+      - name: Log the server in to GHCR (token expires with this job)
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          # shellcheck disable=SC2029  # values are meant to expand here, on the runner
+          printf '%s' "$GHCR_TOKEN" | ssh server "docker login ghcr.io -u '$GHCR_USER' --password-stdin"
+
+      - name: Deploy ${{ env.SHA }}
+        run: |
+          # shellcheck disable=SC2029  # values are meant to expand here, on the runner
+          ssh server "cd '$APP_DIR' && ./deploy/deploy.sh --pull '$SHA'"
+
+      - name: Log the server out of GHCR
+        if: always()
+        run: ssh server "docker logout ghcr.io" || true
+
+      - name: Check the live site
+        run: |
+          for _ in $(seq 1 12); do
+            if curl -fsS "$SITE_URL/api/v1/health/" && curl -fsS -o /dev/null "$SITE_URL/"; then
+              echo; echo "Live site is healthy."; exit 0
+            fi
+            sleep 5
+          done
+          echo "Live site did not become healthy." >&2
+          exit 1
