@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const pages = [
-  { path: "/", h1: /Find, manage and value property/ },
+  { path: "/", h1: /We find, manage, sell and value property/ },
   { path: "/properties", h1: "Properties" },
   { path: "/services", h1: "Our services" },
   { path: "/services/property-agency", h1: "Property Agency" },
