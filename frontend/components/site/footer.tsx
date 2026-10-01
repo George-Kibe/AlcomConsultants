@@ -120,6 +120,16 @@ export function Footer() {
                 {siteConfig.contact.phone}
               </a>
               <a
+                href={telLink(siteConfig.contact.altPhone)}
+                className={`flex gap-3 ${linkClass}`}
+              >
+                <PhoneIcon
+                  className="text-brand-green mt-0.5 size-4 shrink-0"
+                  aria-hidden
+                />
+                {siteConfig.contact.altPhone}
+              </a>
+              <a
                 href={whatsappLink()}
                 target="_blank"
                 rel="noopener noreferrer"

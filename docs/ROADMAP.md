@@ -2,7 +2,7 @@
 
 No hard deadline; quality first. Each step ends with passing CI (incl. full-stack E2E), an automatic deploy and your review.
 
-**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ except real company details · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; next: mail server)
+**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; next: mail server)
 
 ## Release 1: Listings platform + marketing site
 
@@ -13,7 +13,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] Docker: backend/frontend Dockerfiles (multi-stage, non-root), Compose dev/prod, Postgres 18 + PostGIS, Redis 8, Celery
 - [x] GitHub repo, CI workflow, Dependabot
 
-### Phase 1: Design system and public shell ✅ (except real content)
+### Phase 1: Design system and public shell ✅
 - [x] Brand tokens from the logo (colours, typography, spacing), shadcn/ui setup, light/dark theme
 - [x] Header/nav (mobile menu), footer with Nairobi skyline, floating WhatsApp button, 404/error pages
 - [x] Home page (10-photo hero slideshow + search hand-off, featured properties from the API, services, why Alcom, CTA)
@@ -23,7 +23,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] **Live** at https://alcomconsultants.co.ke: edge Nginx, Let's Encrypt with automatic renewal, automatic deploys on push to `main` (CI-built images, health gate, rollback). Indexing blocked (`SITE_ENV=staging`) until launch
 - [x] VPS: firewall (22/80/443), fail2ban, key-based SSH (`ssh alcom_vps`)
 - [ ] VPS: switch off SSH password login (after confirming provider web-console access)
-- [ ] Real company details and copy review (placeholders marked `TODO(content)`)
+- [x] Real company details from the company profile: phones, WhatsApp, Westlands address, hours, About (vision, mission, core values), service lines, allied services. Email shows info@alcomconsultants.co.ke (mailbox comes with the mail server). Social links hidden until the accounts exist; FAQ wording reviewed in Phase 5
 - Deferred (decided 2026-10-01): separate staging site at staging.alcomconsultants.co.ke; revisit after launch (the edge proxy already supports a second stack)
 
 ### Phase 2: Listings core
@@ -35,6 +35,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] **2c** Public search: URL-driven filters (deal, location autocomplete, type, price, rooms, furnishing, amenities), sort, pagination, list/map toggle (clustered price pins, "search this area"), mobile filter drawer
 - [x] **2c** Property page: adaptive gallery + lightbox, privacy-friendly video, floor plans, facts, amenities, OSM map (approximate unless exact location allowed), nearby schools/health/shopping/transport/parks (OpenStreetMap, cached), similar listings, WhatsApp/call/email with the reference, JSON-LD + share images; home featured listings from the API; demo-data command (`seed_demo_listings`, dev/CI only)
 <!-- - Development projects: models, dashboard, public project pages: Defer this for later -->
+- Blog for real estate realted articles. with a comment section that requires a user to login to comment. Just a single image and actual blog.
 - Mail server(Dockerised). Mailu for docker. I want a custom mail server to use for my emails such as info@alcomconsultants.co.ke. 4 emails but manageable to around 10 in future.
 Test those emails both locally and live.
 ### Phase 3: Enquiries and CRM

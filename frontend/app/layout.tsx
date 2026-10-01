@@ -15,7 +15,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} | Property Agency, Property Management Services & Valuations`,
+    default: `${siteConfig.name} | Valuers, Property Managers & Estate Agents in Kenya`,
     template: `%s | ${siteConfig.shortName}`,
   },
   description: siteConfig.description,
