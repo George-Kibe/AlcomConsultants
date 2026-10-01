@@ -208,7 +208,8 @@ CELERY_TASK_SOFT_TIME_LIMIT = 4 * 60
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # ------------------------------------------------------------------ email
-# Development: Gmail SMTP (app password). Production: the alcomconsultants.co.ke mail provider.
+# Development: Gmail SMTP (app password, port 587 + STARTTLS).
+# Production: our Mailu server, mail.alcomconsultants.co.ke:465 with implicit TLS (EMAIL_USE_SSL).
 MAILERS: dict[str, dict[str, Any]] = {
     "default": {
         "BACKEND": "django.core.mail.backends.smtp.EmailBackend",
@@ -218,12 +219,13 @@ MAILERS: dict[str, dict[str, Any]] = {
             "username": env("EMAIL_HOST_USER", default=""),
             "password": env("EMAIL_HOST_PASSWORD", default=""),
             "use_tls": env.bool("EMAIL_USE_TLS", default=True),
+            "use_ssl": env.bool("EMAIL_USE_SSL", default=False),
             "timeout": 20,
         },
     },
 }
 DEFAULT_FROM_EMAIL = env(
-    "DEFAULT_FROM_EMAIL", default="Alcom Consultants <no-reply@alcomconsultants.co.ke>"
+    "DEFAULT_FROM_EMAIL", default="Alcom Consultants <noreply@alcomconsultants.co.ke>"
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 

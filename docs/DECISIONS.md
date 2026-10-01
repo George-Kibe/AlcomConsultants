@@ -96,3 +96,10 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Nearby places: OpenStreetMap Overpass (two mirrors with failover), cached 7 days per listing; failures are cached briefly and shown as nothing rather than an error.
 - Videos load only after a click (youtube-nocookie / Vimeo `dnt`), so no third-party cookies by default.
 - Production has no demo data; `seed_demo_listings` refuses to run unless `DEBUG` (or `--allow-production`).
+
+## Mail server (2026-10-01)
+- Self-hosted Mailu 2024.06 on the production VPS (decided by the owner over a hosted provider): mailboxes `info@`, `noreply@`, `admin@`; scales to ~10 via the admin UI. Runbook: `docs/MAIL.md`.
+- Implicit TLS only for clients (465 sending, 993 IMAP); Mailu's default of keeping STARTTLS ports closed is kept. Django uses `EMAIL_USE_SSL` on 465.
+- One certificate authority on the box: the edge certbot issues `mail.<domain>` and Mailu reads it from the shared volume; the edge vhost loads that certificate per handshake so the edge never fails to start before mail exists.
+- The DKIM key is generated on the server (never leaves it) before first start, so all DNS records could be published in one go.
+- Mailbox passwords are generated on the server into a root-only file and must be changed at first sign-in; the website's `noreply@` password is written straight into the app's `.env`.

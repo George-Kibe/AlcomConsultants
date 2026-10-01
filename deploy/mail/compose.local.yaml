@@ -1,0 +1,11 @@
+# Local trial of the mail stack (docs/MAIL.md → "Test locally"):
+#   ./local.sh up | test | down
+# Mail ports move to 127.0.0.1 high ports; the web UI is on http://localhost:8025.
+# A self-signed certificate stands in for Let's Encrypt. Mail to outside domains is not sent.
+services:
+  front:
+    ports: !override
+      - "127.0.0.1:2525:25"
+      - "127.0.0.1:4465:465"
+      - "127.0.0.1:9993:993"
+      - "127.0.0.1:8025:80"

@@ -37,3 +37,6 @@ docs/inspirationl_images/
 
 # Private reference material (company documents with registration details)
 docs/ref/
+
+# Mail server secrets (deploy/mail)
+deploy/mail/mailu.env
