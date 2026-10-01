@@ -4,6 +4,7 @@ os.environ.setdefault("DJANGO_SECRET_KEY", "test-secret-key-not-for-production")
 os.environ.setdefault("DATABASE_URL", "postgis://alcom:alcom@localhost:5432/alcom")
 os.environ["CLOUDINARY_URL"] = "cloudinary://test-key:test-secret@test-cloud"
 os.environ["CLOUDINARY_FOLDER"] = "alcom/test"
+os.environ["DEFAULT_FROM_EMAIL"] = "Alcom Consultants <noreply@alcomconsultants.co.ke>"
 
 from .base import *  # noqa: F403
 

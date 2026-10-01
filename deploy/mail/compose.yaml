@@ -1,0 +1,145 @@
+# Mail server (Mailu 2024.06) for @alcomconsultants.co.ke: SMTP, IMAP, webmail, admin,
+# spam filtering and antivirus. Based on the Mailu setup wizard's compose flavour.
+#
+#   Mail ports are published directly: 25 (incoming mail), 465 (sending, implicit TLS) and
+#   993 (IMAP, implicit TLS). Mailu keeps the STARTTLS ports (587, 143) off by default; webmail and the admin UI
+#   are plain HTTP on the `edge` network behind the edge Nginx (mail.<domain>).
+#   TLS for mail ports uses the edge's Let's Encrypt certificate for mail.<domain>.
+#
+# Runbook: docs/MAIL.md
+name: mail
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+x-mailu: &mailu
+  restart: always
+  env_file: mailu.env
+  logging: *logging
+  dns: [192.168.203.254] # DNSSEC-validating resolver below (needed for DANE/DMARC checks)
+  depends_on: [resolver]
+
+services:
+  resolver:
+    image: ghcr.io/mailu/unbound:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: mailu.env
+    logging: *logging
+    networks:
+      default:
+        ipv4_address: 192.168.203.254
+
+  redis:
+    <<: *mailu
+    image: redis:8-alpine
+    env_file: []
+    volumes:
+      - redis:/data
+
+  front:
+    <<: *mailu
+    image: ghcr.io/mailu/nginx:${MAILU_VERSION:-2024.06}
+    ports:
+      - "${MAIL_BIND:-0.0.0.0}:25:25"
+      - "${MAIL_BIND:-0.0.0.0}:465:465"
+      - "${MAIL_BIND:-0.0.0.0}:993:993"
+    networks:
+      default:
+      webmail:
+      edge:
+        aliases: [mailu-front]
+    volumes:
+      - letsencrypt:/certs:ro # the edge certbot volume
+      - ./overrides/nginx:/overrides:ro
+
+  admin:
+    <<: *mailu
+    image: ghcr.io/mailu/admin:${MAILU_VERSION:-2024.06}
+    volumes:
+      - data:/data
+      - dkim:/dkim
+    depends_on: [resolver, redis]
+
+  imap:
+    <<: *mailu
+    image: ghcr.io/mailu/dovecot:${MAILU_VERSION:-2024.06}
+    volumes:
+      - mail:/mail
+    depends_on: [resolver, front]
+
+  smtp:
+    <<: *mailu
+    image: ghcr.io/mailu/postfix:${MAILU_VERSION:-2024.06}
+    volumes:
+      - mailqueue:/queue
+    depends_on: [resolver, front]
+
+  oletools:
+    image: ghcr.io/mailu/oletools:${MAILU_VERSION:-2024.06}
+    hostname: oletools
+    restart: always
+    logging: *logging
+    networks: [oletools]
+
+  antispam:
+    <<: *mailu
+    image: ghcr.io/mailu/rspamd:${MAILU_VERSION:-2024.06}
+    hostname: antispam
+    networks: [default, oletools, clamav]
+    volumes:
+      - filter:/var/lib/rspamd
+      - dkim:/dkim:ro
+    depends_on: [resolver, front, redis, oletools, antivirus]
+
+  antivirus:
+    image: clamav/clamav-debian:1.4
+    restart: always
+    logging: *logging
+    networks: [clamav]
+    volumes:
+      - clamav:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 `cat /tmp/clamd.pid` && kill -0 `cat /tmp/freshclam.pid`"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+  webmail:
+    image: ghcr.io/mailu/webmail:${MAILU_VERSION:-2024.06}
+    restart: always
+    env_file: mailu.env
+    logging: *logging
+    networks: [webmail]
+    volumes:
+      - webmail:/data
+    depends_on: [front]
+
+volumes:
+  redis:
+  data:
+  dkim: # holds the DKIM key, created before first start (docs/MAIL.md)
+    external: true
+    name: ${DKIM_VOLUME:-mail_dkim}
+  mail:
+  mailqueue:
+  filter:
+  clamav:
+  webmail:
+  letsencrypt:
+    external: true
+    name: ${CERTS_VOLUME:-edge_letsencrypt}
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.203.0/24
+  webmail:
+  clamav:
+  oletools:
+    internal: true
+  edge:
+    external: true

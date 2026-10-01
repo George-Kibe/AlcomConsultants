@@ -2,7 +2,7 @@
 
 No hard deadline; quality first. Each step ends with passing CI (incl. full-stack E2E), an automatic deploy and your review.
 
-**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; next: mail server)
+**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; 2e mail server waiting on DNS; 2f blog next)
 
 ## Release 1: Listings platform + marketing site
 
@@ -35,9 +35,10 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] **2c** Public search: URL-driven filters (deal, location autocomplete, type, price, rooms, furnishing, amenities), sort, pagination, list/map toggle (clustered price pins, "search this area"), mobile filter drawer
 - [x] **2c** Property page: adaptive gallery + lightbox, privacy-friendly video, floor plans, facts, amenities, OSM map (approximate unless exact location allowed), nearby schools/health/shopping/transport/parks (OpenStreetMap, cached), similar listings, WhatsApp/call/email with the reference, JSON-LD + share images; home featured listings from the API; demo-data command (`seed_demo_listings`, dev/CI only)
 <!-- - Development projects: models, dashboard, public project pages: Defer this for later -->
-- Blog for real estate realted articles. with a comment section that requires a user to login to comment. Just a single image and actual blog.
-- Mail server(Dockerised). Mailu for docker. I want a custom mail server to use for my emails such as info@alcomconsultants.co.ke. 4 emails but manageable to around 10 in future.
-Test those emails both locally and live.
+- [ ] **2e** Mail server (Mailu, Docker) for info@ / noreply@ / admin@ (room for ~10), tested locally and live. Runbook: `docs/MAIL.md`
+  - [x] Stack, edge webmail vhost, setup script, local trial + automated tests (send, IMAP, DKIM, relay, antivirus)
+  - [ ] DNS records + reverse DNS (owner), then `setup.sh` on the server and the live test; website sends via noreply@
+- [ ] **2f** Blog: articles with one cover image and a rich-text body (dashboard editor), comments from signed-in readers (email with verification, or Google), published instantly, staff can hide
 ### Phase 3: Enquiries and CRM
 - Enquiry forms (listing, project, contact, management, valuation), consent capture, spam protection
 - WhatsApp click-to-chat

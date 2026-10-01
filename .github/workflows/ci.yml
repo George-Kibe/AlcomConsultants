@@ -16,6 +16,7 @@ jobs:
   backend:
     name: Backend (lint, types, tests)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: backend
@@ -62,6 +63,7 @@ jobs:
   frontend:
     name: Frontend (lint, types, tests, e2e)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: frontend
@@ -79,6 +81,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
+        timeout-minutes: 10 # a stalled download/apt mirror once hung CI for an hour
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v7
         if: failure()
@@ -149,6 +152,7 @@ jobs:
       - run: npm ci
         working-directory: frontend
       - run: npx playwright install --with-deps chromium
+        timeout-minutes: 10 # a stalled download/apt mirror once hung CI for an hour
         working-directory: frontend
       - run: npx playwright test e2e/dashboard.spec.ts e2e/dashboard-listings.spec.ts e2e/dashboard-photos.spec.ts e2e/public-listings.spec.ts
         working-directory: frontend
@@ -165,6 +169,7 @@ jobs:
   docker:
     name: Production images
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [backend, frontend]
     permissions:
       contents: read
