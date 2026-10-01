@@ -11,12 +11,15 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.core import media
 from apps.core.permissions import IsStaff
 from apps.core.signals import schedule_cloudinary_delete
 
 from .models import Post, PostStatus
-from .serializers import DashboardPostListSerializer, DashboardPostSerializer
+from .serializers import (
+    CoverUploadSerializer,
+    DashboardPostListSerializer,
+    DashboardPostSerializer,
+)
 
 
 class DashboardPostFilter(django_filters.FilterSet):
@@ -29,24 +32,6 @@ class DashboardPostFilter(django_filters.FilterSet):
 
     def search(self, qs: QuerySet[Post], name: str, value: str) -> QuerySet[Post]:
         return qs.filter(Q(title__icontains=value) | Q(slug__icontains=value)) if value else qs
-
-
-class CoverUploadSerializer(serializers.Serializer[Any]):
-    """The upload result Cloudinary returned to the browser."""
-
-    public_id = serializers.CharField(max_length=255)
-    version = serializers.IntegerField()
-    signature = serializers.CharField()
-    width = serializers.IntegerField(required=False, allow_null=True)
-    height = serializers.IntegerField(required=False, allow_null=True)
-    alt_text = serializers.CharField(required=False, allow_blank=True, max_length=200)
-
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        if not media.is_authentic_upload(attrs["public_id"], attrs["version"], attrs["signature"]):
-            raise serializers.ValidationError("This upload could not be verified.")
-        if not attrs["public_id"].startswith(f"{media.settings.CLOUDINARY_FOLDER}/blog/"):
-            raise serializers.ValidationError("Upload is not in the blog folder.")
-        return attrs
 
 
 class DashboardPostViewSet(viewsets.ModelViewSet[Post]):

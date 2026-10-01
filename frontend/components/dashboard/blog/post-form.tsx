@@ -34,6 +34,7 @@ import {
   type PostFormValues,
 } from "@/lib/blog-form";
 import { formatDate } from "@/lib/format";
+import type { CloudinaryUploadResult } from "@/lib/uploads";
 
 import { Field, Section } from "../form-parts";
 import { StatusBadge } from "../properties/status-badge";
@@ -53,6 +54,9 @@ export function PostForm({ post }: { post?: DashboardPost }) {
   const f = (name: string) => `${id}-${name}`;
   const isNew = !post;
   const [coverError, setCoverError] = useState<string>();
+  // A new article's cover is uploaded before the article exists; it's sent on create.
+  const [pendingCover, setPendingCover] =
+    useState<CloudinaryUploadResult | null>(null);
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
@@ -67,11 +71,11 @@ export function PostForm({ post }: { post?: DashboardPost }) {
 
   useEffect(() => {
     const warn = (e: BeforeUnloadEvent) => {
-      if (isDirty && !isSubmitting) e.preventDefault();
+      if ((isDirty || pendingCover) && !isSubmitting) e.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [isDirty, isSubmitting]);
+  }, [isDirty, isSubmitting, pendingCover]);
 
   const afterSave = (saved: DashboardPost) => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.posts });
@@ -86,7 +90,14 @@ export function PostForm({ post }: { post?: DashboardPost }) {
       values: PostFormValues;
       status?: Status;
     }) => {
-      const body = { ...postPayload(values, isNew), ...(status && { status }) };
+      const body = {
+        ...postPayload(values, isNew),
+        ...(status && { status }),
+        ...(isNew &&
+          pendingCover && {
+            cover_upload: { ...pendingCover, alt_text: values.cover_alt },
+          }),
+      };
       const result = post
         ? await api.PATCH("/api/v1/dashboard/blog/posts/{uuid}/", {
             params: { path: { uuid: post.uuid } },
@@ -104,11 +115,14 @@ export function PostForm({ post }: { post?: DashboardPost }) {
       afterSave(saved);
       form.reset(postFromApi(saved));
       setCoverError(undefined);
+      setPendingCover(null);
       toast.success(
-        isNew
-          ? "Draft saved. Add a cover photo, then publish when ready."
-          : status === "published"
-            ? "Article published"
+        status === "published"
+          ? "Article published"
+          : isNew
+            ? saved.cover
+              ? "Draft saved. Publish when ready."
+              : "Draft saved. Add a cover photo, then publish when ready."
             : status === "draft"
               ? "Article unpublished (now a draft)"
               : "Changes saved",
@@ -154,7 +168,7 @@ export function PostForm({ post }: { post?: DashboardPost }) {
   const submit = (status?: Status) =>
     handleSubmit(
       (values) => {
-        if (status === "published" && !post?.cover) {
+        if (status === "published" && !post?.cover && !pendingCover) {
           setCoverError("Add a cover photo before publishing.");
           return toast.error("Add a cover photo before publishing.");
         }
@@ -287,17 +301,13 @@ export function PostForm({ post }: { post?: DashboardPost }) {
             title="Cover photo"
             description="Shown at the top of the article, on blog cards and when shared."
           >
-            {post ? (
-              <CoverPicker
-                post={post}
-                altText={coverAlt}
-                onSaved={() => setCoverError(undefined)}
-              />
-            ) : (
-              <p className="text-muted-foreground bg-muted/60 rounded-lg p-4 text-sm">
-                Save the draft first, then add the cover photo here.
-              </p>
-            )}
+            <CoverPicker
+              post={post}
+              pending={pendingCover}
+              onPending={setPendingCover}
+              altText={coverAlt}
+              onSaved={() => setCoverError(undefined)}
+            />
             {coverError && (
               <p className="text-destructive text-sm" role="alert">
                 {coverError}
@@ -384,9 +394,20 @@ export function PostForm({ post }: { post?: DashboardPost }) {
 
       <div className="bg-background/95 sticky bottom-0 -mx-4 flex flex-col gap-2 border-t px-4 py-3 backdrop-blur sm:mx-0 sm:flex-row sm:justify-end sm:rounded-xl sm:border">
         {isNew ? (
-          <Button type="submit" size="xl" disabled={save.isPending}>
-            {save.isPending ? "Saving…" : "Save draft"}
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="xl"
+              disabled={save.isPending}
+              onClick={() => void submit("published")()}
+            >
+              Publish
+            </Button>
+            <Button type="submit" size="xl" disabled={save.isPending}>
+              {save.isPending ? "Saving…" : "Save draft"}
+            </Button>
+          </>
         ) : (
           <>
             {published ? (

@@ -133,12 +133,18 @@ def test_seed_demo_listings(settings):
     settings.DEBUG = True
     out = StringIO()
     call_command("seed_demo_listings", stdout=out)
-    assert "Created 12 demo listings and 3 demo articles" in out.getvalue()
-    assert Property.objects.listed().count() == 12
+    assert "Created 26 demo listings (drafts without photos: 2) and 5 demo articles" in (
+        out.getvalue()
+    )
+    assert Property.objects.listed().count() == 23  # one more is let, two are drafts
     assert Property.objects.filter(is_featured=True).count() == 6
-    assert Post.objects.published().count() == 3
+    assert Property.objects.filter(status="draft", media__isnull=True).count() == 2
+    assert set(Property.objects.values_list("furnishing", flat=True)) == {
+        "", "furnished", "semi", "unfurnished"
+    }  # fmt: skip
+    assert Post.objects.published().count() == 5
     call_command("seed_demo_listings", stdout=out)  # idempotent
-    assert (Property.objects.count(), Post.objects.count()) == (12, 3)
+    assert (Property.objects.count(), Post.objects.count()) == (26, 5)
     with mock.patch("apps.core.tasks.delete_cloudinary_asset.delay") as destroy:
         call_command("seed_demo_listings", "--clear", stdout=out)
     assert (Property.objects.count(), Post.objects.count()) == (0, 0)

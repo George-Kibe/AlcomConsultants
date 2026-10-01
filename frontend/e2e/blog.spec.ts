@@ -28,7 +28,7 @@ test("blog index and article", async ({ page }) => {
   await page.goto("/blog");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Blog");
   const cards = page.getByRole("article");
-  await expect(cards).toHaveCount(3);
+  await expect(cards).toHaveCount(5);
   expect(await axe(page)).toEqual([]);
 
   await page
@@ -52,7 +52,7 @@ test("blog index and article", async ({ page }) => {
   });
   await expect(
     page.getByRole("region", { name: "More articles" }).getByRole("article"),
-  ).toHaveCount(2);
+  ).toHaveCount(3);
   expect(await axe(page)).toEqual([]);
 
   const missing = await page.goto("/blog/no-such-article");
@@ -143,6 +143,61 @@ test("write, publish, unpublish and delete an article", async ({
   await page.getByRole("button", { name: "Delete draft", exact: true }).click();
   await page.waitForURL((url) => url.pathname === "/dashboard/blog");
   await expect(page.getByText(title)).toHaveCount(0);
+});
+
+test("a new article gets its cover before the first save and publishes at once", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "Dashboard writing flow runs once, on desktop");
+  const title = `E2E cover-first article ${Date.now()}`;
+  await signIn(page, "/dashboard/blog/new");
+  if (MOCK_SECRET) await mockCloudinary(page, "blog");
+
+  await page.getByLabel("Title", { exact: true }).fill(title);
+  const body = page.getByRole("textbox", { name: "Body" });
+  await body.click();
+  await page.keyboard.type("Written and published in one go.");
+  await page.getByLabel("Photo description").fill("Keys on a desk");
+  await expect(
+    page.getByRole("button", { name: /Add a cover photo/ }),
+  ).toBeVisible();
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({ name: "cover.jpg", mimeType: "image/jpeg", buffer: JPEG });
+  await expect(
+    page.getByRole("button", { name: "Replace photo", exact: true }),
+  ).toBeVisible();
+
+  const created = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/dashboard/blog/posts/") &&
+      r.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  expect((await created).status()).toBe(201);
+  await page.waitForURL(/\/dashboard\/blog\/[0-9a-f-]{36}$/);
+  await expect(page.getByText("Published", { exact: true })).toBeVisible();
+  const href = (await page
+    .getByRole("link", { name: /View on site/ })
+    .getAttribute("href"))!;
+  const article = await page.context().newPage();
+  await article.goto(href);
+  await expect(article.getByRole("heading", { level: 1 })).toHaveText(title);
+  await expect(
+    article.getByRole("img", { name: "Keys on a desk" }),
+  ).toBeVisible();
+  await article.close();
+
+  // Clean up: unpublish, then delete the draft.
+  await page.getByRole("button", { name: "Unpublish", exact: true }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Unpublish", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("button", { name: "Delete draft", exact: true }).click();
+  await page.waitForURL((url) => url.pathname === "/dashboard/blog");
 });
 
 test("readers sign up, confirm their email and comment; staff can hide comments", async ({
