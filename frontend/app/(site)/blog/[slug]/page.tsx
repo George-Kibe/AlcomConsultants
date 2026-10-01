@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { ChevronRightIcon } from "lucide-react";
 
+import { Comments } from "@/components/blog/comments";
 import { CloudImage } from "@/components/cloud-image";
 import { WhatsAppIcon } from "@/components/icons";
 import { CtaBand } from "@/components/site/cta-band";
@@ -153,6 +154,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
             </a>
           </Button>
         </div>
+
+        <Comments slug={post.slug} />
       </article>
 
       {more.length > 0 && (

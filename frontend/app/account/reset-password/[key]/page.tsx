@@ -8,7 +8,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ensureCsrf, errorMessage, resetPassword } from "@/lib/api/auth";
+import {
+  decodeKey,
+  ensureCsrf,
+  errorMessage,
+  resetPassword,
+} from "@/lib/api/auth";
 
 export default function ResetPasswordPage() {
   const { key } = useParams<{ key: string }>();
@@ -26,7 +31,7 @@ export default function ResetPasswordPage() {
       return setError("The passwords don't match.");
     setBusy(true);
     setError(undefined);
-    const res = await resetPassword(key, password);
+    const res = await resetPassword(decodeKey(key), password);
     setBusy(false);
     // 401 = reset succeeded but the user must still sign in.
     if (res.status === 200 || res.status === 401) return setState("done");
@@ -38,7 +43,7 @@ export default function ResetPasswordPage() {
       <div className="flex flex-col gap-5">
         <h1 className="text-xl font-bold">Password updated</h1>
         <Button asChild size="xl">
-          <Link href="/dashboard/login">Sign in</Link>
+          <Link href="/account/sign-in">Sign in</Link>
         </Button>
       </div>
     );

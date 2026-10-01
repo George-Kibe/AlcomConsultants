@@ -1,0 +1,8 @@
+{% autoescape off %}Hello from Alcom Consultants,
+
+{% block content %}{% endblock content %}
+
+Alcom Consultants Limited
+Registered Valuers • Property Managers • Estate Agents
+https://alcomconsultants.co.ke
+{% endautoescape %}

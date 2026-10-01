@@ -2,7 +2,7 @@
  * django-allauth headless "browser" API (session cookie + CSRF).
  * https://docs.allauth.org/en/latest/headless/openapi-specification/
  */
-import { withCsrf } from "./csrf";
+import { getCsrfToken, withCsrf } from "./csrf";
 
 const BASE = "/api/v1/auth/browser/v1";
 
@@ -43,8 +43,12 @@ async function call<
   return { ...json, status: response.status };
 }
 
-/** Sets the CSRF cookie; call once before the first POST. */
-export const ensureCsrf = () => call("/config");
+export type AuthConfig = {
+  socialaccount?: { providers: { id: string; name: string }[] };
+};
+
+/** Sets the CSRF cookie; call once before the first POST. Also lists sign-in providers. */
+export const ensureCsrf = () => call<AuthConfig>("/config");
 
 export const getSession = () => call("/auth/session");
 export const logout = () => call("/auth/session", "DELETE");
@@ -54,6 +58,39 @@ export const authenticateTwoFactor = (code: string) =>
   call("/auth/2fa/authenticate", "POST", { code });
 export const reauthenticate = (password: string) =>
   call("/auth/reauthenticate", "POST", { password });
+
+export const signup = (name: string, email: string, password: string) =>
+  call("/auth/signup", "POST", { name, email, password });
+export const verifyEmail = (key: string) =>
+  call("/auth/email/verify", "POST", { key });
+/** Send the verification email again (rate-limited by allauth). */
+export const resendVerification = (email: string) =>
+  call("/account/email", "PUT", { email });
+
+/**
+ * Start social sign-in: a real form POST, because the browser must follow the redirect
+ * to the provider. allauth sends the user back to `callbackUrl` afterwards.
+ */
+export function redirectToProvider(provider: string, callbackUrl: string) {
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `${BASE}/auth/provider/redirect`;
+  const fields = {
+    provider,
+    callback_url: callbackUrl,
+    process: "login",
+    csrfmiddlewaretoken: getCsrfToken() ?? "",
+  };
+  for (const [name, value] of Object.entries(fields)) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
+}
 
 export const requestPasswordReset = (email: string) =>
   call("/auth/password/request", "POST", { email });
@@ -101,4 +138,13 @@ export function errorMessage(
 ): string | undefined {
   const errors = res.errors ?? [];
   return (param ? errors.find((e) => e.param === param) : errors[0])?.message;
+}
+
+/** Keys in emailed links are URL-encoded (e.g. ":" as %3A); route params may or may not be. */
+export function decodeKey(key: string): string {
+  try {
+    return decodeURIComponent(key);
+  } catch {
+    return key;
+  }
 }
