@@ -121,3 +121,53 @@ class PropertyDetailSerializer(PropertyListSerializer):
     def get_project(self, obj: Property) -> dict[str, str] | None:
         p = obj.project
         return {"name": p.name, "slug": p.slug} if p and p.is_published else None
+
+
+class MapPointSerializer(serializers.ModelSerializer[Property]):
+    """Lightweight marker for the search map."""
+
+    lat = serializers.SerializerMethodField()
+    lng = serializers.SerializerMethodField()
+    cover_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Property
+        fields = [
+            "reference",
+            "slug",
+            "title",
+            "deal_type",
+            "price",
+            "price_unit",
+            "price_on_request",
+            "bedrooms",
+            "lat",
+            "lng",
+            "cover_image",
+        ]
+
+    def get_lat(self, obj: Property) -> float | None:
+        point = obj.public_location
+        return point[0] if point else None
+
+    def get_lng(self, obj: Property) -> float | None:
+        point = obj.public_location
+        return point[1] if point else None
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_cover_image(self, obj: Property) -> str | None:
+        images = getattr(obj, "images", [])
+        return images[0].public_id if images else None
+
+
+class NearbyPlaceSerializer(serializers.Serializer[Any]):
+    name = serializers.CharField()
+    type = serializers.CharField()
+    distance_m = serializers.IntegerField()
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
+
+
+class NearbyGroupSerializer(serializers.Serializer[Any]):
+    category = serializers.CharField()
+    places = NearbyPlaceSerializer(many=True)

@@ -78,7 +78,7 @@ django_settings_module = "config.settings.test"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
-addopts = "--strict-markers --reuse-db -p no:cacheprovider"
+addopts = "--ds=config.settings.test --strict-markers --reuse-db -p no:cacheprovider"
 filterwarnings = [
     "error::DeprecationWarning",  # surface Django 7.0 deprecations early
     "error::PendingDeprecationWarning",

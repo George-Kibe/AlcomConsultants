@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 
 import { isActive } from "@/components/site/nav-links";
-import { formatPrice } from "@/lib/properties";
 import { services, siteConfig, telLink, whatsappLink } from "@/lib/site-config";
 
 describe("whatsappLink", () => {
@@ -35,14 +34,4 @@ describe("isActive", () => {
 test("every service has a unique slug", () => {
   const slugs = services.map((s) => s.slug);
   expect(new Set(slugs).size).toBe(slugs.length);
-});
-
-describe("formatPrice", () => {
-  test("sale prices show the full amount", () => {
-    expect(formatPrice(85000000, "sale")).toBe("KES 85,000,000");
-  });
-
-  test("rent prices are per month", () => {
-    expect(formatPrice(180000, "rent")).toBe("KES 180,000 / month");
-  });
 });

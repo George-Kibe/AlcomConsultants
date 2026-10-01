@@ -89,3 +89,10 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Order = display order; the first photo is the cover. Reorder by drag or keyboard (dnd-kit).
 - Deleting a photo (or a draft listing) removes the file from Cloudinary via a retried Celery task.
 - Videos stay as YouTube/Vimeo links (no video uploads).
+
+## Public listings (2026-10-01)
+- Search state lives in the URL (shareable, back-button friendly, server-rendered for SEO); the page fetches from the API server-side (`API_INTERNAL_URL`).
+- Maps: Leaflet + OpenStreetMap tiles, no API key. Markers are clustered in the browser (the map endpoint caps at 500 points). Exact pins only when the listing allows it; otherwise an 800 m circle.
+- Nearby places: OpenStreetMap Overpass (two mirrors with failover), cached 7 days per listing; failures are cached briefly and shown as nothing rather than an error.
+- Videos load only after a click (youtube-nocookie / Vimeo `dnt`), so no third-party cookies by default.
+- Production has no demo data; `seed_demo_listings` refuses to run unless `DEBUG` (or `--allow-production`).
