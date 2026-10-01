@@ -1,0 +1,14 @@
+{% extends "email/base.txt" %}{% block content %}Hello{% if first_name %} {{ first_name }}{% endif %},
+
+Thank you for contacting Alcom Consultants. We have received your {{ enquiry.get_kind_display|lower }}{% if enquiry.property_label %} about {{ enquiry.property_label }}{% endif %}, and one of our consultants will get back to you within one working day.
+
+Your reference is {{ enquiry.reference }}. Please quote it if you call or message us.
+
+Need us sooner? Call {{ phone }} or message us on WhatsApp: https://wa.me/{{ whatsapp }}
+
+Kind regards,
+The Alcom Consultants team
+{% endblock %}
+{% block footer %}You receive this email because this address was used on the enquiry form at alcomconsultants.co.ke. If that wasn't you, you can ignore it.
+
+{% endblock %}

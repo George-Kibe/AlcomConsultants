@@ -2,7 +2,7 @@
 
 No hard deadline; quality first. Each step ends with passing CI (incl. full-stack E2E), an automatic deploy and your review.
 
-**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; 2e mail server waiting on DNS; 2f blog + comments ✅) · Phase 3 not started · Phase 4 ✅ (2026-10-02)
+**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; 2e mail server waiting on DNS; 2f blog + comments ✅) · Phase 3 ✅ (2026-10-02, live email test waits for mail DNS) · Phase 4 ✅ (2026-10-02)
 
 ## Release 1: Listings platform + marketing site
 
@@ -40,11 +40,13 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
   - [ ] DNS records + reverse DNS (owner), then `setup.sh` on the server and the live test; website sends via noreply@
 - [x] **2f-1** Blog: dashboard (article list, rich-text editor, single cover photo via signed upload, publish / unpublish / delete-draft, slug + SEO), public `/blog` and article pages (BlogPosting JSON-LD, share image, WhatsApp share, more articles); body sanitised server-side
 - [x] **2f-2** Blog comments: reader accounts (`/account/*`: sign-up with name, email confirmation link, sign-in, password reset; Google once configured, docs/AUTH.md), comments published instantly (rate-limited, link-limited), delete own, staff hide / restore / delete in the dashboard
-### Phase 3: Enquiries and CRM
-- Enquiry forms (listing, project, contact, management, valuation), consent capture, spam protection
-- WhatsApp click-to-chat
-- Lead pipeline in the dashboard, notes, follow-up reminders
-- Email notifications via Celery (templates, branding). Using my mail server. Test emails both locally and live
+### Phase 3: Enquiries and CRM ✅
+- [x] Enquiry forms: property (every listing), contact, valuation and property management (service pages); consent recorded with wording version; signed-in visitors prefilled and linked
+- [x] Spam protection: Cloudflare Turnstile (once keys are set, docs/ENQUIRIES.md), signed timing token, honeypot, per-IP limits, link limits
+- [x] WhatsApp click-to-chat on property and service pages and in the enquiry confirmation; staff WhatsApp a lead from the dashboard
+- [x] Lead pipeline in the dashboard: New → Contacted → Viewing → Negotiating → Won / Lost, assignee, follow-up date, notes and automatic history, views (open, due, mine, unassigned, won, lost, spam), overview counts
+- [x] Emails via Celery with a shared branded template: office notification (reply goes to the visitor), visitor confirmation with reference, 07:30 follow-up reminders; tested locally
+- [ ] Live email test once the mail server's DNS records are in place (Phase 2e)
 
 ### Phase 4: Visitor accounts ✅
 - [x] Sign up / verify / sign in / reset (email and password, Google once configured), shared with blog comments; account menu in the header
@@ -61,6 +63,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - Security review, performance and accessibility audits, Lighthouse ≥ 90
 - Legal texts finalised (after lawyer review)
 - Production deployment, snapshots, Sentry alerts, go-live checklist
+- Before launch: remove the demo listings and articles seeded for testing (`manage.py seed_demo_listings --clear --allow-production`; seeded 2026-10-02: 10 listings, 5 articles)
 
 ## Later releases (backlog)
 - Property Management system (landlords, tenants, leases, invoicing, M-Pesa, portals)

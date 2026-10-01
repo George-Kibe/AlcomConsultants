@@ -200,6 +200,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/enquiries/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Leads. Spam is hidden unless ?spam=true; follow-ups due sort first with ?due=true. */
+        get: operations["dashboard_enquiries_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/enquiries/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Leads. Spam is hidden unless ?spam=true; follow-ups due sort first with ?due=true. */
+        get: operations["dashboard_enquiries_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Leads. Spam is hidden unless ?spam=true; follow-ups due sort first with ?due=true. */
+        delete: operations["dashboard_enquiries_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Leads. Spam is hidden unless ?spam=true; follow-ups due sort first with ?due=true. */
+        patch: operations["dashboard_enquiries_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/enquiries/{uuid}/notes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Add a note to the lead's timeline. */
+        post: operations["dashboard_enquiries_notes_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/enquiries/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Counts for the pipeline bar, the tabs and the dashboard overview. */
+        get: operations["dashboard_enquiries_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/lookups/": {
         parameters: {
             query?: never;
@@ -341,6 +411,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/enquiries/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Send an enquiry. The office is emailed and the visitor gets a confirmation. */
+        post: operations["enquiries_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enquiries/form/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description What a form needs before it's shown: a fresh form token and the Turnstile key. */
+        get: operations["enquiries_form_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health/": {
         parameters: {
             query?: never;
@@ -420,8 +524,9 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Delete your account. Comments stay on the blog as "Former reader"; everything else
-         *     (profile, favourites, saved searches, sign-in methods) is removed.
+         * @description Delete your account. Comments stay on the blog as "Former reader" and enquiries stay
+         *     with the office (no longer linked to the account); everything else (profile, favourites,
+         *     saved searches, sign-in methods) is removed.
          */
         post: operations["me_delete_create"];
         delete?: never;
@@ -964,6 +1069,130 @@ export interface components {
             /** @description "DELETE", for accounts without a password. */
             confirm?: string;
         };
+        EnquiryDetail: {
+            /** Format: uuid */
+            readonly uuid: string;
+            readonly reference: string | null;
+            readonly kind: components["schemas"]["EnquiryKindEnum"];
+            readonly name: string;
+            /** Format: email */
+            readonly email: string;
+            readonly phone: string;
+            /** @description Reference and title when sent (kept if deleted). */
+            readonly property_label: string;
+            stage?: components["schemas"]["EnquiryStageEnum"];
+            assigned_to?: number | null;
+            readonly assigned_to_name: string;
+            /** Format: date */
+            follow_up_on?: string | null;
+            readonly is_overdue: boolean;
+            is_spam?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly message: string;
+            readonly property: {
+                [key: string]: string;
+            } | null;
+            readonly property_type: string;
+            readonly location: string;
+            readonly purpose: components["schemas"]["PurposeEnum"];
+            readonly purpose_label: string;
+            /** @description Units to manage */
+            readonly units: number | null;
+            readonly source_path: string;
+            /** Format: date-time */
+            readonly consent_at: string;
+            readonly consent_version: string;
+            /** @description Turnstile result: passed, unverified (Cloudflare unreachable) or off. */
+            readonly spam_check: string;
+            /** Format: date-time */
+            readonly closed_at: string | null;
+            readonly has_account: boolean;
+            readonly notes: components["schemas"]["Note"][];
+        };
+        EnquiryForm: {
+            form_token: string;
+            turnstile_site_key: string;
+            consent_text: string;
+            purposes: {
+                [key: string]: unknown;
+            }[];
+        };
+        /**
+         * @description * `listing` - Property enquiry
+         *     * `contact` - General enquiry
+         *     * `valuation` - Valuation request
+         *     * `management` - Property management
+         * @enum {string}
+         */
+        EnquiryKindEnum: "listing" | "contact" | "valuation" | "management";
+        EnquiryList: {
+            /** Format: uuid */
+            readonly uuid: string;
+            readonly reference: string | null;
+            readonly kind: components["schemas"]["EnquiryKindEnum"];
+            readonly name: string;
+            /** Format: email */
+            readonly email: string;
+            readonly phone: string;
+            /** @description Reference and title when sent (kept if deleted). */
+            readonly property_label: string;
+            stage?: components["schemas"]["EnquiryStageEnum"];
+            assigned_to?: number | null;
+            readonly assigned_to_name: string;
+            /** Format: date */
+            follow_up_on?: string | null;
+            readonly is_overdue: boolean;
+            is_spam?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        EnquiryReceipt: {
+            reference: string;
+        };
+        EnquiryRequest: {
+            kind: components["schemas"]["EnquiryKindEnum"];
+            name: string;
+            /** Format: email */
+            email: string;
+            phone?: string;
+            message?: string;
+            /** @description Listing slug (property enquiries). */
+            property?: string | null;
+            property_type?: string;
+            location?: string;
+            purpose?: components["schemas"]["PurposeEnum"] | components["schemas"]["BlankEnum"];
+            /** @description Units to manage */
+            units?: number | null;
+            source_path?: string;
+            consent: boolean;
+            form_token: string;
+            turnstile_token?: string;
+            /** @description Leave empty (honeypot). */
+            website?: string;
+        };
+        /**
+         * @description * `new` - New
+         *     * `contacted` - Contacted
+         *     * `viewing` - Viewing
+         *     * `negotiating` - Negotiating
+         *     * `won` - Won
+         *     * `lost` - Lost
+         * @enum {string}
+         */
+        EnquiryStageEnum: "new" | "contacted" | "viewing" | "negotiating" | "won" | "lost";
+        EnquirySummary: {
+            stages: {
+                [key: string]: number;
+            };
+            open: number;
+            new: number;
+            due: number;
+            overdue: number;
+            unassigned: number;
+            mine: number;
+            spam: number;
+        };
         /**
          * @description * `unfurnished` - Unfurnished
          *     * `semi` - Semi-furnished
@@ -1095,6 +1324,18 @@ export interface components {
             /** Format: double */
             lng: number;
         };
+        Note: {
+            readonly id: number;
+            body: string;
+            readonly author_name: string;
+            /** @description Recorded automatically. */
+            readonly is_system: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        NoteRequest: {
+            body: string;
+        };
         PaginatedDashboardCommentList: {
             /** @example 123 */
             count: number;
@@ -1139,6 +1380,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["DashboardPropertyList"][];
+        };
+        PaginatedEnquiryListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["EnquiryList"][];
         };
         PaginatedPostListList: {
             /** @example 123 */
@@ -1240,6 +1496,13 @@ export interface components {
             is_featured?: boolean;
             seo_title?: string;
             seo_description?: string;
+        };
+        PatchedEnquiryDetailRequest: {
+            stage?: components["schemas"]["EnquiryStageEnum"];
+            assigned_to?: number | null;
+            /** Format: date */
+            follow_up_on?: string | null;
+            is_spam?: boolean;
         };
         /** @description The signed-in user. Visitors may change their name, phone and email preferences. */
         PatchedMeRequest: {
@@ -1458,6 +1721,16 @@ export interface components {
             slug: string;
             category: components["schemas"]["CategoryEnum"];
         };
+        /**
+         * @description * `mortgage` - Mortgage or bank loan
+         *     * `sale` - Selling
+         *     * `purchase` - Buying
+         *     * `insurance` - Insurance
+         *     * `probate` - Probate or succession
+         *     * `other` - Other
+         * @enum {string}
+         */
+        PurposeEnum: "mortgage" | "sale" | "purchase" | "insurance" | "probate" | "other";
         ReorderRequest: {
             ids: number[];
         };
@@ -1974,6 +2247,167 @@ export interface operations {
             };
         };
     };
+    dashboard_enquiries_list: {
+        parameters: {
+            query?: {
+                /** @description "me", "none", or a staff user id */
+                assigned?: string;
+                /** @description Open leads due for a follow-up today or earlier */
+                due?: boolean;
+                /**
+                 * @description * `listing` - Property enquiry
+                 *     * `contact` - General enquiry
+                 *     * `valuation` - Valuation request
+                 *     * `management` - Property management
+                 */
+                kind?: "contact" | "listing" | "management" | "valuation";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                q?: string;
+                spam?: boolean;
+                /**
+                 * @description * `open` - All open
+                 *     * `new` - New
+                 *     * `contacted` - Contacted
+                 *     * `viewing` - Viewing
+                 *     * `negotiating` - Negotiating
+                 *     * `won` - Won
+                 *     * `lost` - Lost
+                 */
+                stage?: "contacted" | "lost" | "negotiating" | "new" | "open" | "viewing" | "won";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedEnquiryListList"];
+                };
+            };
+        };
+    };
+    dashboard_enquiries_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnquiryDetail"];
+                };
+            };
+        };
+    };
+    dashboard_enquiries_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_enquiries_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedEnquiryDetailRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedEnquiryDetailRequest"];
+                "multipart/form-data": components["schemas"]["PatchedEnquiryDetailRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnquiryDetail"];
+                };
+            };
+        };
+    };
+    dashboard_enquiries_notes_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NoteRequest"];
+                "multipart/form-data": components["schemas"]["NoteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Note"];
+                };
+            };
+        };
+    };
+    dashboard_enquiries_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnquirySummary"];
+                };
+            };
+        };
+    };
     dashboard_lookups_retrieve: {
         parameters: {
             query?: never;
@@ -2312,6 +2746,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UploadSignature"];
+                };
+            };
+        };
+    };
+    enquiries_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnquiryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["EnquiryRequest"];
+                "multipart/form-data": components["schemas"]["EnquiryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnquiryReceipt"];
+                };
+            };
+        };
+    };
+    enquiries_form_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnquiryForm"];
                 };
             };
         };

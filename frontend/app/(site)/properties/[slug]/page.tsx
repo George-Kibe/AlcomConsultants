@@ -9,7 +9,6 @@ import {
   ChevronRightIcon,
   HashIcon,
   HomeIcon,
-  MailIcon,
   MapIcon,
   PhoneIcon,
   RulerIcon,
@@ -19,6 +18,7 @@ import {
 
 import { WhatsAppIcon } from "@/components/icons";
 import { AmenityIcon } from "@/components/listings/amenity-icon";
+import { EnquiryForm } from "@/components/enquiries/enquiry-form";
 import { FavouriteButton } from "@/components/listings/favourite-button";
 import { Gallery } from "@/components/listings/gallery";
 import { LocationMapLoader } from "@/components/listings/location-map-loader";
@@ -370,10 +370,7 @@ export default async function PropertyPage({
           )}
         </div>
 
-        <aside
-          className="lg:sticky lg:top-24 lg:self-start"
-          aria-label="Contact"
-        >
+        <aside className="lg:self-start" aria-label="Contact">
           <div className="bg-card flex flex-col gap-4 rounded-2xl border p-5 sm:p-6">
             <div>
               <p className="text-muted-foreground text-sm">
@@ -402,14 +399,6 @@ export default async function PropertyPage({
                 Call {contactPhone}
               </a>
             </Button>
-            <Button asChild size="xl" variant="outline">
-              <a
-                href={`mailto:${p.agent?.email || siteConfig.contact.email}?subject=${encodeURIComponent(`Enquiry: ${p.reference} ${p.title}`)}`}
-              >
-                <MailIcon data-icon="inline-start" />
-                Email
-              </a>
-            </Button>
             {p.project && (
               <p className="text-sm">
                 Part of{" "}
@@ -421,6 +410,27 @@ export default async function PropertyPage({
                 </Link>
               </p>
             )}
+          </div>
+          <div
+            className="bg-card mt-6 flex flex-col gap-4 rounded-2xl border p-5 sm:p-6"
+            id="enquire"
+          >
+            <h2 className="text-lg font-semibold">Send an enquiry</h2>
+            <EnquiryForm
+              kind="listing"
+              compact
+              property={{
+                slug: p.slug,
+                reference: p.reference ?? "",
+                title: p.title,
+              }}
+              defaultMessage={
+                closed
+                  ? "Do you have similar properties available?"
+                  : "Please send me more details. I'd like to arrange a viewing."
+              }
+              submitLabel="Send enquiry"
+            />
           </div>
         </aside>
       </div>

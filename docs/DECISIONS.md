@@ -62,6 +62,7 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - **Font**: Montserrat (Google Fonts, self-hosted by `next/font`); replaced Outfit at the client's request.
 - **Colours**: logo navy `#27225C`, green `#3EB354`, red `#EC232C`. The logo green/red fail WCAG AA as text on white, so text and buttons use darker variants (`#1E7B36`, `#C4161F`); logo colours are kept for decoration. Dark mode is near-neutral charcoal (`#121216`) with off-white primary buttons; the earlier navy/purple tint was too strong. All tokens live in `frontend/app/globals.css`.
 - **Components**: shadcn/ui (Radix base, "nova" preset), lucide icons; brand icons (WhatsApp, social) are local SVGs because lucide dropped brand marks.
+- Use prefetch components when there are API calls or something pending.
 - **Logo assets**: generated from the original PNG into `public/brand/` (transparent, mark-only, and light variants for dark backgrounds); favicon and Apple icon in `app/`.
 - **Accessibility**: every page is checked with axe (WCAG 2 A/AA) in light and dark themes on mobile and desktop in CI.
 
@@ -124,4 +125,12 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Saved searches store a normalised `/properties` query string and are matched with the public `PropertyFilter`, so alerts always agree with the search page.
 - Digest emails keep `List-Unsubscribe` on one header line: Python's default email policy would otherwise fold the long URL into RFC 2047 encoded-words, which mail providers ignore.
 - The blog's new-article page accepts the cover photo before the first save (`cover_upload` on create), so an article can be written and published in one go.
+
+## Enquiries and CRM (Phase 3, 2026-10-02)
+- Owner's choices: spam protection with **Cloudflare Turnstile** (plus built-in timing, honeypot and rate limits); new enquiries go to the **shared inbox only** (staff assign them in the dashboard); pipeline **New → Contacted → Viewing → Negotiating → Won / Lost**; follow-up reminders in the **dashboard and a morning email**.
+- Enquiries are kept separate from listings and accounts (`apps.enquiries`). A lead keeps a snapshot of the listing ("ALC-S-1001 title") so it still makes sense if the listing is deleted.
+- If Cloudflare can't be reached, the enquiry is accepted and marked "unverified" rather than refused: losing a real lead costs more than one extra spam message.
+- The visitor's confirmation email never repeats their message, so the form can't relay arbitrary text to a third party.
+- Forms submit with `onSubmit`, not React form actions: React resets a form after its action runs, which wiped what visitors had typed whenever there was an error. The sign-in, sign-up and password-reset forms were changed the same way.
+- Demo data was seeded in production on the owner's request (10 listings, 5 articles) for testing; it is removed before launch (Phase 6 checklist).
 

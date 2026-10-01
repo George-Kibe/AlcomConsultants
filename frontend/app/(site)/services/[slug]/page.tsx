@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CheckCircle2Icon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
+import { EnquiryForm } from "@/components/enquiries/enquiry-form";
 import { CtaBand } from "@/components/site/cta-band";
 import { PageHeader } from "@/components/site/page-header";
 import { ServiceIcon } from "@/components/site/service-icon";
@@ -109,6 +110,21 @@ export default async function ServicePage({
             </ul>
           </nav>
         </aside>
+      </section>
+      <section
+        id="enquire"
+        aria-labelledby="enquire-title"
+        className="container-page scroll-mt-24 pb-12 sm:pb-16"
+      >
+        <div className="bg-card max-w-3xl rounded-2xl border p-5 sm:p-8">
+          <h2 id="enquire-title" className="text-2xl font-bold">
+            {service.enquiry.title}
+          </h2>
+          <p className="text-muted-foreground mt-1 mb-6">
+            {service.enquiry.intro}
+          </p>
+          <EnquiryForm kind={service.enquiry.kind} />
+        </div>
       </section>
       <CtaBand />
     </>

@@ -1,0 +1,6 @@
+{% autoescape off %}{% block content %}{% endblock %}
+--
+{% block footer %}{% endblock %}Alcom Consultants Limited
+Registered Valuers • Property Managers • Estate Agents
+{{ site_url }}
+{% endautoescape %}

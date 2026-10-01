@@ -13,6 +13,9 @@ export const queryKeys = {
   posts: ["dashboard", "posts"] as const,
   post: (uuid: string) => ["dashboard", "post", uuid] as const,
   comments: ["dashboard", "comments"] as const,
+  enquiries: ["dashboard", "enquiries"] as const,
+  enquiry: (uuid: string) => ["dashboard", "enquiry", uuid] as const,
+  enquirySummary: ["dashboard", "enquiries", "summary"] as const,
 };
 
 export type PropertyListParams = {
@@ -133,5 +136,59 @@ export function useDashboardComments(params: CommentListParams) {
         }),
       ),
     placeholderData: keepPreviousData,
+  });
+}
+
+export type EnquiryListParams = {
+  stage?: string;
+  kind?: string;
+  assigned?: string;
+  due?: boolean;
+  spam?: boolean;
+  q?: string;
+  page?: number;
+};
+
+export function useDashboardEnquiries(params: EnquiryListParams) {
+  return useQuery({
+    queryKey: [...queryKeys.enquiries, params],
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/enquiries/", {
+          params: {
+            query: {
+              stage: (params.stage || undefined) as never,
+              kind: (params.kind || undefined) as never,
+              assigned: params.assigned || undefined,
+              due: params.due || undefined,
+              spam: params.spam || undefined,
+              q: params.q || undefined,
+              page: params.page,
+            },
+          },
+        }),
+      ),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useDashboardEnquiry(uuid: string) {
+  return useQuery({
+    queryKey: queryKeys.enquiry(uuid),
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/enquiries/{uuid}/", {
+          params: { path: { uuid } },
+        }),
+      ),
+  });
+}
+
+export function useEnquirySummary() {
+  return useQuery({
+    queryKey: queryKeys.enquirySummary,
+    queryFn: async () =>
+      unwrap(await api.GET("/api/v1/dashboard/enquiries/summary/")),
+    refetchInterval: 60_000,
   });
 }

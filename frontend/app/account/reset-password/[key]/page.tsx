@@ -14,6 +14,7 @@ import {
   errorMessage,
   resetPassword,
 } from "@/lib/api/auth";
+import { submitWith } from "@/lib/forms";
 
 export default function ResetPasswordPage() {
   const { key } = useParams<{ key: string }>();
@@ -50,7 +51,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <form action={submit} className="flex flex-col gap-5">
+    <form onSubmit={submitWith(submit)} className="flex flex-col gap-5">
       <h1 className="text-xl font-bold">Choose a new password</h1>
       {error && (
         <Alert variant="destructive" role="alert">

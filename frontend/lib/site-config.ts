@@ -50,6 +50,12 @@ export type Service = {
   description: string;
   highlights: string[];
   cta: { label: string; href: string };
+  /** The enquiry form at the bottom of the service page (#enquire). */
+  enquiry: {
+    kind: "contact" | "valuation" | "management";
+    title: string;
+    intro: string;
+  };
 };
 
 export const services: Service[] = [
@@ -67,6 +73,12 @@ export const services: Service[] = [
       "Negotiation and closing of sale and lease transactions",
     ],
     cta: { label: "Browse properties", href: "/properties" },
+    enquiry: {
+      kind: "contact",
+      title: "Selling or letting a property?",
+      intro:
+        "Tell us about the property and what you'd like to achieve. A consultant will call you back.",
+    },
   },
   {
     slug: "property-management",
@@ -83,7 +95,13 @@ export const services: Service[] = [
       "Property inspections and condition reporting",
       "Statutory compliance (NEMA, county rates, fire certificates and more)",
     ],
-    cta: { label: "Talk to us about your property", href: "/contact" },
+    cta: { label: "Talk to us about your property", href: "#enquire" },
+    enquiry: {
+      kind: "management",
+      title: "Talk to us about your property",
+      intro:
+        "Tell us about the property and we'll get back to you with how we would manage it and what it costs.",
+    },
   },
   {
     slug: "property-valuations",
@@ -101,7 +119,13 @@ export const services: Service[] = [
       "Plant and machinery",
       "Probate, estate distribution and litigation support",
     ],
-    cta: { label: "Request a valuation", href: "/contact" },
+    cta: { label: "Request a valuation", href: "#enquire" },
+    enquiry: {
+      kind: "valuation",
+      title: "Request a valuation",
+      intro:
+        "Tell us what you need valued and why. We'll reply with our fee and the earliest inspection date.",
+    },
   },
 ];
 

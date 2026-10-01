@@ -48,6 +48,7 @@ LOCAL_APPS = [
     "apps.projects",
     "apps.blog",
     "apps.saved",
+    "apps.enquiries",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -205,6 +206,8 @@ REST_FRAMEWORK = {
         "comments_burst": "5/min",
         "comments_daily": "50/day",
         "account_delete": "10/hour",
+        "enquiries_burst": "5/min",
+        "enquiries_daily": "30/day",
     },
 }
 
@@ -219,6 +222,8 @@ SPECTACULAR_SETTINGS = {
         "PropertyStatusEnum": "apps.listings.models.Status",
         "ProjectStatusEnum": "apps.projects.models.ProjectStatus",
         "PostStatusEnum": "apps.blog.models.PostStatus",
+        "EnquiryKindEnum": "apps.enquiries.models.Kind",
+        "EnquiryStageEnum": "apps.enquiries.models.Stage",
     },
 }
 
@@ -249,6 +254,11 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.saved.tasks.send_saved_search_alerts",
         "schedule": crontab(hour=7, minute=0),
     },
+    # Leads due for a follow-up, to each assignee (Nairobi time).
+    "enquiry-follow-ups": {
+        "task": "apps.enquiries.tasks.send_follow_up_reminders",
+        "schedule": crontab(hour=7, minute=30),
+    },
 }
 
 # ------------------------------------------------------------------ email
@@ -272,6 +282,17 @@ DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL", default="Alcom Consultants <noreply@alcomconsultants.co.ke>"
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+# New website enquiries are emailed here (comma-separated); the first also receives replies
+# to the confirmation sent to the visitor.
+ENQUIRY_NOTIFY_EMAILS = env.list("ENQUIRY_NOTIFY_EMAILS", default=["info@alcomconsultants.co.ke"])
+COMPANY_PHONE = "+254 792 616 015"
+COMPANY_WHATSAPP = "254792616015"
+
+# ------------------------------------------------------------------ spam protection
+# Cloudflare Turnstile on enquiry forms (docs/ENQUIRIES.md). Without keys the forms rely on
+# the honeypot, the minimum fill time and rate limits.
+TURNSTILE_SITE_KEY = env("TURNSTILE_SITE_KEY", default="")
+TURNSTILE_SECRET_KEY = env("TURNSTILE_SECRET_KEY", default="")
 
 # ------------------------------------------------------------------ logging
 LOGGING = {

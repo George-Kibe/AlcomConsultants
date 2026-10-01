@@ -1,0 +1,15 @@
+{% extends "email/base.html" %}
+{% block title %}New enquiry {{ enquiry.reference }}{% endblock %}
+{% block content %}
+<p style="margin:0 0 4px;color:#5b5975;font-size:13px;">{{ enquiry.reference }} &middot; {{ enquiry.created_at|date:"j M Y, H:i" }}</p>
+<h1 style="margin:0 0 16px;font-size:20px;color:#27225c;">{{ enquiry.get_kind_display }} from {{ enquiry.name }}</h1>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:0 0 16px;font-size:14px;">
+  <tr><td style="padding:4px 12px 4px 0;color:#5b5975;width:120px;">Email</td><td style="padding:4px 0;"><a href="mailto:{{ enquiry.email }}" style="color:#27225c;">{{ enquiry.email }}</a></td></tr>
+  {% if enquiry.phone %}<tr><td style="padding:4px 12px 4px 0;color:#5b5975;">Phone</td><td style="padding:4px 0;"><a href="tel:{{ enquiry.phone }}" style="color:#27225c;">{{ enquiry.phone }}</a></td></tr>{% endif %}
+  {% for label, value in rows %}<tr><td style="padding:4px 12px 4px 0;color:#5b5975;">{{ label }}</td><td style="padding:4px 0;">{% if label == "Property" and property_url %}<a href="{{ property_url }}" style="color:#27225c;">{{ value }}</a>{% else %}{{ value }}{% endif %}</td></tr>{% endfor %}
+</table>
+{% if enquiry.message %}<div style="background:#f4f4f7;border-radius:10px;padding:14px 16px;white-space:pre-wrap;font-size:14px;">{{ enquiry.message }}</div>{% endif %}
+<p style="margin:20px 0 0;"><a href="{{ dashboard_url }}" style="display:inline-block;background:#27225c;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:10px;">Open in the dashboard</a></p>
+<p style="margin:12px 0 0;color:#5b5975;font-size:13px;">Reply to this email to answer {{ enquiry.name }} directly.</p>
+{% endblock %}
+{% block footer %}Sent from the enquiry form on {{ enquiry.source_path|default:"the website" }}.<br>{% endblock %}

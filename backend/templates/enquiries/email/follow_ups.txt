@@ -1,0 +1,8 @@
+{% extends "email/base.txt" %}{% block content %}{{ leads|length }} follow-up{{ leads|length|pluralize }} due today
+{% if unassigned %}These leads are due for a follow-up and nobody is assigned to them yet.{% else %}These leads assigned to you are due for a follow-up.{% endif %}
+{% for lead in leads %}
+- {{ lead.enquiry.name }} ({{ lead.enquiry.reference }}, {{ lead.enquiry.get_stage_display }}){% if lead.overdue %}: overdue since {{ lead.enquiry.follow_up_on|date:"j M" }}{% endif %}
+  {{ lead.url }}{% endfor %}
+
+All follow-ups: {{ list_url }}
+{% endblock %}

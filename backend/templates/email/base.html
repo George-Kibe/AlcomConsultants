@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Alcom Consultants{% endblock %}</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f7;font-family:Arial,Helvetica,sans-serif;color:#1d1b3a;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;">
+<tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;">
+  <tr><td style="background:#27225c;padding:20px 24px;color:#ffffff;font-size:20px;font-weight:bold;">Alcom Consultants<span style="display:block;font-size:12px;font-weight:normal;color:#c9c7dd;margin-top:2px;">Registered Valuers &middot; Property Managers &middot; Estate Agents</span></td></tr>
+  <tr><td style="padding:24px;font-size:15px;line-height:1.55;">
+    {% block content %}{% endblock %}
+  </td></tr>
+  <tr><td style="padding:16px 24px 24px;border-top:1px solid #e4e3ee;color:#5b5975;font-size:12px;line-height:1.6;">
+    {% block footer %}{% endblock %}
+    Alcom Consultants Limited &middot; Westlands, Nairobi &middot; <a href="{{ site_url }}" style="color:#5b5975;">alcomconsultants.co.ke</a>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>

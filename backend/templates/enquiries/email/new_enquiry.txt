@@ -1,0 +1,14 @@
+{% extends "email/base.txt" %}{% block content %}{{ enquiry.get_kind_display }} from {{ enquiry.name }} ({{ enquiry.reference }})
+
+Email: {{ enquiry.email }}{% if enquiry.phone %}
+Phone: {{ enquiry.phone }}{% endif %}{% for label, value in rows %}
+{{ label }}: {{ value }}{% endfor %}{% if property_url %}
+Listing: {{ property_url }}{% endif %}
+{% if enquiry.message %}
+{{ enquiry.message }}
+{% endif %}
+Open in the dashboard: {{ dashboard_url }}
+Reply to this email to answer {{ enquiry.name }} directly.
+{% endblock %}
+{% block footer %}Sent from the enquiry form on {{ enquiry.source_path|default:"the website" }}.
+{% endblock %}

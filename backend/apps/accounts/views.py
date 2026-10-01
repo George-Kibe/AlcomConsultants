@@ -35,6 +35,7 @@ def export_data(user: User) -> dict[str, Any]:
     from allauth.socialaccount.models import SocialAccount
 
     from apps.blog.models import Comment
+    from apps.enquiries.models import Enquiry
     from apps.saved.models import Favourite, SavedSearch
 
     def when(value: Any) -> str | None:
@@ -87,6 +88,20 @@ def export_data(user: User) -> dict[str, Any]:
             }
             for c in Comment.objects.filter(author=user).select_related("post")
         ],
+        "enquiries": [
+            {
+                "reference": e.reference,
+                "type": e.get_kind_display(),
+                "name": e.name,
+                "email": e.email,
+                "phone": e.phone,
+                "message": e.message,
+                "about": e.property_label or e.location,
+                "sent_at": when(e.created_at),
+                "consent_given_at": when(e.consent_at),
+            }
+            for e in Enquiry.objects.filter(user=user)
+        ],
     }
 
 
@@ -107,8 +122,9 @@ class ExportView(APIView):
 
 
 class DeleteAccountView(APIView):
-    """Delete your account. Comments stay on the blog as "Former reader"; everything else
-    (profile, favourites, saved searches, sign-in methods) is removed."""
+    """Delete your account. Comments stay on the blog as "Former reader" and enquiries stay
+    with the office (no longer linked to the account); everything else (profile, favourites,
+    saved searches, sign-in methods) is removed."""
 
     permission_classes = [IsAuthenticated]
     throttle_classes = [ScopedRateThrottle]

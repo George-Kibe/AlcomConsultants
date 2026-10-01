@@ -17,6 +17,7 @@ import {
 import { safeLocalPath } from "@/lib/safe-redirect";
 
 import { GoogleButton } from "./google-button";
+import { submitWith } from "@/lib/forms";
 
 const noopSubscribe = () => () => {};
 /** Where to send the reader once their email is confirmed (read by the verify page). */
@@ -89,7 +90,7 @@ export function SignUpForm() {
   }
 
   return (
-    <form action={submit} className="flex flex-col gap-5">
+    <form onSubmit={submitWith(submit)} className="flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-bold">Create an account</h1>
         <p className="text-muted-foreground mt-1 text-sm">

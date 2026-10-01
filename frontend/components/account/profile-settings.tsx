@@ -64,7 +64,9 @@ function DetailsForm({ me }: { me: Viewer }) {
     >
       <form
         className="grid gap-4 sm:grid-cols-2"
-        action={(form) => {
+        onSubmit={(e) => {
+          e.preventDefault(); // not an action: React would reset the fields on error
+          const form = new FormData(e.currentTarget);
           setErrors({});
           save.mutate(
             {
@@ -253,7 +255,8 @@ function DeleteAccount({ me }: { me: Viewer }) {
             <AlertDialogDescription>
               Your profile, saved properties and saved searches are deleted
               straight away. Your blog comments stay, shown as &ldquo;Former
-              reader&rdquo;. This can&apos;t be undone.
+              reader&rdquo;, and enquiries you sent stay with our team so we can
+              finish handling them. This can&apos;t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex flex-col gap-2">
