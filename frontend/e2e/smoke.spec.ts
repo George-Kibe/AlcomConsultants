@@ -115,3 +115,34 @@ test("home shows featured properties that link to listings", async ({
   await section.getByRole("link", { name: "4 Bedroom Villa" }).click();
   await expect(page).toHaveURL(/\/properties$/);
 });
+
+test("home page images load from Cloudinary", async ({ page }) => {
+  await page.goto("/");
+  const featured = page.getByRole("region", { name: "Featured properties" });
+  await featured.scrollIntoViewIfNeeded();
+  await expect(
+    featured.getByRole("article").first().locator("img"),
+  ).toBeVisible();
+  // Every rendered image must have loaded (no broken images), and photos come from Cloudinary.
+  await expect
+    .poll(async () =>
+      page.$$eval("img", (imgs) =>
+        imgs
+          .filter(
+            (img) =>
+              img.loading !== "lazy" ||
+              img.getBoundingClientRect().top < innerHeight,
+          )
+          .every((img) => img.complete && img.naturalWidth > 0),
+      ),
+    )
+    .toBe(true);
+  const photoSources = await page.$$eval("main img", (els) =>
+    (els as HTMLImageElement[])
+      .map((img) => img.currentSrc)
+      .filter((src) => !src.includes("/brand/")),
+  );
+  expect(photoSources.length).toBeGreaterThan(0);
+  for (const src of photoSources)
+    expect(src).toContain("res.cloudinary.com/ictdclhd");
+});

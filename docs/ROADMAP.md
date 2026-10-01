@@ -1,25 +1,30 @@
 # Roadmap
 
-No hard deadline; quality first. Each phase ends with passing CI, deployment to staging, and your review before the next phase starts.
+No hard deadline; quality first. Each step ends with passing CI (incl. full-stack E2E), an automatic deploy and your review.
+
+**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ except real company details · Phase 2 in progress (2a ✅, 2b-1 ✅)
 
 ## Release 1: Listings platform + marketing site
 
-### Phase 0: Foundation
-- Monorepo structure, `.gitignore`, `.editorconfig`, pre-commit (ruff, prettier, eslint)
-- Django project (settings split, custom User model, core app, health endpoint, DRF, OpenAPI)
-- Next.js cleanup/config (standalone output, env handling, lint/format, Vitest, Playwright)
-- Docker: backend/frontend Dockerfiles (multi-stage, non-root), Compose dev/prod, Postgres+PostGIS, Redis, Celery
-- GitHub repo, CI workflow, Dependabot
+### Phase 0: Foundation ✅
+- [x] Monorepo structure, `.gitignore`, `.editorconfig`, pre-commit (ruff, prettier, eslint, gitleaks)
+- [x] Django 6.1 project (settings split, custom User model, core app, health endpoint, DRF, OpenAPI)
+- [x] Next.js 16 config (standalone output, env handling, lint/format, Vitest, Playwright)
+- [x] Docker: backend/frontend Dockerfiles (multi-stage, non-root), Compose dev/prod, Postgres 18 + PostGIS, Redis 8, Celery
+- [x] GitHub repo, CI workflow, Dependabot
 
-### Phase 1: Design system and public shell
+### Phase 1: Design system and public shell ✅ (except real content)
 - [x] Brand tokens from the logo (colours, typography, spacing), shadcn/ui setup, light/dark theme
 - [x] Header/nav (mobile menu), footer with Nairobi skyline, floating WhatsApp button, 404/error pages
-- [x] Home page (hero + search hand-off, services, why Alcom, CTA)
+- [x] Home page (10-photo hero slideshow + search hand-off, featured properties*, services, why Alcom, CTA). *Sample listings until 2c
 - [x] Static pages: About, Services (+ one page per service), Contact (with FAQs), Properties placeholder, legal page stubs
 - [x] Automated WCAG 2 AA checks (axe) on every page in both themes, mobile + desktop
+- [x] Site images on Cloudinary (hero + sample listings via `next-cloudinary`; responsive AVIF/WebP)
+- [x] **Live** at https://alcomconsultants.co.ke: edge Nginx, Let's Encrypt with automatic renewal, automatic deploys on push to `main` (CI-built images, health gate, rollback). Indexing blocked (`SITE_ENV=staging`) until launch
+- [x] VPS: firewall (22/80/443), fail2ban, key-based SSH (`ssh alcom_vps`)
+- [ ] VPS: switch off SSH password login (after confirming provider web-console access)
 - [ ] Real company details and copy review (placeholders marked `TODO(content)`)
-- [ ] Images on Cloudinary (needs credentials)
-- [ ] **Staging live**: VPS hardening, edge Nginx, Let's Encrypt, deploy workflow (needs VPS access + DNS)
+- [ ] Optional: separate staging environment at staging.alcomconsultants.co.ke (the edge proxy already supports a second stack)
 
 ### Phase 2: Listings core
 - [x] **2a** Locations (47 counties + 69 seeded areas → neighbourhoods), property types, amenities
