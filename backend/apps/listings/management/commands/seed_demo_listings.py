@@ -1,5 +1,7 @@
-"""Realistic demo listings for development, CI and demos (never for real production data)."""
+"""Realistic demo listings and blog articles for development, CI and demos (never for real
+production data)."""
 
+from datetime import timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -7,8 +9,10 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.blog.models import Post, PostStatus
 from apps.listings.models import Amenity, Property, PropertyMedia, PropertyType, Status
 from apps.locations.models import Area
 
@@ -44,6 +48,50 @@ PHOTOS = {
     "land": [f"{SITE}/hero/05-leafy-neighbourhood"],
     "office": [f"{SITE}/hero/10-nairobi-city", f"{SITE}/hero/06-nairobi-skyline"],
 }
+
+# title, cover photo, cover description, body (HTML)
+POSTS: list[tuple[str, str, str, str]] = [
+    (
+        "What to check before buying land in Kenya",
+        f"{SITE}/hero/05-leafy-neighbourhood",
+        "Tree-lined residential plots in a quiet neighbourhood",
+        "<p>Land is the most common first investment for Kenyan buyers, and the most common "
+        "source of disputes. A few checks before you pay a deposit protect you from most of "
+        "them.</p><h2>1. Run an official search</h2><p>Ask the seller for a copy of the title "
+        "and run a search at the Ministry of Lands (or on Ardhisasa) to confirm the registered "
+        "owner and any charges, cautions or restrictions.</p><h2>2. Visit the plot</h2><ul>"
+        "<li>Confirm the beacons with a licensed surveyor.</li><li>Talk to neighbours about "
+        "access roads and boundaries.</li><li>Check for water, power and drainage.</li></ul>"
+        "<h2>3. Get a valuation</h2><p>An independent valuation tells you whether the asking "
+        "price is fair and is required if a bank is financing the purchase.</p><blockquote>"
+        "<p>This is demonstration content showing how articles appear on the website.</p>"
+        "</blockquote>",
+    ),
+    (
+        "A landlord's guide to stress-free rent collection",
+        f"{SITE}/hero/03-apartments-garden",
+        "Low-rise apartment blocks around a landscaped garden",
+        "<p>Late rent is the most common headache for landlords. Clear agreements and simple "
+        "routines prevent most arrears.</p><h2>Put it in writing</h2><p>A tenancy agreement "
+        "should state the rent, the due date, the deposit, and what happens if payment is "
+        "late.</p><h2>Make paying easy</h2><p>Use a dedicated M-Pesa paybill or bank account "
+        "per property and send receipts automatically.</p><h2>Follow up early</h2><ol><li>A "
+        "friendly reminder on the due date.</li><li>A formal notice after seven days.</li><li>"
+        "Professional follow-up if arrears continue.</li></ol><p><em>This is demonstration "
+        "content.</em></p>",
+    ),
+    (
+        "Why a professional valuation matters",
+        f"{SITE}/hero/10-nairobi-city",
+        "Nairobi's skyline in the afternoon",
+        "<p>A valuation by a Registered Valuer gives banks, buyers, sellers and insurers an "
+        "independent opinion of what a property is worth.</p><h2>When you need one</h2><ul>"
+        "<li>Mortgages and secured lending</li><li>Buying or selling</li><li>Insurance "
+        "(reinstatement cost)</li><li>Probate and succession</li></ul><p>Reports follow the "
+        "Valuers Act and International Valuation Standards.</p><p><em>This is demonstration "
+        "content.</em></p>",
+    ),
+]
 
 # title, deal, type, area, price, unit, beds, baths, built m², photos, featured, amenities
 LISTINGS: list[tuple[Any, ...]] = [
@@ -233,6 +281,7 @@ class Command(BaseCommand):
             email=DEMO_EMAIL, defaults={"first_name": "Demo data", "is_active": False}
         )
         removed, _ = Property.objects.filter(created_by=demo_user).delete()
+        removed += Post.objects.filter(created_by=demo_user).delete()[0]
         if clear:
             self.stdout.write(f"Removed {removed} demo objects.")
             return
@@ -287,4 +336,22 @@ class Command(BaseCommand):
                     height=1067,
                     alt_text=f"{title} photo {order + 1}",
                 )
-        self.stdout.write(self.style.SUCCESS(f"Created {len(LISTINGS)} demo listings."))
+        now = timezone.now()
+        for i, (title, cover, alt, body) in enumerate(POSTS):
+            Post.objects.create(
+                title=title,
+                body=body,
+                cover_public_id=cover,
+                cover_alt=alt,
+                cover_width=1600,
+                cover_height=1067,
+                status=PostStatus.PUBLISHED,
+                published_at=now - timedelta(days=3 * i + 1),
+                created_by=demo_user,
+                updated_by=demo_user,
+            )
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Created {len(LISTINGS)} demo listings and {len(POSTS)} demo articles."
+            )
+        )

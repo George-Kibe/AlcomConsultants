@@ -1,21 +1,20 @@
 import Link from "next/link";
 
-import { searchHref, type SearchState } from "@/lib/listings";
-
+/** Page links for server-rendered lists; `href` builds the URL of page n. */
 export function Pagination({
-  state,
+  page: requested,
   total,
-  pageSize = 20,
+  pageSize,
+  href: link,
 }: {
-  state: SearchState;
+  page: number;
   total: number;
-  pageSize?: number;
+  pageSize: number;
+  href: (page: number) => string;
 }) {
   const pages = Math.ceil(total / pageSize);
   if (pages <= 1) return null;
-  const page = Math.min(Math.max(1, Number(state.page ?? 1)), pages);
-  const link = (n: number) =>
-    searchHref(state, { page: n === 1 ? undefined : String(n) });
+  const page = Math.min(Math.max(1, requested || 1), pages);
   const window = [...new Set([1, page - 1, page, page + 1, pages])].filter(
     (n) => n >= 1 && n <= pages,
   );

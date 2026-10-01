@@ -17,6 +17,7 @@ dependencies = [
     "sentry-sdk[django,celery]>=2.71.0",
     "cloudinary>=1.46.2",
     "django-allauth[mfa]>=65.19.6",
+    "nh3>=0.3.7",
 ]
 
 [dependency-groups]

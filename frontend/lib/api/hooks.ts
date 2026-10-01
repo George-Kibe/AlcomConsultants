@@ -10,6 +10,8 @@ export const queryKeys = {
   lookups: ["dashboard", "lookups"] as const,
   properties: ["dashboard", "properties"] as const,
   property: (uuid: string) => ["dashboard", "property", uuid] as const,
+  posts: ["dashboard", "posts"] as const,
+  post: (uuid: string) => ["dashboard", "post", uuid] as const,
 };
 
 export type PropertyListParams = {
@@ -70,6 +72,39 @@ export function useDashboardProperty(uuid: string) {
     queryFn: async () =>
       unwrap(
         await api.GET("/api/v1/dashboard/properties/{uuid}/", {
+          params: { path: { uuid } },
+        }),
+      ),
+  });
+}
+
+export type PostListParams = { status?: string; q?: string; page?: number };
+
+export function useDashboardPosts(params: PostListParams) {
+  return useQuery({
+    queryKey: [...queryKeys.posts, params],
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/blog/posts/", {
+          params: {
+            query: {
+              status: (params.status || undefined) as never,
+              q: params.q || undefined,
+              page: params.page,
+            },
+          },
+        }),
+      ),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useDashboardPost(uuid: string) {
+  return useQuery({
+    queryKey: queryKeys.post(uuid),
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/blog/posts/{uuid}/", {
           params: { path: { uuid } },
         }),
       ),

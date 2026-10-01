@@ -20,6 +20,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/blog/posts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Published blog posts, newest first. */
+        get: operations["blog_posts_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/blog/posts/{slug}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Published blog posts, newest first. */
+        get: operations["blog_posts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/blog/posts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        get: operations["dashboard_blog_posts_list"];
+        put?: never;
+        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        post: operations["dashboard_blog_posts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/blog/posts/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        get: operations["dashboard_blog_posts_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        delete: operations["dashboard_blog_posts_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        patch: operations["dashboard_blog_posts_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/blog/posts/{uuid}/cover/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Set (replacing any previous one) or remove the cover photo. */
+        post: operations["dashboard_blog_posts_cover_create"];
+        /** @description Set (replacing any previous one) or remove the cover photo. */
+        delete: operations["dashboard_blog_posts_cover_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/lookups/": {
         parameters: {
             query?: never;
@@ -419,6 +508,22 @@ export interface components {
             slug: string;
             readonly areas: components["schemas"]["Area"][];
         };
+        Cover: {
+            public_id: string;
+            alt_text: string;
+            width: number | null;
+            height: number | null;
+            url: string;
+        };
+        /** @description The upload result Cloudinary returned to the browser. */
+        CoverUploadRequest: {
+            public_id: string;
+            version: number;
+            signature: string;
+            width?: number | null;
+            height?: number | null;
+            alt_text?: string;
+        };
         DashboardOverview: {
             total: number;
             listed: number;
@@ -427,6 +532,52 @@ export interface components {
             closed: number;
             archived: number;
             featured: number;
+        };
+        DashboardPost: {
+            /** Format: uuid */
+            readonly uuid: string;
+            title: string;
+            slug?: string;
+            status?: components["schemas"]["PostStatusEnum"];
+            /** Format: date-time */
+            readonly published_at: string | null;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly author_name: string;
+            readonly cover: components["schemas"]["Cover"] | null;
+            /** @description Summary for cards and search results. */
+            excerpt?: string;
+            body?: string;
+            cover_alt?: string;
+            seo_title?: string;
+            seo_description?: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly updated_by_name: string;
+        };
+        DashboardPostList: {
+            /** Format: uuid */
+            readonly uuid: string;
+            title: string;
+            slug: string;
+            status?: components["schemas"]["PostStatusEnum"];
+            /** Format: date-time */
+            published_at?: string | null;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly author_name: string;
+            readonly cover: components["schemas"]["Cover"] | null;
+        };
+        DashboardPostRequest: {
+            title: string;
+            slug?: string;
+            status?: components["schemas"]["PostStatusEnum"];
+            /** @description Summary for cards and search results. */
+            excerpt?: string;
+            body?: string;
+            cover_alt?: string;
+            seo_title?: string;
+            seo_description?: string;
         };
         /** @description Create / edit a listing. */
         DashboardProperty: {
@@ -667,6 +818,21 @@ export interface components {
             /** Format: double */
             lng: number;
         };
+        PaginatedDashboardPostListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["DashboardPostList"][];
+        };
         PaginatedDashboardPropertyListList: {
             /** @example 123 */
             count: number;
@@ -681,6 +847,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["DashboardPropertyList"][];
+        };
+        PaginatedPostListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["PostList"][];
         };
         PaginatedProjectListList: {
             /** @example 123 */
@@ -711,6 +892,17 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["PropertyList"][];
+        };
+        PatchedDashboardPostRequest: {
+            title?: string;
+            slug?: string;
+            status?: components["schemas"]["PostStatusEnum"];
+            /** @description Summary for cards and search results. */
+            excerpt?: string;
+            body?: string;
+            cover_alt?: string;
+            seo_title?: string;
+            seo_description?: string;
         };
         /** @description Create / edit a listing. */
         PatchedDashboardPropertyRequest: {
@@ -758,6 +950,37 @@ export interface components {
             alt_text?: string;
             caption?: string;
         };
+        PostDetail: {
+            slug: string;
+            title: string;
+            readonly excerpt: string;
+            readonly cover: components["schemas"]["Cover"] | null;
+            /** Format: date-time */
+            published_at?: string | null;
+            readonly author_name: string;
+            readonly reading_minutes: number;
+            body?: string;
+            seo_title?: string;
+            seo_description?: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        PostList: {
+            slug: string;
+            title: string;
+            readonly excerpt: string;
+            readonly cover: components["schemas"]["Cover"] | null;
+            /** Format: date-time */
+            published_at?: string | null;
+            readonly author_name: string;
+            readonly reading_minutes: number;
+        };
+        /**
+         * @description * `draft` - Draft
+         *     * `published` - Published
+         * @enum {string}
+         */
+        PostStatusEnum: "draft" | "published";
         /**
          * @description * `total` - Total
          *     * `per_month` - per month
@@ -924,11 +1147,12 @@ export interface components {
             ids: number[];
         };
         /**
-         * @description * `projects` - projects
+         * @description * `blog` - blog
+         *     * `projects` - projects
          *     * `properties` - properties
          * @enum {string}
          */
-        TargetEnum: "projects" | "properties";
+        TargetEnum: "blog" | "projects" | "properties";
         UnitType: {
             /** @description e.g. 2 Bedroom Apartment */
             name: string;
@@ -1016,6 +1240,222 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Amenity"][];
                 };
+            };
+        };
+    };
+    blog_posts_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPostListList"];
+                };
+            };
+        };
+    };
+    blog_posts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetail"];
+                };
+            };
+        };
+    };
+    dashboard_blog_posts_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Search titles */
+                q?: string;
+                /**
+                 * @description * `draft` - Draft
+                 *     * `published` - Published
+                 */
+                status?: "draft" | "published";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDashboardPostListList"];
+                };
+            };
+        };
+    };
+    dashboard_blog_posts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardPostRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DashboardPostRequest"];
+                "multipart/form-data": components["schemas"]["DashboardPostRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardPost"];
+                };
+            };
+        };
+    };
+    dashboard_blog_posts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardPost"];
+                };
+            };
+        };
+    };
+    dashboard_blog_posts_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_blog_posts_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardPostRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardPostRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardPostRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardPost"];
+                };
+            };
+        };
+    };
+    dashboard_blog_posts_cover_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CoverUploadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CoverUploadRequest"];
+                "multipart/form-data": components["schemas"]["CoverUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardPost"];
+                };
+            };
+        };
+    };
+    dashboard_blog_posts_cover_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

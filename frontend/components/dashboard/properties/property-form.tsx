@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo } from "react";
 import { Controller, useForm, useWatch, type FieldPath } from "react-hook-form";
 import { toast } from "sonner";
-import { cn } from "cn";
 
 import {
   AlertDialog,
@@ -24,7 +23,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -51,6 +49,8 @@ import {
   type ListingFormValues,
 } from "@/lib/listing-form";
 
+import { Field, Section } from "../form-parts";
+
 import { PhotoManager } from "./photo-manager";
 import { StatusBadge } from "./status-badge";
 
@@ -58,59 +58,6 @@ type ApiProperty = components["schemas"]["DashboardProperty"];
 
 const errorBody = (result: object) => (result as { error?: unknown }).error;
 const NONE = "__none__"; // Radix Select can't use "" as a value
-
-function Section({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="bg-card flex flex-col gap-4 rounded-2xl border p-5 sm:p-6">
-      <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        {description && (
-          <p className="text-muted-foreground text-sm">{description}</p>
-        )}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function Field({
-  label,
-  error,
-  hint,
-  children,
-  className,
-  htmlFor,
-}: {
-  label: string;
-  error?: string;
-  hint?: string;
-  children: React.ReactNode;
-  className?: string;
-  htmlFor: string;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
-      {hint && !error && (
-        <p className="text-muted-foreground text-xs">{hint}</p>
-      )}
-      {error && (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
 
 type Props = { property?: ApiProperty };
 

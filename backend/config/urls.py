@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAdminUser
 api_v1: list[URLPattern | URLResolver] = [
     path("", include("apps.core.urls")),
     path("", include("apps.listings.urls")),
+    path("", include("apps.blog.urls")),
     path("auth/", include("allauth.headless.urls")),
     path(
         "schema/",

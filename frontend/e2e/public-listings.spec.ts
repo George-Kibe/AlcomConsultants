@@ -8,6 +8,8 @@ import { expect, test, type Page } from "@playwright/test";
 const VILLA = "4 Bedroom Villa with Pool";
 
 async function axe(page: Page) {
+  // Dynamic pages stream their <title> after the HTML; scan once it has arrived.
+  await expect(page).toHaveTitle(/\S/);
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa"])
     .exclude(".leaflet-container") // third-party map tiles/controls
