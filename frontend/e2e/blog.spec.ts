@@ -5,7 +5,13 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-import { JPEG, MOCK_SECRET, mockCloudinary, signIn } from "./helpers";
+import {
+  JPEG,
+  MOCK_SECRET,
+  emailConfirmationKey,
+  mockCloudinary,
+  signIn,
+} from "./helpers";
 
 async function axe(page: Page) {
   // Dynamic pages stream their <title> after the HTML; scan once it has arrived.
@@ -137,4 +143,74 @@ test("write, publish, unpublish and delete an article", async ({
   await page.getByRole("button", { name: "Delete draft", exact: true }).click();
   await page.waitForURL((url) => url.pathname === "/dashboard/blog");
   await expect(page.getByText(title)).toHaveCount(0);
+});
+
+test("readers sign up, confirm their email and comment; staff can hide comments", async ({
+  page,
+  browser,
+  isMobile,
+}) => {
+  test.skip(isMobile, "Account flow runs once, on desktop");
+  const article = "/blog/why-a-professional-valuation-matters";
+  const email = `reader-${Date.now()}@example.com`;
+  const text = `Very clear, thank you ${Date.now()}`;
+
+  // Signed out: an invitation to join, no comment box.
+  await page.goto(`${article}#comments`);
+  const comments = page.getByRole("region", { name: /^Comments/ });
+  await expect(
+    comments.getByText("Sign in to join the conversation."),
+  ).toBeVisible();
+
+  await comments.getByRole("link", { name: "Create account" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Create an account",
+  );
+  expect(await axe(page)).toEqual([]);
+  await page.getByLabel("Your name").fill("Esther Njeri");
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByLabel("Password", { exact: true }).fill("Reader-pass-2026");
+  await page.getByLabel("Confirm password").fill("Reader-pass-2026");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Check your email" }),
+  ).toBeVisible();
+
+  // Signed in but unconfirmed: asked to confirm first.
+  await page.getByRole("link", { name: "Continue" }).click();
+  await expect(
+    page.getByText("Please confirm your email address to comment."),
+  ).toBeVisible();
+
+  // The emailed link opens the verify page, which confirms and returns to the article.
+  await page.goto(
+    `/account/verify-email/${encodeURIComponent(emailConfirmationKey(email))}`,
+  );
+  await expect(
+    page.getByRole("heading", { name: "Email confirmed" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Continue" }).click();
+  await expect(page).toHaveURL(new RegExp(`${article}#comments$`));
+
+  await page.getByLabel("Comment as Esther Njeri").fill(text);
+  await page.getByRole("button", { name: "Post comment" }).click();
+  const mine = page.getByRole("listitem").filter({ hasText: text });
+  await expect(mine).toContainText("Esther N.");
+  expect(await axe(page)).toEqual([]);
+
+  // Staff hide it from the dashboard; it disappears from the article.
+  const staff = await browser.newPage();
+  await signIn(staff, "/dashboard/blog/comments");
+  await staff.getByLabel("Search comments").fill(text);
+  const row = staff.getByRole("listitem").filter({ hasText: text });
+  await row.getByRole("button", { name: "Hide" }).click();
+  await expect(row.getByText(/^Hidden by/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(text)).toHaveCount(0);
+
+  // Clean up.
+  await row.getByRole("button", { name: "Delete" }).click();
+  await staff.getByRole("button", { name: "Delete comment" }).click();
+  await expect(staff.getByText(text)).toHaveCount(0);
+  await staff.close();
 });

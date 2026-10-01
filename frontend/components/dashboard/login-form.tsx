@@ -13,6 +13,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
+import { GoogleButton } from "@/components/auth/google-button";
 import {
   authenticateTwoFactor,
   ensureCsrf,
@@ -20,13 +21,25 @@ import {
   login,
   pendingFlow,
 } from "@/lib/api/auth";
-import { safeNext } from "@/lib/safe-redirect";
+import { api } from "@/lib/api/client";
+import { safeLocalPath, safeNext } from "@/lib/safe-redirect";
 
 const noopSubscribe = () => () => {};
 
-export function LoginForm() {
+/**
+ * Email + password sign-in with the two-step verification step. "staff" is the dashboard
+ * login; "reader" (blog commenters) adds Google and a link to create an account.
+ */
+export function LoginForm({
+  variant = "staff",
+}: {
+  variant?: "staff" | "reader";
+}) {
   const router = useRouter();
-  const next = safeNext(useSearchParams().get("next"));
+  const params = useSearchParams();
+  const reader = variant === "reader";
+  const requested = params.get("next");
+  const next = reader ? safeLocalPath(requested, "") : safeNext(requested);
   const [step, setStep] = useState<"password" | "code">("password");
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -44,8 +57,14 @@ export function LoginForm() {
     void ensureCsrf();
   }, []);
 
-  function done() {
-    router.replace(next);
+  async function done() {
+    let target = next;
+    if (!target) {
+      // Reader page without ?next=: staff go to the dashboard, everyone else to the blog.
+      const me = await api.GET("/api/v1/me/");
+      target = me.data?.is_staff ? "/dashboard" : "/blog";
+    }
+    router.replace(target);
     router.refresh();
   }
 
@@ -57,10 +76,10 @@ export function LoginForm() {
       String(form.get("password")),
     );
     setBusy(false);
-    if (res.status === 200) return done();
+    if (res.status === 200) return void done();
     if (res.status === 401 && pendingFlow(res, "mfa_authenticate"))
       return setStep("code");
-    if (res.status === 409) return done(); // already signed in
+    if (res.status === 409) return void done(); // already signed in
     setError(
       res.status === 429
         ? "Too many attempts. Please wait a few minutes and try again."
@@ -73,7 +92,7 @@ export function LoginForm() {
     setError(undefined);
     const res = await authenticateTwoFactor(value);
     setBusy(false);
-    if (res.status === 200) return done();
+    if (res.status === 200) return void done();
     setCode("");
     setError(errorMessage(res) ?? "That code didn't work. Try the newest one.");
   }
@@ -166,11 +185,24 @@ export function LoginForm() {
   return (
     <form action={submitPassword} className="flex flex-col gap-5">
       <div>
-        <h1 className="text-xl font-bold">Staff sign in</h1>
+        <h1 className="text-xl font-bold">
+          {reader ? "Sign in" : "Staff sign in"}
+        </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Alcom Consultants dashboard
+          {reader
+            ? "Join the conversation on our blog."
+            : "Alcom Consultants dashboard"}
         </p>
       </div>
+      {reader && params.get("error") && !error && (
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>
+            {params.get("error") === "exists"
+              ? "An account with this email already exists. Sign in with your password."
+              : "Google sign-in didn't complete. Please try again."}
+          </AlertDescription>
+        </Alert>
+      )}
       {error && (
         <Alert variant="destructive" role="alert">
           <AlertDescription>{error}</AlertDescription>
@@ -192,7 +224,7 @@ export function LoginForm() {
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
           <Link
-            href="/dashboard/forgot-password"
+            href="/account/forgot-password"
             className="text-primary text-sm underline-offset-4 hover:underline"
           >
             Forgot password?
@@ -210,6 +242,20 @@ export function LoginForm() {
       <Button type="submit" size="xl" disabled={busy || !ready}>
         {busy ? "Signing in…" : "Sign in"}
       </Button>
+      {reader && (
+        <>
+          <GoogleButton next={next || "/blog"} />
+          <p className="text-muted-foreground text-center text-sm">
+            New here?{" "}
+            <Link
+              href={`/account/sign-up${next ? `?next=${encodeURIComponent(next)}` : ""}`}
+              className="text-primary font-medium underline-offset-4 hover:underline"
+            >
+              Create an account
+            </Link>
+          </p>
+        </>
+      )}
     </form>
   );
 }

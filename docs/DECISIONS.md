@@ -110,3 +110,9 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Covers use the same signed direct-upload flow as listing photos (`target: "blog"`), and replaced or deleted covers are removed from Cloudinary.
 - JSON-LD is serialised with `<` escaped (`lib/json-ld.ts`) so content can never close the script tag.
 - Comments (signed-in readers, published instantly, staff can hide) follow in 2f-2 together with reader accounts.
+
+## Reader accounts and comments (2026-10-01)
+- Commenting requires a signed-in reader with a confirmed email (owner's choice: email with verification, or Google; comments publish instantly and staff can hide them). Details and the Google setup: `docs/AUTH.md`.
+- Email verification is "optional" with a confirmation link rather than "mandatory" with a code: allauth only supports codes with mandatory verification, which would lock out admin-created staff accounts. Commenting checks for a confirmed address instead.
+- Readers and staff share allauth; dashboard access stays `is_staff`-only on every API, so opening sign-up cannot grant dashboard access. Google accounts are not auto-merged into existing accounts by email.
+- Password reset moved to `/account/*` for everyone; old dashboard reset URLs redirect.

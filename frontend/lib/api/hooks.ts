@@ -12,6 +12,7 @@ export const queryKeys = {
   property: (uuid: string) => ["dashboard", "property", uuid] as const,
   posts: ["dashboard", "posts"] as const,
   post: (uuid: string) => ["dashboard", "post", uuid] as const,
+  comments: ["dashboard", "comments"] as const,
 };
 
 export type PropertyListParams = {
@@ -108,5 +109,29 @@ export function useDashboardPost(uuid: string) {
           params: { path: { uuid } },
         }),
       ),
+  });
+}
+
+export type CommentListParams = { hidden?: string; q?: string; page?: number };
+
+export function useDashboardComments(params: CommentListParams) {
+  return useQuery({
+    queryKey: [...queryKeys.comments, params],
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/blog/comments/", {
+          params: {
+            query: {
+              hidden:
+                params.hidden === "" || params.hidden === undefined
+                  ? undefined
+                  : params.hidden === "true",
+              q: params.q || undefined,
+              page: params.page,
+            },
+          },
+        }),
+      ),
+    placeholderData: keepPreviousData,
   });
 }

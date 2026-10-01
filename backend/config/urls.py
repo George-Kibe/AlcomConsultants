@@ -9,6 +9,8 @@ api_v1: list[URLPattern | URLResolver] = [
     path("", include("apps.listings.urls")),
     path("", include("apps.blog.urls")),
     path("auth/", include("allauth.headless.urls")),
+    # Provider callbacks for social sign-in (Google): /api/v1/accounts/google/login/callback/
+    path("accounts/", include("allauth.urls")),
     path(
         "schema/",
         SpectacularAPIView.as_view(permission_classes=[IsAdminUser] if not settings.DEBUG else []),

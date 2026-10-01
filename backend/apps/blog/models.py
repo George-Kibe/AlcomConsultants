@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 
 from apps.core.media import delivery_url
-from apps.core.models import BaseModel
+from apps.core.models import BaseModel, TimeStampedModel
 from apps.core.text import unique_slug
 
 from . import html
@@ -108,3 +108,45 @@ class Post(BaseModel):
         if self.author and (name := self.author.get_full_name().strip()):
             return name
         return "Alcom Consultants"
+
+
+class Comment(TimeStampedModel):
+    """A signed-in reader's comment on a post. Published at once; staff can hide it."""
+
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blog_comments"
+    )
+    body = models.TextField(max_length=2000)
+    is_hidden = models.BooleanField(default=False, db_index=True)
+    hidden_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        editable=False,
+    )
+    hidden_at = models.DateTimeField(null=True, blank=True, editable=False)
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [models.Index(fields=["post", "is_hidden", "created_at"])]
+
+    def __str__(self) -> str:
+        return f"{self.author} on {self.post}"
+
+    @property
+    def author_name(self) -> str:
+        """First name and last initial (e.g. "Jane W."), never the email address."""
+        user = self.author
+        if user.is_staff:
+            return f"{user.first_name or 'Alcom'} (Alcom Consultants)"
+        last = f" {user.last_name[0]}." if user.last_name else ""
+        return f"{user.first_name}{last}".strip() or "Reader"
+
+    def hide(self, by: Any) -> None:
+        self.is_hidden, self.hidden_by, self.hidden_at = True, by, timezone.now()
+
+    def unhide(self) -> None:
+        self.is_hidden, self.hidden_by, self.hidden_at = False, None, None

@@ -10,6 +10,8 @@ const pages = [
   { path: "/services/property-valuations", h1: "Valuation Services" },
   { path: "/about", h1: "About us" },
   { path: "/blog", h1: "Blog" },
+  { path: "/account/sign-in", h1: "Sign in" },
+  { path: "/account/sign-up", h1: "Create an account" },
   { path: "/contact", h1: "Contact us" },
   { path: "/privacy", h1: "Privacy Policy" },
   { path: "/terms", h1: "Terms of Use" },

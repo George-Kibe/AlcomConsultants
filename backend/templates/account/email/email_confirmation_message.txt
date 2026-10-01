@@ -1,0 +1,6 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}{% autoescape off %}Please confirm your email address to finish setting up your account. Once it is confirmed you can comment on our blog.
+
+Confirm your email: {{ activate_url }}
+
+The link expires in 3 days. If you didn't create an account with us, you can ignore this email.{% endautoescape %}{% endblock content %}

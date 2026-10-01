@@ -37,6 +37,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/blog/posts/{post_slug}/comments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Visible comments on a published post, oldest first. */
+        get: operations["blog_posts_comments_list"];
+        put?: never;
+        /** @description Visible comments on a published post, oldest first. */
+        post: operations["blog_posts_comments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/blog/posts/{post_slug}/comments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Visible comments on a published post, oldest first. */
+        delete: operations["blog_posts_comments_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/blog/posts/{slug}/": {
         parameters: {
             query?: never;
@@ -52,6 +87,41 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/blog/comments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description All comments, newest first. Staff hide (or restore) comments, or delete them. */
+        get: operations["dashboard_blog_comments_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/blog/comments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description All comments, newest first. Staff hide (or restore) comments, or delete them. */
+        delete: operations["dashboard_blog_comments_destroy"];
+        options?: never;
+        head?: never;
+        /** @description All comments, newest first. Staff hide (or restore) comments, or delete them. */
+        patch: operations["dashboard_blog_comments_partial_update"];
         trace?: never;
     };
     "/api/v1/dashboard/blog/posts/": {
@@ -501,6 +571,17 @@ export interface components {
          * @enum {string}
          */
         CategoryEnum: "residential" | "commercial" | "land";
+        Comment: {
+            readonly id: number;
+            readonly author_name: string;
+            body: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly is_mine: boolean;
+        };
+        CommentRequest: {
+            body: string;
+        };
         CountyTree: {
             /** @description Official county code (1-47) */
             code: number;
@@ -523,6 +604,22 @@ export interface components {
             width?: number | null;
             height?: number | null;
             alt_text?: string;
+        };
+        DashboardComment: {
+            readonly id: number;
+            readonly post: {
+                [key: string]: string;
+            };
+            readonly author_name: string;
+            /** Format: email */
+            readonly author_email: string;
+            readonly body: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            is_hidden?: boolean;
+            readonly hidden_by_name: string;
+            /** Format: date-time */
+            readonly hidden_at: string | null;
         };
         DashboardOverview: {
             total: number;
@@ -793,6 +890,8 @@ export interface components {
             /** @description Designates whether the user can access the staff dashboard. */
             is_staff?: boolean;
             readonly mfa_enabled: boolean;
+            readonly email_verified: boolean;
+            readonly can_comment: boolean;
         };
         /** @description Cloudinary asset. Clients build sized URLs from `public_id`; `url` is the original. */
         Media: {
@@ -817,6 +916,21 @@ export interface components {
             lat: number;
             /** Format: double */
             lng: number;
+        };
+        PaginatedDashboardCommentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["DashboardComment"][];
         };
         PaginatedDashboardPostListList: {
             /** @example 123 */
@@ -892,6 +1006,9 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["PropertyList"][];
+        };
+        PatchedDashboardCommentRequest: {
+            is_hidden?: boolean;
         };
         PatchedDashboardPostRequest: {
             title?: string;
@@ -1267,6 +1384,76 @@ export interface operations {
             };
         };
     };
+    blog_posts_comments_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"][];
+                };
+            };
+        };
+    };
+    blog_posts_comments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CommentRequest"];
+                "multipart/form-data": components["schemas"]["CommentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"];
+                };
+            };
+        };
+    };
+    blog_posts_comments_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this comment. */
+                id: number;
+                post_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     blog_posts_retrieve: {
         parameters: {
             query?: never;
@@ -1284,6 +1471,83 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PostDetail"];
+                };
+            };
+        };
+    };
+    dashboard_blog_comments_list: {
+        parameters: {
+            query?: {
+                hidden?: boolean;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                post?: string;
+                /** @description Search comments */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDashboardCommentList"];
+                };
+            };
+        };
+    };
+    dashboard_blog_comments_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this comment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_blog_comments_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this comment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardCommentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardCommentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardCommentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardComment"];
                 };
             };
         };

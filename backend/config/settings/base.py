@@ -35,6 +35,8 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.mfa",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "allauth.headless",
 ]
 LOCAL_APPS = [
@@ -108,16 +110,41 @@ ACCOUNT_ADAPTER = "apps.accounts.adapter.AccountAdapter"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
-ACCOUNT_EMAIL_VERIFICATION = "none"  # staff accounts are created by an admin (Phase 4: visitors)
+ACCOUNT_SIGNUP_FORM_CLASS = "apps.accounts.forms.SignupForm"  # + the reader's name
+# Readers sign up to comment on the blog. Verification is "optional" so staff accounts made
+# by an admin (no verified address on record) can still sign in; commenting requires a
+# verified address (apps.accounts.serializers.can_comment), confirmed by an emailed link.
+# (Verification by code would need "mandatory".)
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "Alcom Consultants: "
 ACCOUNT_LOGIN_BY_CODE_ENABLED = False
 ACCOUNT_PASSWORD_RESET_BY_CODE_ENABLED = False
 HEADLESS_ONLY = True
 HEADLESS_CLIENTS = ("browser",)
 HEADLESS_FRONTEND_URLS = {
-    "account_reset_password": f"{SITE_URL}/dashboard/forgot-password",
-    "account_reset_password_from_key": f"{SITE_URL}/dashboard/reset-password/{{key}}",
-    "account_signup": f"{SITE_URL}/dashboard/login",
+    "account_reset_password": f"{SITE_URL}/account/forgot-password",
+    "account_reset_password_from_key": f"{SITE_URL}/account/reset-password/{{key}}",
+    "account_signup": f"{SITE_URL}/account/sign-up",
+    "account_confirm_email": f"{SITE_URL}/account/verify-email/{{key}}",
+    "socialaccount_login_error": f"{SITE_URL}/account/sign-in?error=social",
+    # Google returned an email that already has an account: sign in with the password.
+    "socialaccount_signup": f"{SITE_URL}/account/sign-in?error=exists",
 }
+# Google sign-in for readers; enabled once the OAuth client is configured (docs/AUTH.md).
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
+SOCIALACCOUNT_PROVIDERS: dict[str, dict[str, Any]] = {
+    "google": {
+        "APPS": (
+            [{"client_id": GOOGLE_CLIENT_ID, "secret": env("GOOGLE_CLIENT_SECRET", default="")}]
+            if GOOGLE_CLIENT_ID
+            else []
+        ),
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online", "prompt": "select_account"},
+    }
+}
+SOCIALACCOUNT_STORE_TOKENS = False
 MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
 MFA_TOTP_ISSUER = "Alcom Consultants"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # one week
@@ -170,7 +197,12 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "120/min", "user": "300/min"},
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "120/min",
+        "user": "300/min",
+        "comments_burst": "5/min",
+        "comments_daily": "50/day",
+    },
 }
 
 SPECTACULAR_SETTINGS = {

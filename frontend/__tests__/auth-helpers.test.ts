@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, test } from "vitest";
 
 import {
+  decodeKey,
   errorMessage,
   needsReauthentication,
   pendingFlow,
 } from "@/lib/api/auth";
 import { getCsrfToken, withCsrf } from "@/lib/api/csrf";
-import { safeNext } from "@/lib/safe-redirect";
+import { safeLocalPath, safeNext } from "@/lib/safe-redirect";
 
 describe("safeNext", () => {
   test.each([
@@ -77,4 +78,25 @@ describe("allauth responses", () => {
     expect(errorMessage(res, "code")).toBe("Wrong code.");
     expect(errorMessage({ status: 200 })).toBeUndefined();
   });
+});
+
+describe("safeLocalPath (reader pages)", () => {
+  test.each([
+    ["/blog/land#comments", "/blog/land#comments"],
+    ["/", "/"],
+    [null, "/blog"],
+    ["", "/blog"],
+    ["https://evil.example", "/blog"],
+    ["//evil.example", "/blog"],
+    ["/\\evil.example", "/blog"],
+    ["blog", "/blog"],
+  ])("%s → %s", (input, expected) => {
+    expect(safeLocalPath(input, "/blog")).toBe(expected);
+  });
+});
+
+test("decodeKey handles encoded, plain and malformed keys", () => {
+  expect(decodeKey("MQ%3A1xCL3E%3AEy2z")).toBe("MQ:1xCL3E:Ey2z");
+  expect(decodeKey("MQ:1xCL3E:Ey2z")).toBe("MQ:1xCL3E:Ey2z");
+  expect(decodeKey("bad%E0%A4%A")).toBe("bad%E0%A4%A");
 });

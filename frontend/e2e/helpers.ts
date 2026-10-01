@@ -1,4 +1,5 @@
 /** Shared helpers for the full-stack dashboard specs (E2E_FULLSTACK=1). */
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
 import type { Page } from "@playwright/test";
@@ -59,4 +60,34 @@ export async function mockCloudinary(page: Page, target: string) {
       },
     });
   });
+}
+
+/** Run Python in the stack's Django shell (repo-root `docker compose`); returns stdout. */
+export function djangoShell(code: string): string {
+  return execFileSync(
+    "docker",
+    [
+      "compose",
+      "exec",
+      "-T",
+      "backend",
+      "python",
+      "manage.py",
+      "shell",
+      "-c",
+      code,
+    ],
+    { cwd: "..", encoding: "utf8" },
+  ).trim();
+}
+
+/** The confirmation key allauth would email to this address (what the link contains). */
+export function emailConfirmationKey(email: string): string {
+  const out = djangoShell(
+    [
+      "from allauth.account.models import EmailAddress, EmailConfirmationHMAC",
+      `print(EmailConfirmationHMAC(EmailAddress.objects.get(email="${email}")).key)`,
+    ].join("\n"),
+  );
+  return out.split("\n").pop()!.trim();
 }

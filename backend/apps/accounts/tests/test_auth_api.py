@@ -1,4 +1,7 @@
-"""The dashboard's login flow through django-allauth's headless browser API."""
+"""Sign-in flows through django-allauth's headless browser API (staff and readers)."""
+
+import re
+from urllib.parse import unquote
 
 import pytest
 from allauth.mfa.totp.internal.auth import (
@@ -59,11 +62,44 @@ def test_wrong_password_is_rejected(api, staff):
     assert api.get(reverse("me")).status_code == 403
 
 
-def test_signup_is_closed(api):
-    response = api.post(
-        f"{AUTH}/auth/signup", {"email": "new@example.com", "password": PASSWORD}, format="json"
+def test_reader_signup_and_email_verification(api, mailoutbox):
+    missing_name = api.post(
+        f"{AUTH}/auth/signup", {"email": "x@example.com", "password": PASSWORD}, format="json"
     )
-    assert response.status_code == 403
+    assert missing_name.status_code == 400
+
+    response = api.post(
+        f"{AUTH}/auth/signup",
+        {"email": "Reader@Example.com", "password": PASSWORD, "name": "  Jane  Wanjiru "},
+        format="json",
+    )
+    assert response.status_code == 200, response.json()  # signed in straight away
+    me = api.get(reverse("me")).json()
+    assert (me["first_name"], me["last_name"]) == ("Jane", "Wanjiru")
+    assert me["is_staff"] is False
+    assert (me["email_verified"], me["can_comment"]) == (False, False)
+    assert api.get(reverse("dashboard-overview")).status_code == 403
+
+    # The emailed link points at the site's verify page, which posts the key back.
+    assert len(mailoutbox) == 1
+    match = re.search(r"/account/verify-email/(\S+)", mailoutbox[0].body)
+    assert match, mailoutbox[0].body
+    assert mailoutbox[0].subject == "Alcom Consultants: Confirm your email address"
+    key = unquote(match[1])  # the key is URL-encoded in the link
+    verified = api.post(f"{AUTH}/auth/email/verify", {"key": key}, format="json")
+    assert verified.status_code == 200, verified.json()
+    me = api.get(reverse("me")).json()
+    assert (me["email_verified"], me["can_comment"]) == (True, True)
+
+
+def test_google_sign_in_is_offered_only_when_configured(api, settings):
+    providers = api.get(f"{AUTH}/config").json()["data"]["socialaccount"]["providers"]
+    assert providers == []
+    settings.SOCIALACCOUNT_PROVIDERS = {
+        "google": {"APPS": [{"client_id": "id.apps.googleusercontent.com", "secret": "s"}]}
+    }
+    providers = api.get(f"{AUTH}/config").json()["data"]["socialaccount"]["providers"]
+    assert [p["id"] for p in providers] == ["google"]
 
 
 def test_non_staff_cannot_use_dashboard_api(api):

@@ -14,6 +14,7 @@ import { useDashboardPosts } from "@/lib/api/hooks";
 import { formatDate } from "@/lib/format";
 
 import { StatusBadge } from "../properties/status-badge";
+import { BlogTabs } from "./blog-tabs";
 
 const TABS = [
   { value: "", label: "All" },
@@ -70,6 +71,7 @@ export function PostList() {
           </Link>
         </Button>
       </div>
+      <BlogTabs />
 
       <nav aria-label="Filter by status" className="-mx-1 overflow-x-auto px-1">
         <ul className="flex gap-1 border-b">
