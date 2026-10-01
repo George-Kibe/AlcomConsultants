@@ -24,7 +24,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] VPS: firewall (22/80/443), fail2ban, key-based SSH (`ssh alcom_vps`)
 - [ ] VPS: switch off SSH password login (after confirming provider web-console access)
 - [ ] Real company details and copy review (placeholders marked `TODO(content)`)
-- [ ] Optional: separate staging environment at staging.alcomconsultants.co.ke (the edge proxy already supports a second stack)
+- Deferred (decided 2026-10-01): separate staging site at staging.alcomconsultants.co.ke; revisit after launch (the edge proxy already supports a second stack)
 
 ### Phase 2: Listings core
 - [x] **2a** Locations (47 counties + 69 seeded areas → neighbourhoods), property types, amenities
