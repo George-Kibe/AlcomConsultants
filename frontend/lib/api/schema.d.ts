@@ -72,6 +72,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/properties/{property_uuid}/media/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Photos and floor plans of one listing, in display order (first = cover). */
+        get: operations["dashboard_properties_media_list"];
+        put?: never;
+        /** @description Photos and floor plans of one listing, in display order (first = cover). */
+        post: operations["dashboard_properties_media_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/properties/{property_uuid}/media/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Photos and floor plans of one listing, in display order (first = cover). */
+        delete: operations["dashboard_properties_media_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Photos and floor plans of one listing, in display order (first = cover). */
+        patch: operations["dashboard_properties_media_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/properties/{property_uuid}/media/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Photos and floor plans of one listing, in display order (first = cover). */
+        post: operations["dashboard_properties_media_reorder_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/properties/{uuid}/": {
         parameters: {
             query?: never;
@@ -89,6 +142,23 @@ export interface paths {
         head?: never;
         /** @description Staff listing management. Published listings are archived, not deleted. */
         patch: operations["dashboard_properties_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/uploads/signature/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Signed parameters for one direct browser → Cloudinary upload. */
+        post: operations["dashboard_uploads_signature_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/health/": {
@@ -263,6 +333,25 @@ export interface components {
             name: string;
             slug: string;
         };
+        /**
+         * @description * `image` - image
+         *     * `floor_plan` - floor_plan
+         * @enum {string}
+         */
+        AttachUploadKindEnum: "image" | "floor_plan";
+        /** @description The upload result Cloudinary returned to the browser. */
+        AttachUploadRequest: {
+            public_id: string;
+            version: number;
+            signature: string;
+            width?: number | null;
+            height?: number | null;
+            bytes?: number | null;
+            format?: string;
+            /** @default image */
+            kind: components["schemas"]["AttachUploadKindEnum"];
+            alt_text?: string;
+        };
         /** @enum {unknown} */
         BlankEnum: "";
         /**
@@ -426,13 +515,6 @@ export interface components {
             cache: boolean;
         };
         /**
-         * @description * `county` - county
-         *     * `area` - area
-         *     * `neighbourhood` - neighbourhood
-         * @enum {string}
-         */
-        KindEnum: "county" | "area" | "neighbourhood";
-        /**
          * @description * `acres` - acres
          *     * `hectares` - hectares
          *     * `sqm` - m²
@@ -456,12 +538,19 @@ export interface components {
         };
         /** @description One autocomplete suggestion; `text` is what the user sees. */
         LocationMatch: {
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["LocationMatchKindEnum"];
             text: string;
             county: string;
             area: string;
             neighbourhood: string;
         };
+        /**
+         * @description * `county` - county
+         *     * `area` - area
+         *     * `neighbourhood` - neighbourhood
+         * @enum {string}
+         */
+        LocationMatchKindEnum: "county" | "area" | "neighbourhood";
         Lookups: {
             property_types: components["schemas"]["_Choice"][];
             amenities: components["schemas"]["_Choice"][];
@@ -578,6 +667,12 @@ export interface components {
             is_featured?: boolean;
             seo_title?: string;
             seo_description?: string;
+        };
+        PatchedPropertyMediaRequest: {
+            kind?: components["schemas"]["PropertyMediaKindEnum"];
+            /** @description Describe the photo for screen readers and SEO. */
+            alt_text?: string;
+            caption?: string;
         };
         /**
          * @description * `total` - Total
@@ -704,6 +799,28 @@ export interface components {
             /** Format: date-time */
             published_at?: string | null;
         };
+        PropertyMedia: {
+            readonly id: number;
+            /** @description Cloudinary public ID */
+            readonly public_id: string;
+            kind?: components["schemas"]["PropertyMediaKindEnum"];
+            readonly url: string;
+            readonly width: number | null;
+            readonly height: number | null;
+            readonly bytes: number | null;
+            readonly format: string;
+            /** @description Describe the photo for screen readers and SEO. */
+            alt_text?: string;
+            caption?: string;
+            readonly order: number;
+        };
+        /**
+         * @description * `image` - Photo
+         *     * `floor_plan` - Floor plan
+         *     * `video` - Video
+         * @enum {string}
+         */
+        PropertyMediaKindEnum: "image" | "floor_plan" | "video";
         /**
          * @description * `draft` - Draft
          *     * `published` - Published
@@ -719,6 +836,15 @@ export interface components {
             slug: string;
             category: components["schemas"]["CategoryEnum"];
         };
+        ReorderRequest: {
+            ids: number[];
+        };
+        /**
+         * @description * `projects` - projects
+         *     * `properties` - properties
+         * @enum {string}
+         */
+        TargetEnum: "projects" | "properties";
         UnitType: {
             /** @description e.g. 2 Bedroom Apartment */
             name: string;
@@ -738,6 +864,20 @@ export interface components {
              */
             price_to?: number | null;
             units_available?: number | null;
+        };
+        UploadSignature: {
+            /** Format: uri */
+            upload_url: string;
+            api_key: string;
+            cloud_name: string;
+            timestamp: number;
+            folder: string;
+            allowed_formats: string;
+            signature: string;
+            max_bytes: number;
+        };
+        UploadSignatureRequestRequest: {
+            target: components["schemas"]["TargetEnum"];
         };
         _Agent: {
             id: number;
@@ -912,6 +1052,138 @@ export interface operations {
             };
         };
     };
+    dashboard_properties_media_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+            };
+            header?: never;
+            path: {
+                property_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyMedia"][];
+                };
+            };
+        };
+    };
+    dashboard_properties_media_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                property_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachUploadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AttachUploadRequest"];
+                "multipart/form-data": components["schemas"]["AttachUploadRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyMedia"];
+                };
+            };
+        };
+    };
+    dashboard_properties_media_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this photo / file. */
+                id: number;
+                property_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_properties_media_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this photo / file. */
+                id: number;
+                property_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPropertyMediaRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPropertyMediaRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPropertyMediaRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyMedia"];
+                };
+            };
+        };
+    };
+    dashboard_properties_media_reorder_create: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+            };
+            header?: never;
+            path: {
+                property_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReorderRequest"];
+                "multipart/form-data": components["schemas"]["ReorderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyMedia"][];
+                };
+            };
+        };
+    };
     dashboard_properties_retrieve: {
         parameters: {
             query?: never;
@@ -976,6 +1248,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardProperty"];
+                };
+            };
+        };
+    };
+    dashboard_uploads_signature_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadSignatureRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["UploadSignatureRequestRequest"];
+                "multipart/form-data": components["schemas"]["UploadSignatureRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadSignature"];
                 };
             };
         };

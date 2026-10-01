@@ -31,18 +31,19 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] **2a** Property, media (Cloudinary) and development-project models, Django admin with photo upload, public read API (search filters, sorting, detail, location autocomplete, projects)
 - [x] **2b-1** Staff dashboard: sign-in (email + password, optional 2-step verification, recovery codes, password reset/change), dashboard shell, overview; full-stack E2E in CI
 - [x] **2b-2** Listing management: list (status tabs, search, sort), create/edit form, publish / archive / delete-draft, audit (created_by / updated_by)
-- [ ] **2b-3** Photos: upload to Cloudinary, reorder, cover, alt text
+- [x] **2b-3** Photos: signed direct uploads to Cloudinary (server-verified), progress, drag / keyboard reorder, cover, alt text, floor plans, delete with Cloudinary clean-up
 - Public: search page (filters, list/map toggle, mobile filter drawer), property detail (gallery, video, floor plans, map, nearby amenities, similar listings)
-- Development projects: models, dashboard, public project pages
-
+<!-- - Development projects: models, dashboard, public project pages: Defer this for later -->
+- Mail server(Dockerised). I want a custom mail server to use for my emails such as info@alcomconsultants.co.ke. 4 emails but manageable to around 10.
+Test those emails both locally and live.
 ### Phase 3: Enquiries and CRM
 - Enquiry forms (listing, project, contact, management, valuation), consent capture, spam protection
 - WhatsApp click-to-chat
 - Lead pipeline in the dashboard, notes, follow-up reminders
-- Email notifications via Celery (templates, branding)
+- Email notifications via Celery (templates, branding). Using my mail server. Test emails both locally and live
 
 ### Phase 4: Visitor accounts
-- Sign up/verify/login/reset, profile
+- Sign up/verify/login/reset, profile. Simple sign up with email and passoword
 - Favourites, saved searches, email alerts (Celery beat)
 - Data export and account deletion
 
