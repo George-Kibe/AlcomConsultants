@@ -171,6 +171,8 @@ def test_cleanup_task_retries_when_cloudinary_fails(cloudinary_destroy):
     from apps.core.tasks import delete_cloudinary_asset
 
     cloudinary_destroy.side_effect = ConnectionError("down")
-    with mock.patch.object(delete_cloudinary_asset, "retry", side_effect=RuntimeError("retry")):
-        with pytest.raises(RuntimeError, match="retry"):
-            delete_cloudinary_asset.apply(args=["x"]).get()
+    with (
+        mock.patch.object(delete_cloudinary_asset, "retry", side_effect=RuntimeError("retry")),
+        pytest.raises(RuntimeError, match="retry"),
+    ):
+        delete_cloudinary_asset.apply(args=["x"]).get()
