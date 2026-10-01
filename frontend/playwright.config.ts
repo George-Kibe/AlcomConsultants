@@ -5,7 +5,11 @@ const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./e2e",
+  // Dashboard specs need the Django API; run them against the full stack (E2E_FULLSTACK=1).
+  testIgnore: process.env.E2E_FULLSTACK ? [] : ["**/dashboard.spec.ts"],
   fullyParallel: true,
+  // Full-stack runs share one staff account, so run them one at a time.
+  workers: process.env.E2E_FULLSTACK ? 1 : undefined,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",

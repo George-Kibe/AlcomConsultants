@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 
-import { Footer } from "@/components/site/footer";
-import { Header } from "@/components/site/header";
-import { WhatsAppFab } from "@/components/site/whatsapp-fab";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "@/lib/site-config";
 
@@ -18,7 +15,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} | Property Agency, Management & Valuations`,
+    default: `${siteConfig.name} | Property Agency, Property Management Services & Valuations`,
     template: `%s | ${siteConfig.shortName}`,
   },
   description: siteConfig.description,
@@ -48,18 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem={false}
           disableTransitionOnChange
         >
-          <a
-            href="#main"
-            className="bg-primary text-primary-foreground sr-only z-50 rounded-lg px-4 py-2 focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-          >
-            Skip to content
-          </a>
-          <Header />
-          <main id="main" className="flex flex-1 flex-col">
-            {children}
-          </main>
-          <Footer />
-          <WhatsAppFab />
+          {children}
         </ThemeProvider>
       </body>
     </html>

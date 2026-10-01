@@ -5,7 +5,7 @@ BACKEND      := $(COMPOSE) exec backend
 
 .DEFAULT_GOAL := help
 .PHONY: help setup up down build logs ps shell migrate migrations superuser \
-        test test-backend test-frontend lint format lock
+        test test-backend test-frontend lint format lock api-types
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -67,3 +67,9 @@ format: ## Auto-format everything
 
 lock: ## Re-lock Python dependencies after editing backend/pyproject.toml
 	$(COMPOSE) run --rm --no-deps --user root backend uv lock
+
+api-types: ## Regenerate frontend API types from the backend OpenAPI schema
+	$(COMPOSE) run --rm --no-deps -e DJANGO_SETTINGS_MODULE=config.settings.test backend \
+		python manage.py spectacular --file /app/.openapi.yaml
+	cd frontend && npx openapi-typescript ../backend/.openapi.yaml -o lib/api/schema.d.ts
+	rm -f backend/.openapi.yaml

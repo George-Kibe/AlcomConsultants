@@ -32,6 +32,10 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "django_filters",
     "drf_spectacular",
+    "allauth",
+    "allauth.account",
+    "allauth.mfa",
+    "allauth.headless",
 ]
 LOCAL_APPS = [
     "apps.core",
@@ -50,6 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -91,6 +96,30 @@ CACHES = {
 
 # ------------------------------------------------------------------ auth
 AUTH_USER_MODEL = "accounts.User"
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",  # Django admin
+    "allauth.account.auth_backends.AuthenticationBackend",  # dashboard / API (rate limited)
+]
+
+# django-allauth in headless mode: the Next.js app renders every screen and talks to
+# /api/v1/auth/browser/v1/… using the session cookie + CSRF token.
+ACCOUNT_ADAPTER = "apps.accounts.adapter.AccountAdapter"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
+ACCOUNT_EMAIL_VERIFICATION = "none"  # staff accounts are created by an admin (Phase 4: visitors)
+ACCOUNT_LOGIN_BY_CODE_ENABLED = False
+ACCOUNT_PASSWORD_RESET_BY_CODE_ENABLED = False
+HEADLESS_ONLY = True
+HEADLESS_CLIENTS = ("browser",)
+HEADLESS_FRONTEND_URLS = {
+    "account_reset_password": f"{SITE_URL}/dashboard/forgot-password",
+    "account_reset_password_from_key": f"{SITE_URL}/dashboard/reset-password/{{key}}",
+    "account_signup": f"{SITE_URL}/dashboard/login",
+}
+MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
+MFA_TOTP_ISSUER = "Alcom Consultants"
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # one week
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {

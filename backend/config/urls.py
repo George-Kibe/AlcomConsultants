@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAdminUser
 api_v1: list[URLPattern | URLResolver] = [
     path("", include("apps.core.urls")),
     path("", include("apps.listings.urls")),
+    path("auth/", include("allauth.headless.urls")),
     path(
         "schema/",
         SpectacularAPIView.as_view(permission_classes=[IsAdminUser] if not settings.DEBUG else []),
