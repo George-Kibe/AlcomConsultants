@@ -82,25 +82,52 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   docker:
-    name: Production images build
+    name: Production images
     runs-on: ubuntu-latest
     needs: [backend, frontend]
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # Pushes to main publish the images the Deploy workflow ships; PRs only build them.
+      PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v7
+      - name: Image names
+        id: img
+        run: |
+          echo "registry=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+          echo "version=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@v4
-      - name: Build backend
+      - uses: docker/login-action@v4
+        if: env.PUBLISH == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Backend image
         uses: docker/build-push-action@v7
         with:
           context: backend
           target: prod
-          push: false
+          push: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ steps.img.outputs.registry }}/alcom-backend:${{ steps.img.outputs.version }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          build-args: APP_VERSION=${{ steps.img.outputs.version }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
-      - name: Build frontend
+      - name: Frontend image
         uses: docker/build-push-action@v7
         with:
           context: frontend
           target: prod
-          push: false
+          push: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ steps.img.outputs.registry }}/alcom-frontend-prod:${{ steps.img.outputs.version }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          # NEXT_PUBLIC_* values are baked into the bundle (repository variables).
+          build-args: |
+            APP_VERSION=${{ steps.img.outputs.version }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL || 'https://alcomconsultants.co.ke' }}
+            NEXT_PUBLIC_SITE_ENV=${{ vars.SITE_ENV || 'staging' }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend

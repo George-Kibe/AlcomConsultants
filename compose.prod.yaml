@@ -2,11 +2,12 @@
 # (alcom-prod / alcom-staging). The shared edge Nginx (TLS, deploy/edge/) reaches each stack
 # over the external `edge` network using the per-stack aliases below.
 #
-# Images are built on the server by deploy/deploy.sh (tagged with the git commit). The GHCR
-# image names let CI push/pull the same images later without changing this file.
+# Images are tagged with the git commit. On pushes to main, CI builds them and pushes them to
+# GHCR, and the Deploy workflow pulls them (`deploy.sh --pull`). A manual `deploy.sh` builds
+# them on the server instead.
 
 x-backend-prod: &backend-prod
-  image: ghcr.io/${GHCR_OWNER:-george-kibe}/alcom-backend:${APP_VERSION:?set APP_VERSION}
+  image: ${IMAGE_REGISTRY:-ghcr.io/george-kibe}/alcom-backend:${APP_VERSION:?set APP_VERSION}
   pull_policy: missing
   env_file: .env
   restart: unless-stopped
@@ -65,7 +66,7 @@ services:
       disable: true # scheduler has no endpoint to probe; restart policy covers crashes
 
   frontend:
-    image: ghcr.io/${GHCR_OWNER:-george-kibe}/alcom-frontend-${DEPLOY_ENV:?set DEPLOY_ENV}:${APP_VERSION}
+    image: ${IMAGE_REGISTRY:-ghcr.io/george-kibe}/alcom-frontend-${DEPLOY_ENV:?set DEPLOY_ENV}:${APP_VERSION}
     pull_policy: missing
     build:
       context: ./frontend

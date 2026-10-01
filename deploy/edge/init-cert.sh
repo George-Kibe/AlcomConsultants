@@ -3,7 +3,10 @@
 # Uses certbot's standalone server on port 80, so Nginx must not be running yet.
 set -euo pipefail
 cd "$(dirname "$0")"
-set -a; source .env; set +a
+set -a
+# shellcheck source=/dev/null
+source .env
+set +a
 : "${DOMAIN:?}" "${LETSENCRYPT_EMAIL:?}"
 
 # Pass --staging for a trial run against Let's Encrypt's test CA (avoids rate limits).
