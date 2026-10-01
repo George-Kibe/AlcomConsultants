@@ -107,17 +107,26 @@ jobs:
           sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=ci$(openssl rand -hex 12)|" .env
           sed -i "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$(openssl rand -hex 32)|" .env
       - name: Start the stack
+        timeout-minutes: 15
         run: |
+          # The dev containers run as uid 1000 (node / app); the runner checks out as 1001.
+          sudo chown -R 1000:1000 frontend backend
           docker compose up -d --build --wait db redis backend
           docker compose up -d frontend nginx
           # next dev compiles pages on first request; warm them up before the tests.
           for path in /api/v1/health/ /dashboard/login /dashboard/security; do
-            for _ in $(seq 1 100); do
-              code=$(curl -s -o /dev/null -w '%{http_code}' "$E2E_BASE_URL$path" || true)
+            code=000
+            for _ in $(seq 1 60); do
+              code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' "$E2E_BASE_URL$path" || true)
               case "$code" in 200|307) break ;; esac
               sleep 3
             done
             echo "$path -> $code"
+            if [ "$code" != 200 ] && [ "$code" != 307 ]; then
+              docker compose ps
+              docker compose logs --tail=100 frontend nginx backend
+              exit 1
+            fi
           done
       - name: Staff account for the tests
         run: |
@@ -129,6 +138,8 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      - name: Give the checkout back to the runner user
+        run: sudo chown -R "$(id -u):$(id -g)" frontend
       - run: npm ci
         working-directory: frontend
       - run: npx playwright install --with-deps chromium
