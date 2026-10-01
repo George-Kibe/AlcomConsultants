@@ -26,6 +26,12 @@ const channels = [
     href: telLink(),
   },
   {
+    Icon: PhoneIcon,
+    title: "Or call",
+    value: siteConfig.contact.altPhone,
+    href: telLink(siteConfig.contact.altPhone),
+  },
+  {
     Icon: MailIcon,
     title: "Email",
     value: siteConfig.contact.email,

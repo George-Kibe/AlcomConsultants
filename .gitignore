@@ -34,3 +34,6 @@ node_modules/
 # Large local images: site photos go to Cloudinary; design references stay local
 frontend/public/images/
 docs/inspirationl_images/
+
+# Private reference material (company documents with registration details)
+docs/ref/

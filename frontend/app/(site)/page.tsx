@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import {
   BadgeCheckIcon,
   HandshakeIcon,
-  MapPinnedIcon,
+  FileCheckIcon,
   MessagesSquareIcon,
 } from "lucide-react";
 
@@ -16,22 +16,21 @@ import { heroSlides } from "@/lib/hero-slides";
 import { safely, serverApi } from "@/lib/api/server";
 import type { PropertyListItem } from "@/lib/listings";
 
-// TODO(content): review marketing copy with Alcom.
 const reasons = [
   {
     Icon: BadgeCheckIcon,
-    title: "Professional and transparent",
-    text: "Clear advice, honest pricing and written agreements at every step.",
+    title: "Registered professionals",
+    text: "Valuers, property managers and estate agents licensed by the VRB and EARB.",
   },
   {
-    Icon: MapPinnedIcon,
-    title: "Local market knowledge",
-    text: "We know Kenya's neighbourhoods, prices and what makes a property a good investment.",
+    Icon: FileCheckIcon,
+    title: "Standards you can rely on",
+    text: "Valuations under the Valuers Act and International Valuation Standards, with clear, defensible reports.",
   },
   {
     Icon: HandshakeIcon,
     title: "One partner, three services",
-    text: "Agency, management and valuations under one roof, so your property is in consistent hands.",
+    text: "Valuation, property management and estate agency under one roof, so your property is in consistent hands.",
   },
   {
     Icon: MessagesSquareIcon,

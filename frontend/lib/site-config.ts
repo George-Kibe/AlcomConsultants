@@ -1,24 +1,25 @@
 /**
  * Company details and navigation used across the site.
  * Moves to the backend SiteSettings model (editable in the dashboard) in a later phase.
- *
- * TODO(content): replace placeholder contact details with Alcom's real ones before launch.
  */
 export const siteConfig = {
   name: "Alcom Consultants Limited",
   shortName: "Alcom Consultants",
+  tagline: "Registered Valuers • Property Managers • Estate Agents",
   description:
-    "Property sales, rentals, property management and valuations across Kenya.",
+    "Registered valuers, property managers and estate agents in Westlands, Nairobi, serving clients across Kenya.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080",
   contact: {
-    phone: "+254 700 000 000", // placeholder
-    whatsapp: "254700000000", // placeholder — international format, digits only
+    phone: "+254 792 616 015",
+    altPhone: "+254 716 014 087",
+    whatsapp: "254792616015", // international format, digits only
     email: "info@alcomconsultants.co.ke",
-    address: "Nairobi, Kenya", // placeholder
-    hours: "Mon – Fri: 8:00am – 5:00pm · Sat: 9:00am – 1:00pm", // placeholder
+    address: "Westlands, Nairobi, Kenya",
+    hours: "Mon – Fri: 8:00am – 5:00pm · Sat: 9:00am – 1:00pm",
   },
   social: {
-    facebook: "", // placeholder — empty links are hidden
+    // Empty links are hidden; add the URLs once the accounts exist.
+    facebook: "",
     instagram: "",
     linkedin: "",
     x: "",
@@ -53,16 +54,16 @@ export type Service = {
 export const services: Service[] = [
   {
     slug: "property-agency",
-    title: "Property Agency",
+    title: "Estate Agency",
     summary:
-      "Buy, sell, rent or lease residential, commercial and land property across Kenya.",
+      "Sale, purchase and letting of residential, commercial and industrial property across Kenya.",
     description:
-      "Whether you are looking for a home, an investment or space for your business, our agents guide you from the first viewing to the signed agreement. Property owners get professional marketing, qualified enquiries and hands-on support through negotiation.",
+      "We act as your intermediary in the sale, purchase and letting of property, backed by in-depth market knowledge and a wide client network. Our licensed estate agents market your property professionally, source and qualify buyers and tenants, and negotiate on your behalf through to completion.",
     highlights: [
-      "Houses, apartments, land and commercial property",
-      "Sales, long-term rentals and commercial leases",
-      "Off-plan and development projects",
-      "Guidance from viewing to agreement",
+      "Marketing and sale of residential, commercial and industrial property",
+      "Letting and tenant sourcing",
+      "Property market research and advisory",
+      "Negotiation and closing of sale and lease transactions",
     ],
     cta: { label: "Browse properties", href: "/properties" },
   },
@@ -70,32 +71,46 @@ export const services: Service[] = [
     slug: "property-management",
     title: "Property Management",
     summary:
-      "Hands-off ownership: tenant sourcing, rent collection, maintenance and reporting.",
+      "Property and facilities management for residential, commercial and mixed-use developments.",
     description:
-      "We look after your property as if it were our own. From finding and vetting tenants to collecting rent, coordinating maintenance and keeping you informed, we protect your investment and your time.",
+      "We provide comprehensive property and facilities management for commercial, residential and mixed-use developments, protecting your asset and securing optimal returns for owners and investors.",
     highlights: [
-      "Tenant sourcing and vetting",
-      "Rent collection and arrears follow-up",
-      "Maintenance and repairs coordination",
-      "Regular statements for landlords",
+      "Rent collection and tenant management",
+      "Lease administration and renewals",
+      "Service charge budgeting and management",
+      "Facilities and maintenance management",
+      "Property inspections and condition reporting",
+      "Statutory compliance (NEMA, county rates, fire certificates and more)",
     ],
     cta: { label: "Talk to us about your property", href: "/contact" },
   },
   {
     slug: "property-valuations",
-    title: "Property Valuations",
+    title: "Valuation Services",
     summary:
-      "Independent valuations for mortgages, sales, insurance and statutory purposes.",
+      "Professional valuations by Registered Valuers for lending, sale, insurance, reporting and more.",
     description:
-      "Our valuation reports give banks, buyers, sellers and institutions a clear, defensible view of a property's value, prepared with care and delivered on time.",
+      "Our valuations are carried out by Registered Valuers in accordance with the Valuers Act and International Valuation Standards (IVS), giving banks, buyers, sellers, insurers and institutions a clear, defensible opinion of value.",
     highlights: [
-      "Mortgage and bank valuations",
-      "Sale and purchase valuations",
-      "Insurance (reinstatement) valuations",
-      "Probate, capital gains, rating and court valuations",
+      "Secured lending and mortgage valuations",
+      "Sale and purchase (fair market value)",
+      "Insurance (reinstatement cost assessment)",
+      "Financial reporting and asset registers",
+      "Compulsory acquisition and compensation",
+      "Plant and machinery",
+      "Probate, estate distribution and litigation support",
     ],
     cta: { label: "Request a valuation", href: "/contact" },
   },
+];
+
+/** Complementary services offered alongside the three core service lines. */
+export const alliedServices = [
+  "Real estate investment advisory and feasibility studies",
+  "Project management and development consultancy",
+  "Due diligence for property transactions",
+  "Land economics and market research",
+  "Corporate real estate portfolio advisory",
 ];
 
 export function whatsappLink(message?: string) {
