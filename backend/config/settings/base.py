@@ -35,6 +35,9 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "apps.core",
     "apps.accounts",
+    "apps.locations",
+    "apps.listings",
+    "apps.projects",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -146,7 +149,17 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": r"/api/v[0-9]+",
     "COMPONENT_SPLIT_REQUEST": True,
+    "ENUM_NAME_OVERRIDES": {
+        "PropertyStatusEnum": "apps.listings.models.Status",
+        "ProjectStatusEnum": "apps.projects.models.ProjectStatus",
+    },
 }
+
+# ------------------------------------------------------------------ media (Cloudinary)
+# cloudinary://<api_key>:<api_secret>@<cloud_name> — from the Cloudinary dashboard.
+CLOUDINARY_URL = env("CLOUDINARY_URL", default="")
+# Keeps each environment's uploads apart inside one Cloudinary account.
+CLOUDINARY_FOLDER = env("CLOUDINARY_FOLDER", default="alcom/dev")
 
 # ------------------------------------------------------------------ Celery
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=REDIS_URL)
