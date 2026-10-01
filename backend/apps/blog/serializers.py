@@ -4,6 +4,8 @@ from django.utils.text import slugify
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.core import media
+
 from .models import Post, PostStatus
 
 
@@ -64,6 +66,24 @@ class PostDetailSerializer(PostListSerializer):
 # ------------------------------------------------------------------ dashboard
 
 
+class CoverUploadSerializer(serializers.Serializer[Any]):
+    """The upload result Cloudinary returned to the browser."""
+
+    public_id = serializers.CharField(max_length=255)
+    version = serializers.IntegerField()
+    signature = serializers.CharField()
+    width = serializers.IntegerField(required=False, allow_null=True)
+    height = serializers.IntegerField(required=False, allow_null=True)
+    alt_text = serializers.CharField(required=False, allow_blank=True, max_length=200)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if not media.is_authentic_upload(attrs["public_id"], attrs["version"], attrs["signature"]):
+            raise serializers.ValidationError("This upload could not be verified.")
+        if not attrs["public_id"].startswith(f"{media.settings.CLOUDINARY_FOLDER}/blog/"):
+            raise serializers.ValidationError("Upload is not in the blog folder.")
+        return attrs
+
+
 class DashboardPostListSerializer(serializers.ModelSerializer[Post]):
     author_name = serializers.CharField(read_only=True)
     cover = serializers.SerializerMethodField()
@@ -89,6 +109,11 @@ class DashboardPostListSerializer(serializers.ModelSerializer[Post]):
 class DashboardPostSerializer(DashboardPostListSerializer):
     slug = serializers.CharField(max_length=120, required=False, allow_blank=True)
     cover_alt = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    cover_upload = CoverUploadSerializer(
+        write_only=True,
+        required=False,
+        help_text="New posts only: a cover photo uploaded before the post was saved.",
+    )
     updated_by_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -98,6 +123,7 @@ class DashboardPostSerializer(DashboardPostListSerializer):
             "excerpt",
             "body",
             "cover_alt",
+            "cover_upload",
             "seo_title",
             "seo_description",
             "created_at",
@@ -121,14 +147,27 @@ class DashboardPostSerializer(DashboardPostListSerializer):
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         post = self.instance
+        if post and "cover_upload" in attrs:
+            raise serializers.ValidationError(
+                {"cover": "Use the cover endpoint to change an existing post's photo."}
+            )
         status = attrs.get("status", post.status if post else PostStatus.DRAFT)
         if status == PostStatus.PUBLISHED:
             errors = {}
             body = attrs.get("body", post.body if post else "")
             if not body or not body.strip():
                 errors["body"] = "Write the article before publishing."
-            if not (post and post.cover_public_id):
+            if not (post and post.cover_public_id) and "cover_upload" not in attrs:
                 errors["cover"] = "Add a cover photo before publishing."
             if errors:
                 raise serializers.ValidationError(errors)
         return attrs
+
+    def create(self, validated_data: dict[str, Any]) -> Post:
+        if upload := validated_data.pop("cover_upload", None):
+            validated_data["cover_public_id"] = upload["public_id"]
+            validated_data["cover_width"] = upload.get("width")
+            validated_data["cover_height"] = upload.get("height")
+            if upload.get("alt_text") and not validated_data.get("cover_alt"):
+                validated_data["cover_alt"] = upload["alt_text"]
+        return super().create(validated_data)

@@ -597,6 +597,15 @@ export interface components {
             url: string;
         };
         /** @description The upload result Cloudinary returned to the browser. */
+        CoverUpload: {
+            public_id: string;
+            version: number;
+            signature: string;
+            width?: number | null;
+            height?: number | null;
+            alt_text?: string;
+        };
+        /** @description The upload result Cloudinary returned to the browser. */
         CoverUploadRequest: {
             public_id: string;
             version: number;
@@ -673,6 +682,8 @@ export interface components {
             excerpt?: string;
             body?: string;
             cover_alt?: string;
+            /** @description New posts only: a cover photo uploaded before the post was saved. */
+            cover_upload?: components["schemas"]["CoverUploadRequest"];
             seo_title?: string;
             seo_description?: string;
         };
@@ -1018,6 +1029,8 @@ export interface components {
             excerpt?: string;
             body?: string;
             cover_alt?: string;
+            /** @description New posts only: a cover photo uploaded before the post was saved. */
+            cover_upload?: components["schemas"]["CoverUploadRequest"];
             seo_title?: string;
             seo_description?: string;
         };

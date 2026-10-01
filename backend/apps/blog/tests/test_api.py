@@ -120,6 +120,32 @@ def test_publishing_needs_a_body_and_a_cover(staff_client):
     assert ok["status"] == "published" and ok["published_at"]
 
 
+def test_a_new_post_can_carry_its_cover_and_be_published_at_once(staff_client):
+    url = reverse("dashboard-blog-post-list")
+    body = {"title": "Buying off-plan", "body": "<p>Read the contract.</p>"}
+
+    no_cover = staff_client.post(url, {**body, "status": "published"}, format="json")
+    assert no_cover.status_code == 400 and "cover" in no_cover.json()
+    forged = {**signed("alcom/test/blog/new"), "signature": "forged"}
+    bad = staff_client.post(url, {**body, "cover_upload": forged}, format="json")
+    assert bad.status_code == 400 and "cover_upload" in bad.json()
+
+    data = staff_client.post(
+        url,
+        {**body, "status": "published", "cover_upload": signed("alcom/test/blog/new")},
+        format="json",
+    ).json()
+    assert data["status"] == "published"
+    assert data["cover"]["public_id"] == "alcom/test/blog/new"
+    assert data["cover"]["width"] == 1600 and data["cover_alt"] == "Nairobi skyline"
+
+    detail = reverse("dashboard-blog-post-detail", args=[data["uuid"]])
+    later = staff_client.patch(
+        detail, {"cover_upload": signed("alcom/test/blog/other")}, format="json"
+    )
+    assert later.status_code == 400 and "cover" in later.json()
+
+
 def test_filters_and_delete_rules(staff_client):
     draft = PostFactory(title="Draft about rent", status=PostStatus.DRAFT, published_at=None)
     live = PostFactory(title="Live post")

@@ -91,9 +91,37 @@ POSTS: list[tuple[str, str, str, str]] = [
         "Valuers Act and International Valuation Standards.</p><p><em>This is demonstration "
         "content.</em></p>",
     ),
+    (
+        "Renting in Nairobi: a checklist for tenants",
+        f"{SITE}/hero/07-living-room-evening",
+        "A furnished living room in the evening light",
+        "<p>Finding a good rental is easier with a short checklist. Take it with you to every "
+        "viewing.</p><h2>Before you view</h2><ul><li>Set a budget: rent plus service charge, "
+        "water and parking.</li><li>Check the commute at rush hour.</li></ul><h2>At the "
+        "viewing</h2><ul><li>Run the taps and flush the toilets.</li><li>Ask how often water "
+        "is rationed and whether there is a borehole or storage tank.</li><li>Look for damp "
+        "on ceilings and around windows.</li></ul><h2>Before you sign</h2><p>Read the tenancy "
+        "agreement, agree an <strong>inventory</strong> with photos, and get a receipt for the "
+        "deposit.</p><p><em>This is demonstration content.</em></p>",
+    ),
+    (
+        "Off-plan apartments: rewards and risks",
+        f"{SITE}/hero/06-nairobi-skyline",
+        "Apartment towers on the Nairobi skyline",
+        "<p>Buying off-plan can save 15 to 25 percent on the finished price, but you carry the "
+        "risk of delays.</p><h2>Check the developer</h2><p>Visit completed projects, confirm "
+        "approvals from the county and NEMA, and ask who the contractor is.</p><h2>Protect "
+        "your payments</h2><ol><li>Pay into an escrow or the project account, never "
+        "cash.</li><li>Tie instalments to construction milestones.</li><li>Have an advocate "
+        "review the sale agreement.</li></ol><blockquote><p>A fair price today is only a "
+        "bargain if the building is finished.</p></blockquote><p><em>This is demonstration "
+        "content.</em></p>",
+    ),
 ]
 
-# title, deal, type, area, price, unit, beds, baths, built m², photos, featured, amenities
+# title, deal, type, area, price, unit, beds, baths, built m², photos, featured, amenities,
+# and optionally a dict of other fields (furnishing, parking_spaces, status, …). Listings
+# without photos stay drafts, ready for trying photo uploads in the dashboard.
 LISTINGS: list[tuple[Any, ...]] = [
     (
         "4 Bedroom Villa with Pool",
@@ -108,6 +136,7 @@ LISTINGS: list[tuple[Any, ...]] = [
         "villa",
         True,
         ["swimming-pool", "garden", "staff-quarters-dsq", "borehole", "cctv"],
+        {"furnishing": "unfurnished", "parking_spaces": 4},
     ),
     (
         "3 Bedroom Apartment with Gym",
@@ -121,7 +150,8 @@ LISTINGS: list[tuple[Any, ...]] = [
         165,
         "apartment",
         True,
-        ["gym", "lift", "backup-generator", "borehole", "24-7-security"],
+        ["gym", "lift", "backup-generator", "borehole", "247-security"],
+        {"furnishing": "semi", "parking_spaces": 2},
     ),
     (
         "5 Bedroom Beach House",
@@ -135,7 +165,7 @@ LISTINGS: list[tuple[Any, ...]] = [
         520,
         "house",
         True,
-        ["swimming-pool", "rooftop-terrace", "air-conditioning", "24-7-security"],
+        ["swimming-pool", "rooftop-terrace", "air-conditioning", "247-security"],
     ),
     (
         "4 Bedroom Townhouse in a Gated Estate",
@@ -163,7 +193,7 @@ LISTINGS: list[tuple[Any, ...]] = [
         110,
         "tower",
         True,
-        ["lift", "swimming-pool", "gym", "24-7-security"],
+        ["lift", "swimming-pool", "gym", "247-security"],
     ),
     (
         "3 Bedroom Bungalow near the Expressway",
@@ -192,6 +222,7 @@ LISTINGS: list[tuple[Any, ...]] = [
         "apartment",
         False,
         ["lift", "backup-generator"],
+        {"furnishing": "furnished", "parking_spaces": 1},
     ),
     (
         "Studio Apartment",
@@ -205,7 +236,7 @@ LISTINGS: list[tuple[Any, ...]] = [
         32,
         "tower",
         False,
-        ["24-7-security", "water-storage-tank"],
+        ["247-security", "water-storage-tank"],
     ),
     (
         "4 Bedroom Maisonette",
@@ -262,6 +293,214 @@ LISTINGS: list[tuple[Any, ...]] = [
         "house",
         False,
         ["swimming-pool", "air-conditioning", "garden"],
+        {"furnishing": "furnished", "parking_spaces": 2},
+    ),
+    (
+        "2 Bedroom Furnished Apartment",
+        "rent",
+        "apartment",
+        "lavington",
+        120_000,
+        "per_month",
+        2,
+        2,
+        95,
+        "apartment",
+        False,
+        ["lift", "balcony", "fitted-kitchen", "247-security"],
+        {"furnishing": "furnished", "parking_spaces": 1},
+    ),
+    (
+        "Penthouse with Rooftop Terrace",
+        "sale",
+        "penthouse",
+        "westlands",
+        None,
+        "total",
+        4,
+        4,
+        320,
+        "tower",
+        False,
+        ["rooftop-terrace", "lift", "swimming-pool", "gym", "en-suite-bedrooms"],
+        {"furnishing": "furnished", "parking_spaces": 3, "price_on_request": True},
+    ),
+    (
+        "Bedsitter near Thika Road",
+        "rent",
+        "bedsitter",
+        "roysambu",
+        12_000,
+        "per_month",
+        0,
+        1,
+        20,
+        "tower",
+        False,
+        ["water-storage-tank"],
+        {"furnishing": "unfurnished"},
+    ),
+    (
+        "3 Bedroom Townhouse in Ongata Rongai",
+        "sale",
+        "townhouse",
+        "ongata-rongai",
+        11_500_000,
+        "total",
+        3,
+        3,
+        180,
+        "townhouse",
+        False,
+        ["gated-community", "borehole", "childrens-play-area"],
+        {"furnishing": "unfurnished", "parking_spaces": 2},
+    ),
+    (
+        "5 Bedroom House with Pet-friendly Garden",
+        "rent",
+        "house",
+        "muthaiga",
+        750_000,
+        "per_month",
+        5,
+        6,
+        600,
+        "villa",
+        False,
+        ["garden", "pet-friendly", "staff-quarters-dsq", "swimming-pool", "cctv"],
+        {"furnishing": "furnished", "parking_spaces": 6},
+    ),
+    (
+        "4 Bedroom Maisonette in Milimani",
+        "sale",
+        "maisonette",
+        "kisumu-city",
+        22_000_000,
+        "total",
+        4,
+        4,
+        260,
+        "townhouse",
+        False,
+        ["garden", "solar-water-heating", "walk-in-closet"],
+        {"furnishing": "semi", "parking_spaces": 2, "status": "under_offer"},
+    ),
+    (
+        "2 Bedroom Apartment in Nakuru",
+        "rent",
+        "apartment",
+        "nakuru-town",
+        45_000,
+        "per_month",
+        2,
+        2,
+        90,
+        "apartment",
+        False,
+        ["backup-generator", "visitor-parking"],
+        {"furnishing": "semi", "parking_spaces": 1},
+    ),
+    (
+        "3 Bedroom Bungalow in Nyeri",
+        "rent",
+        "bungalow",
+        "nyeri-town",
+        60_000,
+        "per_month",
+        3,
+        2,
+        150,
+        "bungalow",
+        False,
+        ["garden", "borehole"],
+        {"furnishing": "unfurnished", "status": "let"},
+    ),
+    (
+        "Shop on a Busy High Street",
+        "lease",
+        "shop-retail",
+        "nairobi-cbd",
+        250_000,
+        "per_month",
+        None,
+        1,
+        80,
+        "office",
+        False,
+        ["cctv", "backup-generator"],
+    ),
+    (
+        "Warehouse with Loading Bays",
+        "lease",
+        "warehouse",
+        "mlolongo",
+        450,
+        "per_sqm",
+        None,
+        2,
+        1500,
+        "office",
+        False,
+        ["cctv", "electric-fence", "backup-generator"],
+    ),
+    (
+        "10-acre Farm near the Lake",
+        "sale",
+        "agricultural-land",
+        "naivasha",
+        2_500_000,
+        "per_acre",
+        None,
+        None,
+        None,
+        "land",
+        False,
+        ["borehole"],
+        {"land_area": Decimal(10)},
+    ),
+    (
+        "Commercial Plot on Mombasa Road",
+        "sale",
+        "commercial-land",
+        "athi-river",
+        40_000_000,
+        "total",
+        None,
+        None,
+        None,
+        "land",
+        False,
+        [],
+        {"land_area": Decimal(1)},
+    ),
+    (
+        "3 Bedroom Apartment in Kileleshwa",
+        "sale",
+        "apartment",
+        "kileleshwa",
+        19_500_000,
+        "total",
+        3,
+        3,
+        150,
+        None,
+        False,
+        ["lift", "gym", "borehole"],
+        {"furnishing": "unfurnished", "parking_spaces": 2},
+    ),
+    (
+        "Office Suite in Gigiri",
+        "lease",
+        "office",
+        "gigiri",
+        2_000,
+        "per_sqm",
+        None,
+        2,
+        180,
+        None,
+        False,
+        ["lift", "fibre-internet-ready", "visitor-parking"],
     ),
 ]
 
@@ -300,7 +539,12 @@ class Command(BaseCommand):
                 photos,
                 featured,
                 amenities,
-            ) = row
+            ) = row[:12]
+            extra: dict[str, Any] = {
+                "land_area": Decimal("0.5") if ptype.endswith("land") else None,
+                "status": Status.PUBLISHED if photos else Status.DRAFT,
+                **(row[12] if len(row) > 12 else {}),
+            }
             area = Area.objects.get(slug=area_slug)
             base = area.location
             prop = Property.objects.create(
@@ -316,18 +560,20 @@ class Command(BaseCommand):
                 bedrooms=beds,
                 bathrooms=baths,
                 built_area_sqm=Decimal(built) if built else None,
-                land_area=Decimal("0.5") if ptype.endswith("land") else None,
                 area=area,
-                status=Status.PUBLISHED,
                 is_featured=featured,
                 location=Point(base.x + 0.004 * (i % 3 - 1), base.y + 0.003 * (i % 2), srid=4326)
                 if base
                 else None,
                 created_by=demo_user,
                 updated_by=demo_user,
+                **extra,
             )
-            prop.amenities.set(Amenity.objects.filter(slug__in=amenities))
-            for order, public_id in enumerate(PHOTOS[photos]):
+            found = Amenity.objects.filter(slug__in=amenities)
+            if missing := set(amenities) - {a.slug for a in found}:
+                raise CommandError(f"Unknown amenities for {title!r}: {sorted(missing)}")
+            prop.amenities.set(found)
+            for order, public_id in enumerate(PHOTOS[photos] if photos else []):
                 PropertyMedia.objects.create(
                     property=prop,
                     public_id=public_id,
@@ -352,6 +598,7 @@ class Command(BaseCommand):
             )
         self.stdout.write(
             self.style.SUCCESS(
-                f"Created {len(LISTINGS)} demo listings and {len(POSTS)} demo articles."
+                f"Created {len(LISTINGS)} demo listings (drafts without photos: "
+                f"{sum(1 for row in LISTINGS if not row[9])}) and {len(POSTS)} demo articles."
             )
         )
