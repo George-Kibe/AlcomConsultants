@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClockIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
+import { EnquiryForm } from "@/components/enquiries/enquiry-form";
 import { FaqList } from "@/components/site/faq-list";
 import { PageHeader } from "@/components/site/page-header";
 import { siteConfig, telLink, whatsappLink } from "@/lib/site-config";
@@ -85,12 +86,20 @@ export default function ContactPage() {
               {siteConfig.contact.hours}
             </p>
           </div>
-          {/* Enquiry form arrives with the CRM in Phase 3. */}
         </div>
-        <div className="lg:col-span-3" id="faqs">
-          <h2 className="mb-4 text-2xl font-bold">
-            Frequently asked questions
-          </h2>
+        <div className="lg:col-span-3" id="message">
+          <div className="bg-card rounded-2xl border p-5 sm:p-8">
+            <h2 className="text-2xl font-bold">Send us a message</h2>
+            <p className="text-muted-foreground mt-1 mb-6">
+              We reply within one working day.
+            </p>
+            <EnquiryForm kind="contact" submitLabel="Send message" />
+          </div>
+        </div>
+      </section>
+      <section className="container-page pb-12 sm:pb-16" id="faqs">
+        <h2 className="mb-4 text-2xl font-bold">Frequently asked questions</h2>
+        <div className="max-w-3xl">
           <FaqList />
         </div>
       </section>

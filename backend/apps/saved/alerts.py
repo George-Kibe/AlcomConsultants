@@ -1,6 +1,5 @@
 """Daily saved-search digest: one email per visitor listing new matching properties."""
 
-import email.policy
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -9,10 +8,9 @@ from typing import Any
 from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.core import signing
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 
 from apps.accounts.models import User
+from apps.core.emails import send_branded
 from apps.core.media import delivery_url
 from apps.listings.models import Property
 
@@ -24,17 +22,6 @@ logger = logging.getLogger(__name__)
 #: Properties shown per saved search in one email; the rest are behind "See all".
 PER_SEARCH = 6
 TOKEN_SALT = "saved-search-alerts"  # noqa: S105 (a signing salt, not a secret)
-
-
-class DigestEmail(EmailMultiAlternatives):
-    """Keeps List-Unsubscribe intact: Python folds header words longer than 78 characters
-    into RFC 2047 encoded-words, which mail providers don't recognise as a URL. The body is
-    encoded first (with normal line lengths); only header output allows RFC 5322's 998."""
-
-    def message(self, *, policy: Any = email.policy.default) -> Any:
-        msg = super().message(policy=policy)
-        msg.policy = msg.policy.clone(max_line_length=998)
-        return msg
 
 
 @dataclass
@@ -123,23 +110,18 @@ def send_digest(user: User, now: datetime) -> int:
             ],
             "manage_url": f"{site}/account/saved-searches",
             "unsubscribe_url": unsubscribe_url,
-            "site_url": site,
         }
         noun = "property matches" if count == 1 else "properties match"
-        message = DigestEmail(
-            subject=f"{settings.ACCOUNT_EMAIL_SUBJECT_PREFIX}{count} new {noun} your saved "
-            f"search{'es' if len(digests) > 1 else ''}",
-            body=render_to_string("saved/email/digest.txt", context),
+        send_branded(
+            subject=f"{count} new {noun} your saved search{'es' if len(digests) > 1 else ''}",
+            template="saved/email/digest",
+            context=context,
             to=[user.email],
             headers={
                 "List-Unsubscribe": f"<{one_click}>",
                 "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
             },
         )
-        message.attach_alternative(
-            render_to_string("saved/email/digest.html", context), "text/html"
-        )
-        message.send()
         logger.info("Saved-search digest to user %s: %s properties", user.pk, count)
     user.saved_searches.filter(alerts=True).update(last_alerted_at=now)
     return count

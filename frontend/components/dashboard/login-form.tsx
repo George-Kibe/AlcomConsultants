@@ -23,6 +23,7 @@ import {
 } from "@/lib/api/auth";
 import { api } from "@/lib/api/client";
 import { safeLocalPath, safeNext } from "@/lib/safe-redirect";
+import { submitWith } from "@/lib/forms";
 
 const noopSubscribe = () => () => {};
 
@@ -183,7 +184,7 @@ export function LoginForm({
   }
 
   return (
-    <form action={submitPassword} className="flex flex-col gap-5">
+    <form onSubmit={submitWith(submitPassword)} className="flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-bold">
           {reader ? "Sign in" : "Staff sign in"}

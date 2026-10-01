@@ -10,6 +10,7 @@ api_v1: list[URLPattern | URLResolver] = [
     path("", include("apps.blog.urls")),
     path("", include("apps.accounts.urls")),
     path("", include("apps.saved.urls")),
+    path("", include("apps.enquiries.urls")),
     path("auth/", include("allauth.headless.urls")),
     # Provider callbacks for social sign-in (Google): /api/v1/accounts/google/login/callback/
     path("accounts/", include("allauth.urls")),

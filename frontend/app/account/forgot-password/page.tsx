@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ensureCsrf, requestPasswordReset } from "@/lib/api/auth";
+import { submitWith } from "@/lib/forms";
 
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
@@ -40,7 +41,7 @@ export default function ForgotPasswordPage() {
           </AlertDescription>
         </Alert>
       ) : (
-        <form action={submit} className="flex flex-col gap-4">
+        <form onSubmit={submitWith(submit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
             <Input

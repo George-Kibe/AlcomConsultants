@@ -125,3 +125,11 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Digest emails keep `List-Unsubscribe` on one header line: Python's default email policy would otherwise fold the long URL into RFC 2047 encoded-words, which mail providers ignore.
 - The blog's new-article page accepts the cover photo before the first save (`cover_upload` on create), so an article can be written and published in one go.
 
+## Enquiries and CRM (Phase 3, 2026-10-02)
+- Owner's choices: spam protection with **Cloudflare Turnstile** (plus built-in timing, honeypot and rate limits); new enquiries go to the **shared inbox only** (staff assign them in the dashboard); pipeline **New → Contacted → Viewing → Negotiating → Won / Lost**; follow-up reminders in the **dashboard and a morning email**.
+- Enquiries are kept separate from listings and accounts (`apps.enquiries`). A lead keeps a snapshot of the listing ("ALC-S-1001 title") so it still makes sense if the listing is deleted.
+- If Cloudflare can't be reached, the enquiry is accepted and marked "unverified" rather than refused: losing a real lead costs more than one extra spam message.
+- The visitor's confirmation email never repeats their message, so the form can't relay arbitrary text to a third party.
+- Forms submit with `onSubmit`, not React form actions: React resets a form after its action runs, which wiped what visitors had typed whenever there was an error. The sign-in, sign-up and password-reset forms were changed the same way.
+- Demo data was seeded in production on the owner's request (10 listings, 5 articles) for testing; it is removed before launch (Phase 6 checklist).
+
