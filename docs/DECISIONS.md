@@ -62,6 +62,7 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - **Font**: Montserrat (Google Fonts, self-hosted by `next/font`); replaced Outfit at the client's request.
 - **Colours**: logo navy `#27225C`, green `#3EB354`, red `#EC232C`. The logo green/red fail WCAG AA as text on white, so text and buttons use darker variants (`#1E7B36`, `#C4161F`); logo colours are kept for decoration. Dark mode is near-neutral charcoal (`#121216`) with off-white primary buttons; the earlier navy/purple tint was too strong. All tokens live in `frontend/app/globals.css`.
 - **Components**: shadcn/ui (Radix base, "nova" preset), lucide icons; brand icons (WhatsApp, social) are local SVGs because lucide dropped brand marks.
+- Use prefetch components when there are API calls or something pending.
 - **Logo assets**: generated from the original PNG into `public/brand/` (transparent, mark-only, and light variants for dark backgrounds); favicon and Apple icon in `app/`.
 - **Accessibility**: every page is checked with axe (WCAG 2 A/AA) in light and dark themes on mobile and desktop in CI.
 
