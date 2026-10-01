@@ -23,7 +23,7 @@ const noopSubscribe = () => () => {};
 export const RETURN_KEY = "alcom:after-verify";
 
 export function SignUpForm() {
-  const next = safeLocalPath(useSearchParams().get("next"), "/blog");
+  const next = safeLocalPath(useSearchParams().get("next"), "/account");
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState<string>();
@@ -51,7 +51,7 @@ export function SignUpForm() {
       try {
         localStorage.setItem(RETURN_KEY, next);
       } catch {
-        // Storage unavailable (private mode): the verify page falls back to /blog.
+        // Storage unavailable (private mode): the verify page falls back to /account.
       }
       return setSentTo(email);
     }
@@ -93,7 +93,8 @@ export function SignUpForm() {
       <div>
         <h1 className="text-xl font-bold">Create an account</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          To comment on our articles. Your name is shown with your comments.
+          Save properties, get a daily email about new matches for your
+          searches, and comment on our articles.
         </p>
       </div>
       {error && (

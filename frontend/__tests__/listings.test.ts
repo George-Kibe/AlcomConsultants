@@ -5,6 +5,7 @@ import {
   listingJsonLd,
   paragraphs,
   readSearch,
+  savedSearchQuery,
   searchHeading,
   searchHref,
   videoEmbed,
@@ -134,4 +135,19 @@ test("listingJsonLd", () => {
   expect(
     listingJsonLd({ ...p, price_on_request: true }, "u", []),
   ).not.toHaveProperty("offers");
+});
+
+test("saved-search query keeps only the search filters, in a stable order", () => {
+  expect(
+    savedSearchQuery({
+      page: "2",
+      sort: "price_asc",
+      view: "map",
+      min_beds: "2",
+      where: "Kilimani, Nairobi",
+      deal: "rent",
+      area: "kilimani",
+      q: " ",
+    }),
+  ).toBe("deal=rent&area=kilimani&where=Kilimani%2C+Nairobi&min_beds=2");
 });

@@ -43,7 +43,8 @@ class CanCommentOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request: Request, view: Any, obj: Comment) -> bool:
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.author_id == request.user.pk or bool(request.user.is_staff)
+        mine = obj.author_id is not None and obj.author_id == request.user.pk
+        return mine or bool(request.user.is_staff)
 
 
 class CommentSerializer(serializers.ModelSerializer[Comment]):
@@ -57,7 +58,9 @@ class CommentSerializer(serializers.ModelSerializer[Comment]):
 
     def get_is_mine(self, comment: Comment) -> bool:
         request = self.context.get("request")
-        return bool(request and comment.author_id == request.user.pk)
+        return bool(
+            request and comment.author_id is not None and comment.author_id == request.user.pk
+        )
 
     def validate_body(self, value: str) -> str:
         value = value.strip()
@@ -107,7 +110,7 @@ class CommentViewSet(
 
 class DashboardCommentSerializer(serializers.ModelSerializer[Comment]):
     author_name = serializers.CharField(read_only=True)
-    author_email = serializers.EmailField(source="author.email", read_only=True)
+    author_email = serializers.SerializerMethodField()
     post = serializers.SerializerMethodField()
     hidden_by_name = serializers.SerializerMethodField()
 
@@ -132,6 +135,10 @@ class DashboardCommentSerializer(serializers.ModelSerializer[Comment]):
     def get_post(self, comment: Comment) -> dict[str, str]:
         post = comment.post
         return {"uuid": str(post.uuid), "title": post.title, "slug": post.slug}
+
+    def get_author_email(self, comment: Comment) -> str:
+        """Empty for a reader who has deleted their account."""
+        return comment.author.email if comment.author else ""
 
     def get_hidden_by_name(self, comment: Comment) -> str:
         user = comment.hidden_by

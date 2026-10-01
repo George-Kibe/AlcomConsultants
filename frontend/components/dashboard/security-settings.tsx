@@ -95,7 +95,7 @@ function useReauth() {
   return { run, Prompt };
 }
 
-function PasswordForm() {
+export function PasswordForm() {
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 

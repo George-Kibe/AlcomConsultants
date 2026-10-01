@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HomeIcon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
+import { SaveSearchButton } from "@/components/listings/save-search-button";
 import { SearchFilters } from "@/components/listings/search-filters";
 import { SearchMapLoader } from "@/components/listings/search-map-loader";
 import { Pagination } from "@/components/site/pagination";
@@ -11,6 +12,7 @@ import { safely, serverApi } from "@/lib/api/server";
 import {
   apiQuery,
   readSearch,
+  savedSearchQuery,
   searchHeading,
   searchHref,
 } from "@/lib/listings";
@@ -61,9 +63,12 @@ export default async function PropertiesPage({
     <>
       <section className="bg-muted/60 border-b">
         <div className="container-page flex flex-col gap-5 py-8 sm:py-10">
-          <h1 className="text-2xl font-bold sm:text-3xl">
-            {searchHeading(state, typeName)}
-          </h1>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-2xl font-bold sm:text-3xl">
+              {searchHeading(state, typeName)}
+            </h1>
+            <SaveSearchButton query={savedSearchQuery(state)} />
+          </div>
           <SearchFilters
             state={state}
             types={types}

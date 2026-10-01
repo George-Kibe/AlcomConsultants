@@ -298,7 +298,7 @@ export function SearchFilters({
                 href={
                   state.view ? `/properties?view=${state.view}` : "/properties"
                 }
-                className="text-primary underline-offset-4 hover:underline"
+                className="text-primary underline underline-offset-4"
               >
                 Clear all
               </Link>

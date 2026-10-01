@@ -12,6 +12,7 @@ export default defineConfig({
         "**/dashboard*.spec.ts",
         "**/public-listings.spec.ts",
         "**/blog.spec.ts",
+        "**/visitor-account.spec.ts",
       ],
   fullyParallel: true,
   // Full-stack runs share one staff account, so run them one at a time.

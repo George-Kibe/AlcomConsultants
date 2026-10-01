@@ -218,6 +218,19 @@ class Property(BaseModel):
             super().save(update_fields=["reference", "slug"])
 
     @property
+    def price_label(self) -> str:
+        """ "KES 180,000 / month" or "Price on request" (as on the website)."""
+        if self.price_on_request or self.price is None:
+            return "Price on request"
+        suffix = {
+            PriceUnit.PER_MONTH: " / month",
+            PriceUnit.PER_SQM: " / m²",
+            PriceUnit.PER_SQFT: " / ft²",
+            PriceUnit.PER_ACRE: " / acre",
+        }.get(PriceUnit(self.price_unit), "")
+        return f"KES {self.price:,}{suffix}"
+
+    @property
     def is_listed(self) -> bool:
         return self.status in LISTED_STATUSES
 

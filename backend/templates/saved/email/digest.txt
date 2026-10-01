@@ -1,0 +1,17 @@
+{% autoescape off %}Hello {{ user.first_name|default:"there" }},
+
+{{ count }} new {{ count|pluralize:"property matches,properties match" }} your saved search{{ searches|length|pluralize:"es" }}.
+{% for s in searches %}
+{{ s.name }} ({{ s.total }} new)
+{% for p in s.properties %}
+- {{ p.title }}, {{ p.place }}: {{ p.price }}
+  {{ p.url }}
+{% endfor %}{% if s.more %}...and {{ s.more }} more: {{ s.url }}
+{% endif %}{% endfor %}
+Manage your saved searches: {{ manage_url }}
+Stop these emails: {{ unsubscribe_url }}
+
+Alcom Consultants Limited
+Registered Valuers • Property Managers • Estate Agents
+{{ site_url }}
+{% endautoescape %}

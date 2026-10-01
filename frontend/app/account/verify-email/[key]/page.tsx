@@ -11,9 +11,9 @@ import { safeLocalPath } from "@/lib/safe-redirect";
 
 function returnPath() {
   try {
-    return safeLocalPath(localStorage.getItem(RETURN_KEY), "/blog");
+    return safeLocalPath(localStorage.getItem(RETURN_KEY), "/account");
   } catch {
-    return "/blog";
+    return "/account";
   }
 }
 
@@ -22,7 +22,7 @@ export default function VerifyEmailPage() {
   const [state, setState] = useState<"checking" | "done" | "failed">(
     "checking",
   );
-  const [back, setBack] = useState("/blog");
+  const [back, setBack] = useState("/account");
 
   // Keys are single-use, so verify exactly once (effects run twice in development).
   const started = useRef(false);
