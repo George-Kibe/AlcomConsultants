@@ -69,7 +69,7 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Crossfading slideshow of **10 photos**: 3 of Alcom's own Nairobi skyline shots + 7 Unsplash photos (free for commercial use under the Unsplash License; sources recorded in `frontend/lib/hero-slides.ts`). Replace stock photos with real Alcom properties over time.
 - 4 s per slide with a gentle zoom and a light neutral overlay (text stays legible via shadow); visible pause/play and per-photo dots (WCAG 2.2.2); no autoplay for reduced-motion users; pauses while the tab is hidden.
 - Only the first photo loads up front (Next.js `preload`), then one slide ahead, so first load is ~360 KB of images on desktop and ~190 KB on mobile.
-- Served from `frontend/public/hero/` (2400px, compressed) until Cloudinary credentials are available.
+- Served by Cloudinary (`alcom_images/site/hero/…`, `alcom_images/site/sample-properties/…`) through `next-cloudinary`'s `CldImage` (wrapped as `CloudImage`): resized per screen width, AVIF/WebP, automatic quality. Site imagery is shared by all environments.
 
 ### Featured properties (2026-09-30)
 - Home page shows 6 featured properties between the hero and "How we can help": swipeable row on mobile, grid on tablet/desktop.

@@ -3,9 +3,12 @@
  * Stock photos are from Unsplash (free for commercial use under the Unsplash License);
  * `source` records where each came from. Nairobi skyline photos are Alcom's own.
  *
- * Images are served from /public for now and move to Cloudinary once it is set up.
+ * Served by Cloudinary (`src` is the public ID; uploaded to alcom_images/site/hero).
  */
+import { SITE_IMAGES } from "@/lib/cloudinary";
+
 export type HeroSlide = {
+  /** Cloudinary public ID */
   src: string;
   alt: string;
   width: number;
@@ -16,7 +19,7 @@ export type HeroSlide = {
 
 export const heroSlides: HeroSlide[] = [
   {
-    src: "/hero/01-nairobi-kicc.jpg",
+    src: `${SITE_IMAGES}/hero/01-nairobi-kicc`,
     alt: "Nairobi city skyline with the KICC tower",
     width: 2400,
     height: 1600,
@@ -25,7 +28,7 @@ export const heroSlides: HeroSlide[] = [
     source: null,
   },
   {
-    src: "/hero/02-modern-home-dusk.jpg",
+    src: `${SITE_IMAGES}/hero/02-modern-home-dusk`,
     alt: "Modern two-storey house lit up at dusk",
     width: 2400,
     height: 1867,
@@ -34,7 +37,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/4vioYQ9Nn9Y",
   },
   {
-    src: "/hero/03-apartments-garden.jpg",
+    src: `${SITE_IMAGES}/hero/03-apartments-garden`,
     alt: "Apartment block behind landscaped gardens",
     width: 2400,
     height: 1800,
@@ -43,7 +46,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/WxEJYXMDYaE",
   },
   {
-    src: "/hero/04-villa-pool.jpg",
+    src: `${SITE_IMAGES}/hero/04-villa-pool`,
     alt: "White villa with a swimming pool and lounge area",
     width: 2400,
     height: 1601,
@@ -52,7 +55,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/Id7u0EkTjBE",
   },
   {
-    src: "/hero/05-leafy-neighbourhood.jpg",
+    src: `${SITE_IMAGES}/hero/05-leafy-neighbourhood`,
     alt: "Leafy residential neighbourhood with apartments and houses",
     width: 2400,
     height: 1620,
@@ -61,7 +64,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/i0uxlHOhb1Y",
   },
   {
-    src: "/hero/06-nairobi-skyline.jpg",
+    src: `${SITE_IMAGES}/hero/06-nairobi-skyline`,
     alt: "Nairobi skyline under a cloudy sky",
     width: 2400,
     height: 1600,
@@ -70,7 +73,7 @@ export const heroSlides: HeroSlide[] = [
     source: null,
   },
   {
-    src: "/hero/07-living-room-evening.jpg",
+    src: `${SITE_IMAGES}/hero/07-living-room-evening`,
     alt: "Open-plan living room and kitchen in the evening",
     width: 2400,
     height: 1350,
@@ -79,7 +82,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/DS9Xc7AWmwQ",
   },
   {
-    src: "/hero/08-house-pool.jpg",
+    src: `${SITE_IMAGES}/hero/08-house-pool`,
     alt: "Contemporary house with an infinity pool",
     width: 2400,
     height: 1800,
@@ -88,7 +91,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/_TPTXZd9mOo",
   },
   {
-    src: "/hero/09-modern-living-room.jpg",
+    src: `${SITE_IMAGES}/hero/09-modern-living-room`,
     alt: "Modern living room with a sectional sofa and large window",
     width: 2400,
     height: 1599,
@@ -97,7 +100,7 @@ export const heroSlides: HeroSlide[] = [
     source: "https://unsplash.com/photos/yxO8YG082v8",
   },
   {
-    src: "/hero/10-nairobi-city.jpg",
+    src: `${SITE_IMAGES}/hero/10-nairobi-city`,
     alt: "Nairobi city centre seen across green suburbs",
     width: 2400,
     height: 1600,

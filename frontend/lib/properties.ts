@@ -13,7 +13,8 @@ export type PropertySummary = {
   bathrooms?: number;
   /** Built-up area in square metres. */
   areaSqm?: number;
-  image: { src: string; alt: string; blurDataURL?: string };
+  /** Cover photo; `publicId` is the Cloudinary public ID. */
+  image: { publicId: string; alt: string; blurDataURL?: string };
 };
 
 export const dealTypeLabel: Record<DealType, string> = {
