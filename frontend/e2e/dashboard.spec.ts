@@ -72,7 +72,7 @@ test("wrong password shows an error", async ({ page }) => {
 
 test("sign in, see the overview, sign out", async ({ page }) => {
   await signIn(page);
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.waitForURL((url) => url.pathname === "/dashboard");
   await expect(
     page.getByRole("heading", { name: /Welcome back/ }),
   ).toBeVisible();
@@ -88,7 +88,7 @@ test("turn on two-step verification and sign in with a code", async ({
 }) => {
   test.setTimeout(90_000); // waits for a fresh 30-second authenticator code
   await signIn(page);
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.waitForURL((url) => url.pathname === "/dashboard");
   await page.goto("/dashboard/security");
 
   const key = (await page.locator("code").first().textContent())!.trim();
@@ -105,7 +105,7 @@ test("turn on two-step verification and sign in with a code", async ({
   ).toBeVisible();
   const code = await freshTotp(key, activatedAt); // a used code is rightly rejected
   await page.getByLabel("Verification code").pressSequentially(code); // submits on 6 digits
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.waitForURL((url) => url.pathname === "/dashboard");
 
   // Turn it off from the UI (may ask to confirm the password first).
   await page.goto("/dashboard/security");
@@ -145,7 +145,7 @@ test("dashboard screens have no accessibility violations", async ({ page }) => {
   await page.goto("/dashboard/login");
   await check("login");
   await signIn(page);
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.waitForURL((url) => url.pathname === "/dashboard");
   await expect(page.getByTestId("stat-listed")).toBeVisible();
   await check("overview");
   await page.goto("/dashboard/security");

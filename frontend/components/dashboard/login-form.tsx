@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ import {
 } from "@/lib/api/auth";
 import { safeNext } from "@/lib/safe-redirect";
 
+const noopSubscribe = () => () => {};
+
 export function LoginForm() {
   const router = useRouter();
   const next = safeNext(useSearchParams().get("next"));
@@ -31,6 +33,13 @@ export function LoginForm() {
   const [code, setCode] = useState("");
   const [useRecovery, setUseRecovery] = useState(false);
 
+  // Until React has hydrated, a click would submit the form natively and lose the
+  // sign-in; keep the button disabled until the page is interactive.
+  const ready = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
   useEffect(() => {
     void ensureCsrf();
   }, []);
@@ -198,7 +207,7 @@ export function LoginForm() {
           className="h-11"
         />
       </div>
-      <Button type="submit" size="xl" disabled={busy}>
+      <Button type="submit" size="xl" disabled={busy || !ready}>
         {busy ? "Signing in…" : "Sign in"}
       </Button>
     </form>

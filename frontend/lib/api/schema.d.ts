@@ -20,6 +20,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/lookups/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Everything the listing form needs, in one request. */
+        get: operations["dashboard_lookups_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/overview/": {
         parameters: {
             query?: never;
@@ -27,7 +44,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Headline numbers for the dashboard home page. */
+        /** @description Headline numbers for the dashboard (also used for the status tabs). */
         get: operations["dashboard_overview_retrieve"];
         put?: never;
         post?: never;
@@ -35,6 +52,43 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/properties/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff listing management. Published listings are archived, not deleted. */
+        get: operations["dashboard_properties_list"];
+        put?: never;
+        /** @description Staff listing management. Published listings are archived, not deleted. */
+        post: operations["dashboard_properties_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/properties/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff listing management. Published listings are archived, not deleted. */
+        get: operations["dashboard_properties_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Staff listing management. Published listings are archived, not deleted. */
+        delete: operations["dashboard_properties_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Staff listing management. Published listings are archived, not deleted. */
+        patch: operations["dashboard_properties_partial_update"];
         trace?: never;
     };
     "/api/v1/health/": {
@@ -226,11 +280,131 @@ export interface components {
             readonly areas: components["schemas"]["Area"][];
         };
         DashboardOverview: {
+            total: number;
             listed: number;
             drafts: number;
             under_offer: number;
             closed: number;
+            archived: number;
             featured: number;
+        };
+        /** @description Create / edit a listing. */
+        DashboardProperty: {
+            /** Format: uuid */
+            readonly uuid: string;
+            readonly reference: string | null;
+            readonly slug: string;
+            status?: components["schemas"]["PropertyStatusEnum"];
+            title: string;
+            description: string;
+            deal_type: components["schemas"]["DealTypeEnum"];
+            property_type: string;
+            /**
+             * Format: int64
+             * @description KES
+             */
+            price?: number | null;
+            price_unit?: components["schemas"]["PriceUnitEnum"];
+            price_on_request?: boolean;
+            bedrooms?: number | null;
+            bathrooms?: number | null;
+            parking_spaces?: number | null;
+            /** Format: decimal */
+            built_area_sqm?: string | null;
+            /** Format: decimal */
+            land_area?: string | null;
+            land_area_unit?: components["schemas"]["LandAreaUnitEnum"];
+            furnishing?: components["schemas"]["FurnishingEnum"] | components["schemas"]["BlankEnum"];
+            amenities?: string[];
+            readonly county: number;
+            area: number;
+            neighbourhood?: number | null;
+            /** Format: double */
+            lat?: number | null;
+            /** Format: double */
+            lng?: number | null;
+            /** @description Otherwise the public map shows an approximate position. */
+            show_exact_location?: boolean;
+            agent?: number | null;
+            project?: number | null;
+            /** @description YouTube or Vimeo link */
+            video_url?: string;
+            is_featured?: boolean;
+            seo_title?: string;
+            seo_description?: string;
+            /** Format: date-time */
+            readonly published_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+            readonly created_by: string | null;
+            readonly updated_by: string | null;
+        };
+        DashboardPropertyList: {
+            /** Format: uuid */
+            readonly uuid: string;
+            readonly reference: string | null;
+            readonly slug: string;
+            title: string;
+            status?: components["schemas"]["PropertyStatusEnum"];
+            deal_type: components["schemas"]["DealTypeEnum"];
+            property_type: string;
+            /**
+             * Format: int64
+             * @description KES
+             */
+            price?: number | null;
+            price_unit?: components["schemas"]["PriceUnitEnum"];
+            price_on_request?: boolean;
+            readonly location: string;
+            readonly cover_image: string | null;
+            readonly photo_count: number;
+            is_featured?: boolean;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /** @description Create / edit a listing. */
+        DashboardPropertyRequest: {
+            status?: components["schemas"]["PropertyStatusEnum"];
+            title: string;
+            description: string;
+            deal_type: components["schemas"]["DealTypeEnum"];
+            property_type: string;
+            /**
+             * Format: int64
+             * @description KES
+             */
+            price?: number | null;
+            price_unit?: components["schemas"]["PriceUnitEnum"];
+            price_on_request?: boolean;
+            bedrooms?: number | null;
+            bathrooms?: number | null;
+            parking_spaces?: number | null;
+            /** Format: decimal */
+            built_area_sqm?: string | null;
+            /** Format: decimal */
+            land_area?: string | null;
+            land_area_unit?: components["schemas"]["LandAreaUnitEnum"];
+            furnishing?: components["schemas"]["FurnishingEnum"] | components["schemas"]["BlankEnum"];
+            amenities?: string[];
+            area: number;
+            neighbourhood?: number | null;
+            /** Format: double */
+            lat?: number | null;
+            /** Format: double */
+            lng?: number | null;
+            /** @description Otherwise the public map shows an approximate position. */
+            show_exact_location?: boolean;
+            agent?: number | null;
+            project?: number | null;
+            /** @description YouTube or Vimeo link */
+            video_url?: string;
+            is_featured?: boolean;
+            seo_title?: string;
+            seo_description?: string;
         };
         /**
          * @description * `sale` - For Sale
@@ -288,6 +462,13 @@ export interface components {
             area: string;
             neighbourhood: string;
         };
+        Lookups: {
+            property_types: components["schemas"]["_Choice"][];
+            amenities: components["schemas"]["_Choice"][];
+            counties: components["schemas"]["_CountyLookup"][];
+            agents: components["schemas"]["_Agent"][];
+            projects: components["schemas"]["_NamedId"][];
+        };
         Me: {
             /**
              * Email address
@@ -312,6 +493,21 @@ export interface components {
             height: number | null;
             alt_text: string;
             caption: string;
+        };
+        PaginatedDashboardPropertyListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["DashboardPropertyList"][];
         };
         PaginatedProjectListList: {
             /** @example 123 */
@@ -342,6 +538,46 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["PropertyList"][];
+        };
+        /** @description Create / edit a listing. */
+        PatchedDashboardPropertyRequest: {
+            status?: components["schemas"]["PropertyStatusEnum"];
+            title?: string;
+            description?: string;
+            deal_type?: components["schemas"]["DealTypeEnum"];
+            property_type?: string;
+            /**
+             * Format: int64
+             * @description KES
+             */
+            price?: number | null;
+            price_unit?: components["schemas"]["PriceUnitEnum"];
+            price_on_request?: boolean;
+            bedrooms?: number | null;
+            bathrooms?: number | null;
+            parking_spaces?: number | null;
+            /** Format: decimal */
+            built_area_sqm?: string | null;
+            /** Format: decimal */
+            land_area?: string | null;
+            land_area_unit?: components["schemas"]["LandAreaUnitEnum"];
+            furnishing?: components["schemas"]["FurnishingEnum"] | components["schemas"]["BlankEnum"];
+            amenities?: string[];
+            area?: number;
+            neighbourhood?: number | null;
+            /** Format: double */
+            lat?: number | null;
+            /** Format: double */
+            lng?: number | null;
+            /** @description Otherwise the public map shows an approximate position. */
+            show_exact_location?: boolean;
+            agent?: number | null;
+            project?: number | null;
+            /** @description YouTube or Vimeo link */
+            video_url?: string;
+            is_featured?: boolean;
+            seo_title?: string;
+            seo_description?: string;
         };
         /**
          * @description * `total` - Total
@@ -503,6 +739,31 @@ export interface components {
             price_to?: number | null;
             units_available?: number | null;
         };
+        _Agent: {
+            id: number;
+            name: string;
+            /** Format: email */
+            email: string;
+        };
+        _AreaLookup: {
+            id: number;
+            name: string;
+            neighbourhoods: components["schemas"]["_NamedId"][];
+        };
+        _Choice: {
+            slug: string;
+            name: string;
+            group: string;
+        };
+        _CountyLookup: {
+            id: number;
+            name: string;
+            areas: components["schemas"]["_AreaLookup"][];
+        };
+        _NamedId: {
+            id: number;
+            name: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -534,6 +795,25 @@ export interface operations {
             };
         };
     };
+    dashboard_lookups_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lookups"];
+                };
+            };
+        };
+    };
     dashboard_overview_retrieve: {
         parameters: {
             query?: never;
@@ -549,6 +829,153 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardOverview"];
+                };
+            };
+        };
+    };
+    dashboard_properties_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `sale` - For Sale
+                 *     * `rent` - For Rent
+                 *     * `lease` - Commercial Lease
+                 */
+                deal?: "lease" | "rent" | "sale";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                q?: string;
+                /**
+                 * @description Ordering
+                 *
+                 *     * `updated` - Updated
+                 *     * `-updated` - Updated (descending)
+                 *     * `created` - Created
+                 *     * `-created` - Created (descending)
+                 *     * `price` - Price
+                 *     * `-price` - Price (descending)
+                 *     * `title` - Title
+                 *     * `-title` - Title (descending)
+                 */
+                sort?: ("-created" | "-price" | "-title" | "-updated" | "created" | "price" | "title" | "updated")[];
+                /**
+                 * @description * `draft` - Draft
+                 *     * `published` - Published
+                 *     * `under_offer` - Under offer
+                 *     * `sold` - Sold
+                 *     * `let` - Let
+                 *     * `archived` - Archived
+                 *     * `closed` - Sold or let
+                 */
+                status?: "archived" | "closed" | "draft" | "let" | "published" | "sold" | "under_offer";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDashboardPropertyListList"];
+                };
+            };
+        };
+    };
+    dashboard_properties_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardPropertyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DashboardPropertyRequest"];
+                "multipart/form-data": components["schemas"]["DashboardPropertyRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardProperty"];
+                };
+            };
+        };
+    };
+    dashboard_properties_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardProperty"];
+                };
+            };
+        };
+    };
+    dashboard_properties_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_properties_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardPropertyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardPropertyRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardPropertyRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardProperty"];
                 };
             };
         };
