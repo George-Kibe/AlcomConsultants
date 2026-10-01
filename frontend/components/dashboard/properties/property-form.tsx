@@ -51,6 +51,7 @@ import {
   type ListingFormValues,
 } from "@/lib/listing-form";
 
+import { PhotoManager } from "./photo-manager";
 import { StatusBadge } from "./status-badge";
 
 type ApiProperty = components["schemas"]["DashboardProperty"];
@@ -391,6 +392,16 @@ export function PropertyForm({ property }: Props) {
           />
         </Field>
       </Section>
+
+      {property ? (
+        <PhotoManager propertyUuid={property.uuid} />
+      ) : (
+        <Section title="Photos & floor plans">
+          <p className="text-muted-foreground text-sm">
+            Save the listing (as a draft is fine), then add photos here.
+          </p>
+        </Section>
+      )}
 
       <Section title="Price">
         <div className="grid gap-4 sm:grid-cols-2">

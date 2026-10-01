@@ -1,10 +1,12 @@
 """Cloudinary integration: configuration, uploads and delivery URLs."""
 
 import os
+import time
 from typing import IO, Any
 
 import cloudinary
 import cloudinary.uploader
+import cloudinary.utils
 from django.conf import settings
 from django.db import models
 
@@ -27,6 +29,34 @@ def upload(file: IO[bytes] | str, *, folder: str, resource_type: str = "auto") -
         overwrite=False,
     )
     return result
+
+
+ALLOWED_UPLOAD_FORMATS = "jpg,jpeg,png,webp,avif,heic"
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+
+
+def signed_upload_params(folder: str) -> dict[str, Any]:
+    """Parameters the browser sends with a direct upload to Cloudinary (signed, so they
+    can't be altered: only images, only into this folder)."""
+    config = cloudinary.config()
+    params: dict[str, Any] = {
+        "folder": f"{settings.CLOUDINARY_FOLDER}/{folder}",
+        "timestamp": int(time.time()),
+        "allowed_formats": ALLOWED_UPLOAD_FORMATS,
+    }
+    params["signature"] = cloudinary.utils.api_sign_request(params, config.api_secret)
+    return {
+        **params,
+        "api_key": config.api_key,
+        "cloud_name": config.cloud_name,
+        "upload_url": f"https://api.cloudinary.com/v1_1/{config.cloud_name}/image/upload",
+        "max_bytes": MAX_UPLOAD_BYTES,
+    }
+
+
+def is_authentic_upload(public_id: str, version: int | str, signature: str) -> bool:
+    """True if Cloudinary really returned this upload result (signed with our API secret)."""
+    return bool(cloudinary.utils.verify_api_response_signature(public_id, version, signature))
 
 
 def delivery_url(public_id: str, *, resource_type: str = "image", **transformation: Any) -> str:

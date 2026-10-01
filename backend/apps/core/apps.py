@@ -6,6 +6,7 @@ class CoreConfig(AppConfig):
     name = "apps.core"
 
     def ready(self) -> None:
-        from . import media
+        from . import media, signals
 
         media.configure()
+        signals.connect()

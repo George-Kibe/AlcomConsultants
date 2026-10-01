@@ -83,3 +83,9 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - `proxy.ts` only does an optimistic redirect to `/dashboard/login`; Django authorises every request.
 - Password-reset emails need production email settings (`EMAIL_*` in the server `.env`).
 - Frontend API types are generated from the OpenAPI schema (`make api-types`); CI fails if they are stale.
+
+### Listing photos (Phase 2b-3, 2026-10-01)
+- **Signed direct uploads**: the browser asks the API for signed parameters (images only, the listings folder, 20 MB) and uploads straight to Cloudinary, so large files never pass through our servers. The API then **verifies Cloudinary's response signature** and the folder before attaching the photo.
+- Order = display order; the first photo is the cover. Reorder by drag or keyboard (dnd-kit).
+- Deleting a photo (or a draft listing) removes the file from Cloudinary via a retried Celery task.
+- Videos stay as YouTube/Vimeo links (no video uploads).

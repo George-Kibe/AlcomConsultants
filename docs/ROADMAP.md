@@ -31,7 +31,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] **2a** Property, media (Cloudinary) and development-project models, Django admin with photo upload, public read API (search filters, sorting, detail, location autocomplete, projects)
 - [x] **2b-1** Staff dashboard: sign-in (email + password, optional 2-step verification, recovery codes, password reset/change), dashboard shell, overview; full-stack E2E in CI
 - [x] **2b-2** Listing management: list (status tabs, search, sort), create/edit form, publish / archive / delete-draft, audit (created_by / updated_by)
-- [ ] **2b-3** Photos: upload to Cloudinary, reorder, cover, alt text
+- [x] **2b-3** Photos: signed direct uploads to Cloudinary (server-verified), progress, drag / keyboard reorder, cover, alt text, floor plans, delete with Cloudinary clean-up
 - Public: search page (filters, list/map toggle, mobile filter drawer), property detail (gallery, video, floor plans, map, nearby amenities, similar listings)
 - Development projects: models, dashboard, public project pages
 

@@ -99,6 +99,9 @@ jobs:
       E2E_BASE_URL: http://localhost:8080
       E2E_STAFF_EMAIL: e2e-staff@alcom.test
       E2E_STAFF_PASSWORD: e2e-Staff-pass-2026
+      # Uploads to Cloudinary are mocked with responses signed by this test-only secret.
+      E2E_CLOUDINARY_SECRET: e2e-secret
+      E2E_CLOUDINARY_FOLDER: alcom/dev/properties
     steps:
       - uses: actions/checkout@v7
       - name: Development environment
@@ -106,6 +109,7 @@ jobs:
           cp .env.example .env
           sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=ci$(openssl rand -hex 12)|" .env
           sed -i "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$(openssl rand -hex 32)|" .env
+          sed -i "s|^CLOUDINARY_URL=.*|CLOUDINARY_URL=cloudinary://e2e-key:$E2E_CLOUDINARY_SECRET@e2e-cloud|" .env
       - name: Start the stack
         timeout-minutes: 15
         run: |
@@ -144,7 +148,7 @@ jobs:
         working-directory: frontend
       - run: npx playwright install --with-deps chromium
         working-directory: frontend
-      - run: npx playwright test e2e/dashboard.spec.ts e2e/dashboard-listings.spec.ts
+      - run: npx playwright test e2e/dashboard.spec.ts e2e/dashboard-listings.spec.ts e2e/dashboard-photos.spec.ts
         working-directory: frontend
       - name: Service logs
         if: failure()
