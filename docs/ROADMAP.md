@@ -22,8 +22,8 @@ No hard deadline; quality first. Each phase ends with passing CI, deployment to 
 - [ ] **Staging live**: VPS hardening, edge Nginx, Let's Encrypt, deploy workflow (needs VPS access + DNS)
 
 ### Phase 2: Listings core
-- Locations (Kenya counties → areas → neighbourhoods seed data), property types, amenities
-- Property + media models, Cloudinary integration, API
+- [x] **2a** Locations (47 counties + 69 seeded areas → neighbourhoods), property types, amenities
+- [x] **2a** Property, media (Cloudinary) and development-project models, Django admin with photo upload, public read API (search filters, sorting, detail, location autocomplete, projects)
 - Staff dashboard: auth (2FA optional), listing CRUD, media upload/reorder, publish workflow
 - Public: search page (filters, list/map toggle, mobile filter drawer), property detail (gallery, video, floor plans, map, nearby amenities, similar listings)
 - Development projects: models, dashboard, public project pages

@@ -47,6 +47,10 @@ jobs:
       - run: uv run python manage.py makemigrations --check --dry-run
         env:
           DJANGO_SETTINGS_MODULE: config.settings.test
+      - name: Validate OpenAPI schema
+        run: uv run python manage.py spectacular --validate --fail-on-warn --file /tmp/schema.yaml
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.test
       - run: uv run pytest --cov --cov-report=term-missing --cov-report=xml
       - name: Audit dependencies
         run: uv export --no-dev --no-hashes --format requirements-txt | uvx pip-audit -r /dev/stdin --strict

@@ -1,0 +1,604 @@
+{
+ "counties": [
+  {
+   "code": 1,
+   "name": "Mombasa",
+   "areas": [
+    {
+     "name": "Nyali",
+     "lat": -4.0203,
+     "lng": 39.7166
+    },
+    {
+     "name": "Bamburi",
+     "lat": -3.99,
+     "lng": 39.72
+    },
+    {
+     "name": "Shanzu",
+     "lat": -3.945,
+     "lng": 39.747
+    },
+    {
+     "name": "Mombasa Island",
+     "lat": -4.0435,
+     "lng": 39.6682
+    },
+    {
+     "name": "Likoni",
+     "lat": -4.085,
+     "lng": 39.66
+    }
+   ]
+  },
+  {
+   "code": 2,
+   "name": "Kwale",
+   "areas": [
+    {
+     "name": "Diani",
+     "lat": -4.3159,
+     "lng": 39.5786
+    },
+    {
+     "name": "Ukunda",
+     "lat": -4.2875,
+     "lng": 39.5655
+    },
+    {
+     "name": "Tiwi",
+     "lat": -4.235,
+     "lng": 39.6
+    }
+   ]
+  },
+  {
+   "code": 3,
+   "name": "Kilifi",
+   "areas": [
+    {
+     "name": "Mtwapa",
+     "lat": -3.9419,
+     "lng": 39.7442
+    },
+    {
+     "name": "Vipingo",
+     "lat": -3.82,
+     "lng": 39.8
+    },
+    {
+     "name": "Kilifi Town",
+     "lat": -3.6305,
+     "lng": 39.8499
+    },
+    {
+     "name": "Watamu",
+     "lat": -3.3536,
+     "lng": 40.0247
+    },
+    {
+     "name": "Malindi",
+     "lat": -3.2192,
+     "lng": 40.1169
+    }
+   ]
+  },
+  {
+   "code": 4,
+   "name": "Tana River",
+   "areas": []
+  },
+  {
+   "code": 5,
+   "name": "Lamu",
+   "areas": [
+    {
+     "name": "Lamu Island",
+     "lat": -2.2696,
+     "lng": 40.9006
+    },
+    {
+     "name": "Shela",
+     "lat": -2.293,
+     "lng": 40.915
+    }
+   ]
+  },
+  {
+   "code": 6,
+   "name": "Taita-Taveta",
+   "areas": []
+  },
+  {
+   "code": 7,
+   "name": "Garissa",
+   "areas": []
+  },
+  {
+   "code": 8,
+   "name": "Wajir",
+   "areas": []
+  },
+  {
+   "code": 9,
+   "name": "Mandera",
+   "areas": []
+  },
+  {
+   "code": 10,
+   "name": "Marsabit",
+   "areas": []
+  },
+  {
+   "code": 11,
+   "name": "Isiolo",
+   "areas": []
+  },
+  {
+   "code": 12,
+   "name": "Meru",
+   "areas": [
+    {
+     "name": "Meru Town",
+     "lat": 0.0463,
+     "lng": 37.6559
+    }
+   ]
+  },
+  {
+   "code": 13,
+   "name": "Tharaka-Nithi",
+   "areas": []
+  },
+  {
+   "code": 14,
+   "name": "Embu",
+   "areas": [
+    {
+     "name": "Embu Town",
+     "lat": -0.539,
+     "lng": 37.457
+    }
+   ]
+  },
+  {
+   "code": 15,
+   "name": "Kitui",
+   "areas": [
+    {
+     "name": "Kitui Town",
+     "lat": -1.3667,
+     "lng": 38.0106
+    }
+   ]
+  },
+  {
+   "code": 16,
+   "name": "Machakos",
+   "areas": [
+    {
+     "name": "Syokimau",
+     "lat": -1.363,
+     "lng": 36.937
+    },
+    {
+     "name": "Athi River",
+     "lat": -1.4565,
+     "lng": 36.9787
+    },
+    {
+     "name": "Mlolongo",
+     "lat": -1.3923,
+     "lng": 36.944
+    },
+    {
+     "name": "Machakos Town",
+     "lat": -1.5177,
+     "lng": 37.2634
+    }
+   ]
+  },
+  {
+   "code": 17,
+   "name": "Makueni",
+   "areas": []
+  },
+  {
+   "code": 18,
+   "name": "Nyandarua",
+   "areas": []
+  },
+  {
+   "code": 19,
+   "name": "Nyeri",
+   "areas": [
+    {
+     "name": "Nyeri Town",
+     "lat": -0.4201,
+     "lng": 36.9476
+    }
+   ]
+  },
+  {
+   "code": 20,
+   "name": "Kirinyaga",
+   "areas": []
+  },
+  {
+   "code": 21,
+   "name": "Murang'a",
+   "areas": [
+    {
+     "name": "Murang'a Town",
+     "lat": -0.721,
+     "lng": 37.1526
+    }
+   ]
+  },
+  {
+   "code": 22,
+   "name": "Kiambu",
+   "areas": [
+    {
+     "name": "Ruaka",
+     "lat": -1.205,
+     "lng": 36.778
+    },
+    {
+     "name": "Kiambu Town",
+     "lat": -1.1714,
+     "lng": 36.8356
+    },
+    {
+     "name": "Thika",
+     "lat": -1.0333,
+     "lng": 37.0693
+    },
+    {
+     "name": "Ruiru",
+     "lat": -1.146,
+     "lng": 36.9614
+    },
+    {
+     "name": "Juja",
+     "lat": -1.1018,
+     "lng": 37.0144
+    },
+    {
+     "name": "Limuru",
+     "lat": -1.1066,
+     "lng": 36.642
+    },
+    {
+     "name": "Kikuyu",
+     "lat": -1.2463,
+     "lng": 36.6629
+    },
+    {
+     "name": "Tigoni",
+     "lat": -1.136,
+     "lng": 36.681
+    },
+    {
+     "name": "Thindigua",
+     "lat": -1.201,
+     "lng": 36.837
+    }
+   ]
+  },
+  {
+   "code": 23,
+   "name": "Turkana",
+   "areas": []
+  },
+  {
+   "code": 24,
+   "name": "West Pokot",
+   "areas": []
+  },
+  {
+   "code": 25,
+   "name": "Samburu",
+   "areas": []
+  },
+  {
+   "code": 26,
+   "name": "Trans Nzoia",
+   "areas": []
+  },
+  {
+   "code": 27,
+   "name": "Uasin Gishu",
+   "areas": [
+    {
+     "name": "Eldoret",
+     "lat": 0.5143,
+     "lng": 35.2698
+    }
+   ]
+  },
+  {
+   "code": 28,
+   "name": "Elgeyo-Marakwet",
+   "areas": []
+  },
+  {
+   "code": 29,
+   "name": "Nandi",
+   "areas": []
+  },
+  {
+   "code": 30,
+   "name": "Baringo",
+   "areas": []
+  },
+  {
+   "code": 31,
+   "name": "Laikipia",
+   "areas": [
+    {
+     "name": "Nanyuki",
+     "lat": 0.0167,
+     "lng": 37.0667
+    }
+   ]
+  },
+  {
+   "code": 32,
+   "name": "Nakuru",
+   "areas": [
+    {
+     "name": "Nakuru Town",
+     "lat": -0.3031,
+     "lng": 36.08
+    },
+    {
+     "name": "Naivasha",
+     "lat": -0.7167,
+     "lng": 36.4333
+    }
+   ]
+  },
+  {
+   "code": 33,
+   "name": "Narok",
+   "areas": [
+    {
+     "name": "Narok Town",
+     "lat": -1.08,
+     "lng": 35.87
+    }
+   ]
+  },
+  {
+   "code": 34,
+   "name": "Kajiado",
+   "areas": [
+    {
+     "name": "Kitengela",
+     "lat": -1.4768,
+     "lng": 36.959
+    },
+    {
+     "name": "Ongata Rongai",
+     "lat": -1.3962,
+     "lng": 36.7445
+    },
+    {
+     "name": "Ngong",
+     "lat": -1.361,
+     "lng": 36.656
+    },
+    {
+     "name": "Kiserian",
+     "lat": -1.424,
+     "lng": 36.683
+    },
+    {
+     "name": "Isinya",
+     "lat": -1.674,
+     "lng": 36.843
+    },
+    {
+     "name": "Kajiado Town",
+     "lat": -1.8524,
+     "lng": 36.7768
+    }
+   ]
+  },
+  {
+   "code": 35,
+   "name": "Kericho",
+   "areas": [
+    {
+     "name": "Kericho Town",
+     "lat": -0.3677,
+     "lng": 35.2831
+    }
+   ]
+  },
+  {
+   "code": 36,
+   "name": "Bomet",
+   "areas": []
+  },
+  {
+   "code": 37,
+   "name": "Kakamega",
+   "areas": [
+    {
+     "name": "Kakamega Town",
+     "lat": 0.2827,
+     "lng": 34.7519
+    }
+   ]
+  },
+  {
+   "code": 38,
+   "name": "Vihiga",
+   "areas": []
+  },
+  {
+   "code": 39,
+   "name": "Bungoma",
+   "areas": []
+  },
+  {
+   "code": 40,
+   "name": "Busia",
+   "areas": []
+  },
+  {
+   "code": 41,
+   "name": "Siaya",
+   "areas": []
+  },
+  {
+   "code": 42,
+   "name": "Kisumu",
+   "areas": [
+    {
+     "name": "Kisumu City",
+     "lat": -0.0917,
+     "lng": 34.768
+    }
+   ]
+  },
+  {
+   "code": 43,
+   "name": "Homa Bay",
+   "areas": []
+  },
+  {
+   "code": 44,
+   "name": "Migori",
+   "areas": []
+  },
+  {
+   "code": 45,
+   "name": "Kisii",
+   "areas": []
+  },
+  {
+   "code": 46,
+   "name": "Nyamira",
+   "areas": []
+  },
+  {
+   "code": 47,
+   "name": "Nairobi",
+   "areas": [
+    {
+     "name": "Westlands",
+     "lat": -1.2676,
+     "lng": 36.8108
+    },
+    {
+     "name": "Kilimani",
+     "lat": -1.2906,
+     "lng": 36.7856
+    },
+    {
+     "name": "Kileleshwa",
+     "lat": -1.2797,
+     "lng": 36.7835
+    },
+    {
+     "name": "Lavington",
+     "lat": -1.2786,
+     "lng": 36.7686
+    },
+    {
+     "name": "Karen",
+     "lat": -1.3197,
+     "lng": 36.7076
+    },
+    {
+     "name": "Runda",
+     "lat": -1.2185,
+     "lng": 36.8062
+    },
+    {
+     "name": "Muthaiga",
+     "lat": -1.247,
+     "lng": 36.836
+    },
+    {
+     "name": "Gigiri",
+     "lat": -1.2335,
+     "lng": 36.804
+    },
+    {
+     "name": "Spring Valley",
+     "lat": -1.2554,
+     "lng": 36.7864
+    },
+    {
+     "name": "Parklands",
+     "lat": -1.2617,
+     "lng": 36.8186
+    },
+    {
+     "name": "Upper Hill",
+     "lat": -1.2963,
+     "lng": 36.8148
+    },
+    {
+     "name": "Lang'ata",
+     "lat": -1.3442,
+     "lng": 36.7653
+    },
+    {
+     "name": "South B",
+     "lat": -1.3093,
+     "lng": 36.8402
+    },
+    {
+     "name": "South C",
+     "lat": -1.3195,
+     "lng": 36.8256
+    },
+    {
+     "name": "Embakasi",
+     "lat": -1.3166,
+     "lng": 36.8935
+    },
+    {
+     "name": "Kasarani",
+     "lat": -1.2216,
+     "lng": 36.8986
+    },
+    {
+     "name": "Roysambu",
+     "lat": -1.2186,
+     "lng": 36.8862
+    },
+    {
+     "name": "Riverside",
+     "lat": -1.2696,
+     "lng": 36.8001
+    },
+    {
+     "name": "Loresho",
+     "lat": -1.2565,
+     "lng": 36.7568
+    },
+    {
+     "name": "Nairobi CBD",
+     "lat": -1.2864,
+     "lng": 36.8172
+    },
+    {
+     "name": "Kitisuru",
+     "lat": -1.229,
+     "lng": 36.773
+    },
+    {
+     "name": "Hurlingham",
+     "lat": -1.293,
+     "lng": 36.796
+    }
+   ]
+  }
+ ]
+}
