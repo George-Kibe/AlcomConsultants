@@ -51,6 +51,10 @@ jobs:
         run: uv run python manage.py spectacular --validate --fail-on-warn --file /tmp/schema.yaml
         env:
           DJANGO_SETTINGS_MODULE: config.settings.test
+      - name: Frontend API types are up to date (run `make api-types` if this fails)
+        run: |
+          npx --yes openapi-typescript@7.13.0 /tmp/schema.yaml -o /tmp/schema.d.ts
+          diff -u ../frontend/lib/api/schema.d.ts /tmp/schema.d.ts
       - run: uv run pytest --cov --cov-report=term-missing --cov-report=xml
       - name: Audit dependencies
         run: uv export --no-dev --no-hashes --format requirements-txt | uvx pip-audit -r /dev/stdin --strict
@@ -84,6 +88,73 @@ jobs:
           retention-days: 7
       - name: Audit dependencies
         run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    name: E2E (full stack)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    timeout-minutes: 30
+    env:
+      E2E_FULLSTACK: "1"
+      E2E_BASE_URL: http://localhost:8080
+      E2E_STAFF_EMAIL: e2e-staff@alcom.test
+      E2E_STAFF_PASSWORD: e2e-Staff-pass-2026
+    steps:
+      - uses: actions/checkout@v7
+      - name: Development environment
+        run: |
+          cp .env.example .env
+          sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=ci$(openssl rand -hex 12)|" .env
+          sed -i "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$(openssl rand -hex 32)|" .env
+      - name: Start the stack
+        timeout-minutes: 15
+        run: |
+          # The dev containers run as uid 1000 (node / app); the runner checks out as 1001.
+          sudo chown -R 1000:1000 frontend backend
+          docker compose up -d --build --wait db redis backend
+          docker compose up -d frontend nginx
+          # next dev compiles pages on first request; warm them up before the tests.
+          for path in /api/v1/health/ /dashboard/login /dashboard/security; do
+            code=000
+            for _ in $(seq 1 60); do
+              code=$(curl -s --max-time 30 -o /dev/null -w '%{http_code}' "$E2E_BASE_URL$path" || true)
+              case "$code" in 200|307) break ;; esac
+              sleep 3
+            done
+            echo "$path -> $code"
+            if [ "$code" != 200 ] && [ "$code" != 307 ]; then
+              docker compose ps
+              docker compose logs --tail=100 frontend nginx backend
+              exit 1
+            fi
+          done
+      - name: Staff account for the tests
+        run: |
+          docker compose exec -T backend python manage.py shell -c "
+          from apps.accounts.models import User
+          User.objects.create_user('$E2E_STAFF_EMAIL', '$E2E_STAFF_PASSWORD', is_staff=True, first_name='E2E')"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Give the checkout back to the runner user
+        run: sudo chown -R "$(id -u):$(id -g)" frontend
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npx playwright test e2e/dashboard.spec.ts
+        working-directory: frontend
+      - name: Service logs
+        if: failure()
+        run: docker compose logs --tail=200 backend frontend nginx
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report-fullstack
+          path: frontend/playwright-report
+          retention-days: 7
 
   docker:
     name: Production images

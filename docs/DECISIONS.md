@@ -74,3 +74,12 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 ### Featured properties (2026-09-30)
 - Home page shows 6 featured properties between the hero and "How we can help": swipeable row on mobile, grid on tablet/desktop.
 - **Until the listings API exists (Phase 2) the cards use SAMPLE data** (`frontend/lib/sample-properties.ts`, Unsplash photos). They must be replaced by real featured listings before launch. Card links go to `/properties` until listing detail pages exist.
+
+### Staff authentication (Phase 2b, 2026-10-01)
+- **django-allauth (headless mode)**: the Next.js dashboard renders every screen and calls `/api/v1/auth/browser/v1/…` with the Django session cookie and CSRF token (same origin, so there are no tokens in JavaScript storage).
+- Email + password sign-in; **optional TOTP two-step verification** with recovery codes; sensitive changes ask for the password again.
+- **Sign-up closed**: staff accounts are created by an admin (visitor accounts come in Phase 4). Dashboard API requires `is_staff`.
+- Brute-force protection: allauth's login rate limits (`too_many_login_attempts`), plus the Nginx API rate limit.
+- `proxy.ts` only does an optimistic redirect to `/dashboard/login`; Django authorises every request.
+- Password-reset emails need production email settings (`EMAIL_*` in the server `.env`).
+- Frontend API types are generated from the OpenAPI schema (`make api-types`); CI fails if they are stale.

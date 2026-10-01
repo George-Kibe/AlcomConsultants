@@ -93,6 +93,7 @@ nano .env    # CLOUDINARY_URL=cloudinary://<key>:<secret>@<cloud>   CLOUDINARY_F
 ./deploy/deploy.sh          # first build takes several minutes
 docker compose -f compose.yaml -f compose.prod.yaml exec backend python manage.py createsuperuser
 ```
+Staff then sign in at `https://alcomconsultants.co.ke/dashboard`. "Forgot password" emails only work once the domain mailbox's SMTP settings (`EMAIL_*`) are in `.env`.
 
 ### 7. Configure the edge proxy and get the certificate
 ```bash

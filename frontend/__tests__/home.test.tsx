@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test } from "vitest";
 
-import Home from "@/app/page";
+import Home from "@/app/(site)/page";
 
 test("home page has a single h1 and a property search", () => {
   render(<Home />);

@@ -31,7 +31,11 @@ make superuser      # create an admin account
 | http://localhost:8080 | Website (Nginx → Next.js) |
 | http://localhost:8080/api/v1/docs/ | API docs (Swagger) |
 | http://localhost:8080/api/v1/health/ | API health check |
+| http://localhost:8080/dashboard/ | Staff dashboard (sign in with a staff account) |
 | http://localhost:8080/django-admin/ | Django admin |
+
+Staff accounts: `make superuser`, or tick "Staff status" for a user in the Django admin.
+After changing API endpoints, run `make api-types` to regenerate the frontend's typed client.
 
 Run `make help` for all commands (tests, lint, migrations, logs…).
 
