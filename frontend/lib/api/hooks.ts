@@ -1,12 +1,22 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { ApiError, api, unwrap } from "./client";
 
 export const queryKeys = {
   me: ["me"] as const,
   overview: ["dashboard", "overview"] as const,
+  lookups: ["dashboard", "lookups"] as const,
+  properties: ["dashboard", "properties"] as const,
+  property: (uuid: string) => ["dashboard", "property", uuid] as const,
+};
+
+export type PropertyListParams = {
+  status?: string;
+  q?: string;
+  page?: number;
+  sort?: string;
 };
 
 export function useMe() {
@@ -23,5 +33,45 @@ export function useOverview() {
   return useQuery({
     queryKey: queryKeys.overview,
     queryFn: async () => unwrap(await api.GET("/api/v1/dashboard/overview/")),
+  });
+}
+
+export function useLookups() {
+  return useQuery({
+    queryKey: queryKeys.lookups,
+    queryFn: async () => unwrap(await api.GET("/api/v1/dashboard/lookups/")),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useDashboardProperties(params: PropertyListParams) {
+  return useQuery({
+    queryKey: [...queryKeys.properties, params],
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/properties/", {
+          params: {
+            query: {
+              status: (params.status || undefined) as never,
+              q: params.q || undefined,
+              page: params.page,
+              sort: (params.sort || undefined) as never,
+            },
+          },
+        }),
+      ),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useDashboardProperty(uuid: string) {
+  return useQuery({
+    queryKey: queryKeys.property(uuid),
+    queryFn: async () =>
+      unwrap(
+        await api.GET("/api/v1/dashboard/properties/{uuid}/", {
+          params: { path: { uuid } },
+        }),
+      ),
   });
 }

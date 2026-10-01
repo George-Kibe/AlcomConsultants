@@ -87,10 +87,12 @@ def test_overview_counts(api, staff):
     PropertyFactory(status=Status.PUBLISHED, is_featured=True)
     login(api, staff.email)
     assert api.get(reverse("dashboard-overview")).json() == {
+        "total": 8,
         "listed": 3,
         "drafts": 1,
         "under_offer": 1,
         "closed": 2,
+        "archived": 1,
         "featured": 1,
     }
 
