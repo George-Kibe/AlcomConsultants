@@ -1,18 +1,9 @@
 /** Full-stack: staff create, publish, edit and remove listings (E2E_FULLSTACK=1). */
 import { expect, test, type Page } from "@playwright/test";
 
-const EMAIL = process.env.E2E_STAFF_EMAIL ?? "e2e-staff@alcom.test";
-const PASSWORD = process.env.E2E_STAFF_PASSWORD ?? "e2e-Staff-pass-2026";
+import { signIn } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
-
-async function signIn(page: Page) {
-  await page.goto("/dashboard/login?next=/dashboard/properties");
-  await page.getByLabel("Email", { exact: true }).fill(EMAIL);
-  await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL((url) => url.pathname === "/dashboard/properties");
-}
 
 /** Click "Save changes" and wait for the server to confirm. */
 async function saveChanges(page: Page) {

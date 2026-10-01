@@ -6,6 +6,7 @@ from django.contrib.gis.geos import Point
 from django.core.management import CommandError, call_command
 from django.urls import reverse
 
+from apps.blog.models import Post
 from apps.core.signals import is_uploaded_asset
 from apps.listings import nearby
 from apps.listings.models import DealType, Property, Status
@@ -132,14 +133,15 @@ def test_seed_demo_listings(settings):
     settings.DEBUG = True
     out = StringIO()
     call_command("seed_demo_listings", stdout=out)
-    assert "Created 12 demo listings" in out.getvalue()
+    assert "Created 12 demo listings and 3 demo articles" in out.getvalue()
     assert Property.objects.listed().count() == 12
     assert Property.objects.filter(is_featured=True).count() == 6
+    assert Post.objects.published().count() == 3
     call_command("seed_demo_listings", stdout=out)  # idempotent
-    assert Property.objects.count() == 12
+    assert (Property.objects.count(), Post.objects.count()) == (12, 3)
     with mock.patch("apps.core.tasks.delete_cloudinary_asset.delay") as destroy:
         call_command("seed_demo_listings", "--clear", stdout=out)
-    assert Property.objects.count() == 0
+    assert (Property.objects.count(), Post.objects.count()) == (0, 0)
     destroy.assert_not_called()  # shared site images are never deleted
 
 

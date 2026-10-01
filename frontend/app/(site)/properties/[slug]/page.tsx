@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { safely, serverApi } from "@/lib/api/server";
 import { cloudinaryUrl } from "@/lib/cloudinary";
 import { formatListingPrice } from "@/lib/format";
+import { jsonLd } from "@/lib/json-ld";
 import {
   listingJsonLd,
   locationLabel,
@@ -173,7 +174,7 @@ export default async function PropertyPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             listingJsonLd(
               p,
               pageUrl,

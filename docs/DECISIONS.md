@@ -103,3 +103,10 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - One certificate authority on the box: the edge certbot issues `mail.<domain>` and Mailu reads it from the shared volume; the edge vhost loads that certificate per handshake so the edge never fails to start before mail exists.
 - The DKIM key is generated on the server (never leaves it) before first start, so all DNS records could be published in one go.
 - Mailbox passwords are generated on the server into a root-only file and must be changed at first sign-in; the website's `noreply@` password is written straight into the app's `.env`.
+
+## Blog (2026-10-01)
+- Articles have one cover photo and a rich-text body (owner's choice). The dashboard editor is Tiptap 3 (StarterKit, H2/H3 only, no inline images); the body is stored as HTML and sanitised on every save with nh3 (allow-list in `apps/blog/html.py`), so the public page can render it directly.
+- Publishing requires a body and a cover photo; published articles are unpublished (back to draft) rather than deleted, mirroring listings.
+- Covers use the same signed direct-upload flow as listing photos (`target: "blog"`), and replaced or deleted covers are removed from Cloudinary.
+- JSON-LD is serialised with `<` escaped (`lib/json-ld.ts`) so content can never close the script tag.
+- Comments (signed-in readers, published instantly, staff can hide) follow in 2f-2 together with reader accounts.

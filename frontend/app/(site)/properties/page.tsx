@@ -2,13 +2,18 @@ import type { Metadata } from "next";
 import { HomeIcon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
-import { Pagination } from "@/components/listings/pagination";
 import { SearchFilters } from "@/components/listings/search-filters";
 import { SearchMapLoader } from "@/components/listings/search-map-loader";
+import { Pagination } from "@/components/site/pagination";
 import { PropertyCard } from "@/components/site/property-card";
 import { Button } from "@/components/ui/button";
 import { safely, serverApi } from "@/lib/api/server";
-import { apiQuery, readSearch, searchHeading } from "@/lib/listings";
+import {
+  apiQuery,
+  readSearch,
+  searchHeading,
+  searchHref,
+} from "@/lib/listings";
 import { whatsappLink } from "@/lib/site-config";
 
 async function lookups() {
@@ -127,7 +132,14 @@ export default async function PropertiesPage({
                 </li>
               ))}
             </ul>
-            <Pagination state={state} total={results.data?.count ?? 0} />
+            <Pagination
+              page={Number(state.page ?? 1)}
+              total={results.data?.count ?? 0}
+              pageSize={20}
+              href={(n) =>
+                searchHref(state, { page: n === 1 ? undefined : String(n) })
+              }
+            />
           </>
         )}
       </section>

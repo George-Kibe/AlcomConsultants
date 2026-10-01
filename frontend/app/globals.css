@@ -212,3 +212,52 @@
   border: 3px solid #fff;
   box-shadow: 0 1px 6px rgb(0 0 0 / 0.35);
 }
+
+/* Article body (blog posts): used by the public page and the dashboard editor alike. */
+@layer components {
+  .rich-text {
+    @apply text-foreground/90 text-base leading-7 sm:text-lg sm:leading-8;
+  }
+  .rich-text > * + * {
+    @apply mt-5;
+  }
+  .rich-text h2 {
+    @apply text-foreground mt-10 text-2xl font-bold sm:text-3xl;
+  }
+  .rich-text h3 {
+    @apply text-foreground mt-8 text-xl font-semibold sm:text-2xl;
+  }
+  .rich-text a {
+    @apply text-primary font-medium underline underline-offset-4 hover:no-underline;
+  }
+  .rich-text strong {
+    @apply text-foreground font-semibold;
+  }
+  .rich-text ul {
+    @apply list-disc pl-6;
+  }
+  .rich-text ol {
+    @apply list-decimal pl-6;
+  }
+  .rich-text li + li {
+    @apply mt-2;
+  }
+  .rich-text li > p {
+    @apply m-0;
+  }
+  .rich-text blockquote {
+    @apply border-success text-muted-foreground border-l-4 pl-5 italic;
+  }
+  .rich-text hr {
+    @apply border-border my-10;
+  }
+  .rich-text code {
+    @apply bg-muted rounded px-1.5 py-0.5 font-mono text-[0.9em];
+  }
+  .rich-text pre {
+    @apply bg-muted overflow-x-auto rounded-lg p-4 text-sm;
+  }
+  .rich-text pre code {
+    @apply bg-transparent p-0;
+  }
+}
