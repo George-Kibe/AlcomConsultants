@@ -295,6 +295,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/properties/{slug}/nearby/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Schools, health, shopping, transport and parks within 1.5 km (OpenStreetMap). */
+        get: operations["properties_nearby_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/properties/{slug}/similar/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Up to 4 listings like this one: same deal, then same area/type, closest price. */
+        get: operations["properties_similar_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/properties/map/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Every matching listing as a map marker (same filters as the list, max 500). */
+        get: operations["properties_map_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/property-types/": {
         parameters: {
             query?: never;
@@ -558,6 +609,26 @@ export interface components {
             agents: components["schemas"]["_Agent"][];
             projects: components["schemas"]["_NamedId"][];
         };
+        /** @description Lightweight marker for the search map. */
+        MapPoint: {
+            readonly reference: string | null;
+            readonly slug: string;
+            title: string;
+            deal_type: components["schemas"]["DealTypeEnum"];
+            /**
+             * Format: int64
+             * @description KES
+             */
+            price?: number | null;
+            price_unit?: components["schemas"]["PriceUnitEnum"];
+            price_on_request?: boolean;
+            bedrooms?: number | null;
+            /** Format: double */
+            readonly lat: number | null;
+            /** Format: double */
+            readonly lng: number | null;
+            readonly cover_image: string | null;
+        };
         Me: {
             /**
              * Email address
@@ -582,6 +653,19 @@ export interface components {
             height: number | null;
             alt_text: string;
             caption: string;
+        };
+        NearbyGroup: {
+            category: string;
+            places: components["schemas"]["NearbyPlace"][];
+        };
+        NearbyPlace: {
+            name: string;
+            type: string;
+            distance_m: number;
+            /** Format: double */
+            lat: number;
+            /** Format: double */
+            lng: number;
         };
         PaginatedDashboardPropertyListList: {
             /** @example 123 */
@@ -1411,6 +1495,8 @@ export interface operations {
                 amenities?: string;
                 /** @description Multiple values may be separated by commas. */
                 area?: string[];
+                /** @description Map area: min_lng,min_lat,max_lng,max_lat */
+                bbox?: string;
                 county?: string;
                 /**
                  * @description * `sale` - For Sale
@@ -1479,6 +1565,184 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PropertyDetail"];
+                };
+            };
+        };
+    };
+    properties_nearby_list: {
+        parameters: {
+            query?: {
+                /** @description Must have all of: ?amenities=gym,lift */
+                amenities?: string;
+                /** @description Multiple values may be separated by commas. */
+                area?: string[];
+                /** @description Map area: min_lng,min_lat,max_lng,max_lat */
+                bbox?: string;
+                county?: string;
+                /**
+                 * @description * `sale` - For Sale
+                 *     * `rent` - For Rent
+                 *     * `lease` - Commercial Lease
+                 */
+                deal?: "lease" | "rent" | "sale";
+                featured?: boolean;
+                /**
+                 * @description * `unfurnished` - Unfurnished
+                 *     * `semi` - Semi-furnished
+                 *     * `furnished` - Furnished
+                 */
+                furnishing?: "furnished" | "semi" | "unfurnished";
+                max_price?: number;
+                min_baths?: number;
+                min_beds?: number;
+                min_price?: number;
+                /** @description Multiple values may be separated by commas. */
+                neighbourhood?: string[];
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description Keyword, reference or place name */
+                q?: string;
+                /**
+                 * @description * `newest` - Newest
+                 *     * `price_asc` - Price: low to high
+                 *     * `price_desc` - Price: high to low
+                 */
+                sort?: "newest" | "price_asc" | "price_desc";
+                /** @description Multiple values may be separated by commas. */
+                type?: string[];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NearbyGroup"][];
+                };
+            };
+        };
+    };
+    properties_similar_list: {
+        parameters: {
+            query?: {
+                /** @description Must have all of: ?amenities=gym,lift */
+                amenities?: string;
+                /** @description Multiple values may be separated by commas. */
+                area?: string[];
+                /** @description Map area: min_lng,min_lat,max_lng,max_lat */
+                bbox?: string;
+                county?: string;
+                /**
+                 * @description * `sale` - For Sale
+                 *     * `rent` - For Rent
+                 *     * `lease` - Commercial Lease
+                 */
+                deal?: "lease" | "rent" | "sale";
+                featured?: boolean;
+                /**
+                 * @description * `unfurnished` - Unfurnished
+                 *     * `semi` - Semi-furnished
+                 *     * `furnished` - Furnished
+                 */
+                furnishing?: "furnished" | "semi" | "unfurnished";
+                max_price?: number;
+                min_baths?: number;
+                min_beds?: number;
+                min_price?: number;
+                /** @description Multiple values may be separated by commas. */
+                neighbourhood?: string[];
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description Keyword, reference or place name */
+                q?: string;
+                /**
+                 * @description * `newest` - Newest
+                 *     * `price_asc` - Price: low to high
+                 *     * `price_desc` - Price: high to low
+                 */
+                sort?: "newest" | "price_asc" | "price_desc";
+                /** @description Multiple values may be separated by commas. */
+                type?: string[];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyList"][];
+                };
+            };
+        };
+    };
+    properties_map_list: {
+        parameters: {
+            query?: {
+                /** @description Must have all of: ?amenities=gym,lift */
+                amenities?: string;
+                /** @description Multiple values may be separated by commas. */
+                area?: string[];
+                /** @description Map area: min_lng,min_lat,max_lng,max_lat */
+                bbox?: string;
+                county?: string;
+                /**
+                 * @description * `sale` - For Sale
+                 *     * `rent` - For Rent
+                 *     * `lease` - Commercial Lease
+                 */
+                deal?: "lease" | "rent" | "sale";
+                featured?: boolean;
+                /**
+                 * @description * `unfurnished` - Unfurnished
+                 *     * `semi` - Semi-furnished
+                 *     * `furnished` - Furnished
+                 */
+                furnishing?: "furnished" | "semi" | "unfurnished";
+                max_price?: number;
+                min_baths?: number;
+                min_beds?: number;
+                min_price?: number;
+                /** @description Multiple values may be separated by commas. */
+                neighbourhood?: string[];
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description Keyword, reference or place name */
+                q?: string;
+                /**
+                 * @description * `newest` - Newest
+                 *     * `price_asc` - Price: low to high
+                 *     * `price_desc` - Price: high to low
+                 */
+                sort?: "newest" | "price_asc" | "price_desc";
+                /** @description Multiple values may be separated by commas. */
+                type?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapPoint"][];
                 };
             };
         };

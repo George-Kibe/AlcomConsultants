@@ -13,3 +13,5 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+
+DEBUG = False

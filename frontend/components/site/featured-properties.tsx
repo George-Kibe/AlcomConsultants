@@ -2,12 +2,14 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
 import { PropertyCard } from "@/components/site/property-card";
-import type { PropertySummary } from "@/lib/properties";
+import type { PropertyListItem } from "@/lib/listings";
 
 export function FeaturedProperties({
   properties,
+  title = "Featured properties",
 }: {
-  properties: PropertySummary[];
+  properties: PropertyListItem[];
+  title?: string;
 }) {
   if (properties.length === 0) return null;
 
@@ -20,7 +22,7 @@ export function FeaturedProperties({
               id="featured-heading"
               className="text-3xl font-bold sm:text-4xl"
             >
-              Featured properties
+              {title}
             </h2>
             <p className="text-muted-foreground mt-3 text-lg">
               A selection of homes and investments currently on offer.

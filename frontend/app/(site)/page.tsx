@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import {
   BadgeCheckIcon,
   HandshakeIcon,
@@ -12,7 +13,8 @@ import { HeroSearch } from "@/components/site/hero-search";
 import { HeroSlideshow } from "@/components/site/hero-slideshow";
 import { ServicesGrid } from "@/components/site/services-grid";
 import { heroSlides } from "@/lib/hero-slides";
-import { sampleFeaturedProperties } from "@/lib/sample-properties";
+import { safely, serverApi } from "@/lib/api/server";
+import type { PropertyListItem } from "@/lib/listings";
 
 // TODO(content): review marketing copy with Alcom.
 const reasons = [
@@ -38,7 +40,31 @@ const reasons = [
   },
 ];
 
-export default function Home() {
+const FEATURED_COUNT = 6;
+
+/** Featured listings, topped up with the newest ones; empty if the API is unavailable. */
+async function homeListings(): Promise<PropertyListItem[]> {
+  await connection(); // always render with current listings
+  const featured = await safely(() =>
+    serverApi.GET("/api/v1/properties/", {
+      params: { query: { featured: true } },
+    }),
+  );
+  const items = featured.data?.results.slice(0, FEATURED_COUNT) ?? [];
+  if (items.length >= FEATURED_COUNT || featured.data === null) return items;
+  const latest = await safely(() =>
+    serverApi.GET("/api/v1/properties/", {
+      params: { query: { sort: "newest" } },
+    }),
+  );
+  const extra = (latest.data?.results ?? []).filter(
+    (p) => !items.some((i) => i.slug === p.slug),
+  );
+  return [...items, ...extra].slice(0, FEATURED_COUNT);
+}
+
+export default async function Home() {
+  const listings = await homeListings();
   return (
     <>
       <section className="bg-brand-navy relative isolate overflow-hidden text-white">
@@ -67,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      <FeaturedProperties properties={sampleFeaturedProperties} />
+      <FeaturedProperties properties={listings} />
 
       <section
         className="bg-muted/60 py-16 sm:py-20"

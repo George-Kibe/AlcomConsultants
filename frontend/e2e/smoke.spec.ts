@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 
 const pages = [
   { path: "/", h1: /We find, manage, sell and value property/ },
-  { path: "/properties", h1: "Properties" },
+  { path: "/properties", h1: "Properties for sale and rent in Kenya" },
   { path: "/services", h1: "Our services" },
   { path: "/services/property-agency", h1: "Property Agency" },
   { path: "/services/property-management", h1: "Property Management" },
@@ -106,43 +106,29 @@ test("hero slideshow rotates and can be paused", async ({ page }) => {
   await expect(current).toHaveAttribute("aria-label", /^Show photo 2 of 10/);
 });
 
-test("home shows featured properties that link to listings", async ({
-  page,
-}) => {
+test("hero images load from Cloudinary", async ({ page }) => {
   await page.goto("/");
-  const section = page.getByRole("region", { name: "Featured properties" });
-  await expect(section.getByRole("article")).toHaveCount(6);
-  await section.getByRole("link", { name: "4 Bedroom Villa" }).click();
-  await expect(page).toHaveURL(/\/properties$/);
-});
-
-test("home page images load from Cloudinary", async ({ page }) => {
-  await page.goto("/");
-  const featured = page.getByRole("region", { name: "Featured properties" });
-  await featured.scrollIntoViewIfNeeded();
-  await expect(
-    featured.getByRole("article").first().locator("img"),
-  ).toBeVisible();
-  // Every rendered image must have loaded (no broken images), and photos come from Cloudinary.
+  const hero = page.locator("section").first().locator("img").first();
+  await expect(hero).toBeVisible();
   await expect
-    .poll(async () =>
-      page.$$eval("img", (imgs) =>
-        imgs
-          .filter(
-            (img) =>
-              img.loading !== "lazy" ||
-              img.getBoundingClientRect().top < innerHeight,
-          )
-          .every((img) => img.complete && img.naturalWidth > 0),
+    .poll(() =>
+      hero.evaluate(
+        (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
       ),
     )
     .toBe(true);
-  const photoSources = await page.$$eval("main img", (els) =>
-    (els as HTMLImageElement[])
-      .map((img) => img.currentSrc)
-      .filter((src) => !src.includes("/brand/")),
+  expect(
+    await hero.evaluate((img: HTMLImageElement) => img.currentSrc),
+  ).toContain("res.cloudinary.com/ictdclhd");
+});
+
+test("search page explains when listings can't be loaded", async ({ page }) => {
+  // In this suite there is no API behind the site.
+  await page.goto("/properties?deal=rent");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Properties for rent in Kenya",
   );
-  expect(photoSources.length).toBeGreaterThan(0);
-  for (const src of photoSources)
-    expect(src).toContain("res.cloudinary.com/ictdclhd");
+  await expect(
+    page.getByRole("heading", { name: "Listings are temporarily unavailable" }),
+  ).toBeVisible();
 });

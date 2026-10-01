@@ -176,3 +176,39 @@
 @utility container-page {
   @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
 }
+
+/* Price markers on the property search map (Leaflet divIcon). */
+.map-price-pin {
+  display: inline-block;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border-radius: 9999px;
+  background: var(--brand-navy);
+  color: #fff;
+  padding: 2px 8px;
+  font:
+    600 12px/20px var(--font-sans),
+    system-ui,
+    sans-serif;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  border: 2px solid #fff;
+}
+.leaflet-container {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+.map-cluster-pin {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: oklch(0.514 0.134 147.7); /* #1E7B36: 5.3:1 with white text */
+  color: #fff;
+  font:
+    700 14px var(--font-sans),
+    system-ui,
+    sans-serif;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.35);
+}

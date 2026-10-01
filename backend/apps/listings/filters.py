@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import Polygon
 from django.db.models import Q, QuerySet
 from django_filters import rest_framework as filters
 
@@ -24,6 +25,9 @@ class PropertyFilter(filters.FilterSet):
     )
     featured = filters.BooleanFilter(field_name="is_featured")
     q = filters.CharFilter(method="filter_q", help_text="Keyword, reference or place name")
+    bbox = filters.CharFilter(
+        method="filter_bbox", help_text="Map area: min_lng,min_lat,max_lng,max_lat"
+    )
     sort = filters.ChoiceFilter(
         method="filter_sort",
         choices=[
@@ -53,6 +57,17 @@ class PropertyFilter(filters.FilterSet):
             | Q(area__name__icontains=value)
             | Q(neighbourhood__name__icontains=value)
             | Q(area__county__name__icontains=value)
+        )
+
+    def filter_bbox(self, qs: QuerySet[Property], name: str, value: str) -> QuerySet[Property]:
+        try:
+            min_lng, min_lat, max_lng, max_lat = (float(v) for v in value.split(","))
+        except ValueError:
+            return qs.none()
+        area = Polygon.from_bbox((min_lng, min_lat, max_lng, max_lat))
+        area.srid = 4326
+        return qs.filter(
+            Q(location__within=area) | Q(location__isnull=True, area__location__within=area)
         )
 
     def filter_sort(self, qs: QuerySet[Property], name: str, value: str) -> QuerySet[Property]:
