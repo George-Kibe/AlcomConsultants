@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -158,6 +159,11 @@ SPECTACULAR_SETTINGS = {
 # ------------------------------------------------------------------ media (Cloudinary)
 # cloudinary://<api_key>:<api_secret>@<cloud_name> — from the Cloudinary dashboard.
 CLOUDINARY_URL = env("CLOUDINARY_URL", default="")
+if CLOUDINARY_URL and not CLOUDINARY_URL.startswith("cloudinary://"):
+    raise ImproperlyConfigured(
+        "CLOUDINARY_URL must look like cloudinary://<api_key>:<api_secret>@<cloud_name>. "
+        "Check .env for quotes or a repeated 'CLOUDINARY_URL=' prefix."
+    )
 # Keeps each environment's uploads apart inside one Cloudinary account.
 CLOUDINARY_FOLDER = env("CLOUDINARY_FOLDER", default="alcom/dev")
 

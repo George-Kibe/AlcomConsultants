@@ -5,13 +5,17 @@
 #   ./deploy/deploy.sh --pull <sha>  deploy <sha> using images CI already built and pushed
 #                                    (this is what the GitHub "Deploy" workflow runs)
 #
-# If the new version fails its health checks, the previous version is restored
-# (containers only; database migrations are not reversed) and the script exits non-zero.
+# Safety:
+#  - Any failure before the switch (image pull/build, migrations, bad config) resets the
+#    checkout and leaves the running version and .env untouched.
+#  - If the new version fails its health checks, the previous version is restored
+#    (containers only; database migrations are not reversed).
+#  - .env's APP_VERSION is only updated once the new version is live and healthy.
 #
 # Stage 1 updates the checkout, then re-executes the *updated* script for stage 2, so changes
 # to this file take effect in the same deploy. Everything is wrapped in functions so bash has
 # parsed the whole file before git rewrites it on disk.
-set -euo pipefail
+set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 
 COMPOSE=(docker compose -f compose.yaml -f compose.prod.yaml)
@@ -53,11 +57,20 @@ stage1_update_code() {
   DEPLOY_STAGE=2 exec ./deploy/deploy.sh "$mode"
 }
 
+# shellcheck disable=SC2329  # invoked via `trap ... ERR`
+restore_checkout() {
+  echo "!!  Deploy failed before switching versions: ${PREV_VERSION:-previous} is still live." >&2
+  [ -n "${PREV_COMMIT:-}" ] && git reset --quiet --hard "$PREV_COMMIT"
+}
+
 stage2_deploy() {
   local mode="$1" registry
   local app_version
   app_version="$(git rev-parse --short=12 HEAD)"
-  set_version "$app_version"
+  # Compose reads APP_VERSION from the environment first; .env keeps the live version
+  # until the switch succeeds.
+  export APP_VERSION="$app_version"
+  trap restore_checkout ERR
   echo "==> Deploying ${app_version} (${mode}), previous: ${PREV_VERSION:-none}"
 
   docker network inspect edge >/dev/null 2>&1 || docker network create edge >/dev/null
@@ -76,6 +89,7 @@ stage2_deploy() {
   echo "==> Applying database migrations"
   "${COMPOSE[@]}" run --rm --no-deps backend python manage.py migrate --noinput
 
+  trap - ERR
   echo "==> Starting services"
   if ! "${COMPOSE[@]}" up -d --wait --remove-orphans || ! verify_healthy; then
     echo "!!  New version ${app_version} failed its health checks." >&2
@@ -83,7 +97,7 @@ stage2_deploy() {
     if [ -n "${PREV_VERSION:-}" ] && [ "$PREV_VERSION" != "$app_version" ]; then
       echo "!!  Rolling back to ${PREV_VERSION}" >&2
       git reset --quiet --hard "$PREV_COMMIT"
-      set_version "$PREV_VERSION"
+      export APP_VERSION="$PREV_VERSION"
       if "${COMPOSE[@]}" up -d --wait --remove-orphans && verify_healthy; then
         echo "!!  Rolled back: ${PREV_VERSION} is live again." >&2
       else
@@ -92,6 +106,7 @@ stage2_deploy() {
     fi
     exit 1
   fi
+  set_version "$app_version"
 
   # The edge proxy renders its config at start-up, so recreate it when that config changed.
   if [ -f deploy/edge/.env ] && [ -n "${PREV_COMMIT:-}" ] &&

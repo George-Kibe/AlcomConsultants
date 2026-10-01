@@ -82,6 +82,10 @@ sed -i "s|^DJANGO_ADMIN_URL=.*|DJANGO_ADMIN_URL=manage-$(openssl rand -hex 4)/|"
 grep -E '^(SITE_URL|SITE_ENV|DJANGO_ADMIN_URL)=' .env   # note the admin path
 nano .env                                                # review; optional email/Sentry
 ```
+Photo uploads need Cloudinary. Add the "API environment variable" from the Cloudinary dashboard. Paste only the part from `cloudinary://` onwards after `CLOUDINARY_URL=`:
+```bash
+nano .env    # CLOUDINARY_URL=cloudinary://<key>:<secret>@<cloud>   CLOUDINARY_FOLDER=alcom/prod
+```
 `SITE_ENV=staging` keeps search engines out, via `robots.txt`, while placeholder content is live. Change it to `production` at launch, then redeploy.
 
 ### 6. Build and start the app
@@ -181,6 +185,7 @@ dc exec backend python manage.py shell
 | `400 Bad Request` from Django | The domain is missing from `DJANGO_ALLOWED_HOSTS` in `.env`. |
 | Admin shows 404 | `ADMIN_PATH` in `deploy/edge/.env` must equal `DJANGO_ADMIN_URL` in `.env` (including the trailing `/`). Recreate Nginx afterwards. |
 | Build killed / out of memory | Add swap (step 1). |
+| Deploy fails with `CLOUDINARY_URL must look like cloudinary://…` | In `/opt/alcom/.env` the line must be exactly `CLOUDINARY_URL=cloudinary://<key>:<secret>@<cloud>`: no quotes, and no second `CLOUDINARY_URL=` (Cloudinary's dashboard copies the name too). The live site keeps running the previous version; re-run Deploy after fixing. |
 | Deploy workflow: `Permission denied (publickey)` | The deploy public key isn't in `~/.ssh/authorized_keys` of `SSH_USER`, or `SSH_USER`/`SSH_HOST` is wrong. |
 | Deploy workflow: `Host key verification failed` | `SSH_KNOWN_HOSTS` is missing or outdated: re-run `ssh-keyscan -H <host>` and update the secret. |
 | Deploy workflow: `denied` when pulling images | On GitHub: Packages → `alcom-backend` / `alcom-frontend-prod` → Package settings → Manage Actions access → add this repository (Read). |
