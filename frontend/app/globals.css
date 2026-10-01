@@ -261,3 +261,12 @@
     @apply bg-transparent p-0;
   }
 }
+
+/* Sonner's rich colours fall short of WCAG AA in light mode (about 4.3:1); darker text
+   keeps every toast at 5.5:1 or better. `.toaster` outranks Sonner's own selector. */
+[data-sonner-toaster][data-sonner-theme="light"].toaster {
+  --success-text: hsl(140 100% 22%);
+  --info-text: hsl(210 92% 38%);
+  --warning-text: hsl(31 92% 32%);
+  --error-text: hsl(360 100% 38%);
+}

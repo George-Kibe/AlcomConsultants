@@ -9,6 +9,7 @@ import Link from "next/link";
 import { cn } from "cn";
 
 import { CloudImage } from "@/components/cloud-image";
+import { FavouriteButton } from "@/components/listings/favourite-button";
 import { formatListingPrice } from "@/lib/format";
 import { locationLabel, type PropertyListItem } from "@/lib/listings";
 
@@ -86,6 +87,12 @@ export function PropertyCard({
             {flag}
           </span>
         )}
+        {/* Above the card's stretched link, so it gets its own clicks. */}
+        <FavouriteButton
+          slug={slug}
+          title={title}
+          className="absolute right-3 bottom-3 z-10"
+        />
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">

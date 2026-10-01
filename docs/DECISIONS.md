@@ -116,3 +116,12 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Email verification is "optional" with a confirmation link rather than "mandatory" with a code: allauth only supports codes with mandatory verification, which would lock out admin-created staff accounts. Commenting checks for a confirmed address instead.
 - Readers and staff share allauth; dashboard access stays `is_staff`-only on every API, so opening sign-up cannot grant dashboard access. Google accounts are not auto-merged into existing accounts by email.
 - Password reset moved to `/account/*` for everyone; old dashboard reset URLs redirect.
+
+## Visitor accounts (Phase 4, 2026-10-02)
+- Owner's choices: saved-search emails are a **daily digest only**; tapping the heart while signed out **asks the visitor to sign in** (no device-only favourites); deleting an account **keeps blog comments as "Former reader"**; the profile covers name, phone, password and a marketing opt-in (email changes are not offered).
+- Reader sign-up from Phase 2f-2 is reused: the same accounts now also hold favourites and saved searches (`apps.saved`).
+- Alerts go only to confirmed addresses, so nobody can sign up a stranger's email for daily mail.
+- Saved searches store a normalised `/properties` query string and are matched with the public `PropertyFilter`, so alerts always agree with the search page.
+- Digest emails keep `List-Unsubscribe` on one header line: Python's default email policy would otherwise fold the long URL into RFC 2047 encoded-words, which mail providers ignore.
+- The blog's new-article page accepts the cover photo before the first save (`cover_upload` on create), so an article can be written and published in one go.
+

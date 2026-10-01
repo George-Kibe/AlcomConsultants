@@ -44,6 +44,33 @@ export function readSearch(
   return state;
 }
 
+/** The filters a saved search keeps, in the backend's order (apps/saved/search.py). */
+const SAVED_SEARCH_KEYS: SearchKey[] = [
+  "deal",
+  "type",
+  "county",
+  "area",
+  "neighbourhood",
+  "where",
+  "q",
+  "min_price",
+  "max_price",
+  "min_beds",
+  "min_baths",
+  "furnishing",
+  "amenities",
+];
+
+/** Query string identifying a saved search (no sorting, paging or map state). */
+export function savedSearchQuery(state: SearchState): string {
+  return new URLSearchParams(
+    SAVED_SEARCH_KEYS.filter((k) => state[k]?.trim()).map((k) => [
+      k,
+      state[k]!.trim(),
+    ]),
+  ).toString();
+}
+
 export function apiQuery(state: SearchState): Record<string, string> {
   return Object.fromEntries(
     API_KEYS.filter((k) => state[k]).map((k) => [k, state[k] as string]),

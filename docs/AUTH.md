@@ -2,11 +2,11 @@
 
 Two kinds of account share one user table and one sign-in system (django-allauth in headless mode; the Next.js app renders every screen):
 
-| | Staff | Readers |
+| | Staff | Visitors |
 |---|---|---|
 | Created by | An admin (Django admin → Users, tick **Staff status**) | Themselves, at `/account/sign-up` (or Google) |
 | Sign in at | `/dashboard/login` | `/account/sign-in` |
-| Can | Use the dashboard (every dashboard API checks `is_staff`) | Comment on blog articles once their email is confirmed |
+| Can | Use the dashboard (every dashboard API checks `is_staff`) | Save properties and searches, get a daily email of new matches and comment on blog articles (both need a confirmed email), manage their profile, download their data, delete their account |
 | Two-step verification | Optional, recommended (dashboard → Security) | Not offered |
 
 Password reset for both lives at `/account/forgot-password`. The older `/dashboard/forgot-password` and `/dashboard/reset-password/<key>` addresses redirect there, so links in emails already sent keep working.
@@ -54,3 +54,12 @@ New Google users become readers with a confirmed email. If someone already has a
 - Names show as first name and last initial ("Jane W."), never the email address. Staff show as "Name (Alcom Consultants)".
 - Staff moderate at **Dashboard → Blog → Comments**. Hiding a comment takes it off the site and can be undone; deleting it is permanent.
 - Readers can delete their own comments.
+
+## Visitor accounts (`/account/*`)
+
+- **Saved properties**: the heart on a property card or page. Signed-out visitors are sent to sign in (or sign up) and the property is saved when they come back. Sold and let properties stay in the list, marked; withdrawn ones disappear. Up to 200.
+- **Saved searches**: "Save this search" on `/properties` keeps the filters (not sorting, paging or map view). Up to 20, each with a daily-email switch.
+- **Daily email**: Celery beat runs `apps.saved.tasks.send_saved_search_alerts` at 07:00 Nairobi time. Each visitor with a confirmed email gets one digest listing properties published since the previous one (up to 6 per search, then a link to the rest). Every email has a "Stop these emails" link (`/account/unsubscribe?token=…`, a signed token that never expires) and RFC 8058 one-click `List-Unsubscribe` headers.
+- **Profile**: name, phone, password, and a "news and offers" opt-in stored with the time of consent (`marketing_opt_in_at`). Nothing sends marketing email yet.
+- **Your data**: "Download my data" returns everything held about the account as JSON (`/api/v1/me/export/`).
+- **Deleting an account** needs the password (or typing DELETE for Google-only accounts). Profile, saved properties, saved searches and sign-in records are deleted; blog comments stay, shown as "Former reader" (owner's choice). Staff accounts can't be deleted this way.

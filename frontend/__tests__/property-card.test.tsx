@@ -1,8 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { PropertyCard } from "@/components/site/property-card";
 import type { PropertyListItem } from "@/lib/listings";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("@/lib/api/visitor", () => ({
+  useViewer: () => ({ data: null, isPending: false }),
+  useFavouriteSlugs: () => ({ data: undefined, isSuccess: false }),
+  useToggleFavourite: () => ({ mutate: vi.fn() }),
+  useResolveViewer: () => async () => null,
+}));
 
 const item = {
   reference: "ALC-R-1002",
@@ -31,6 +39,9 @@ test("property card shows the essentials and links to the listing", () => {
   expect(screen.getByText("Under offer")).toBeInTheDocument();
   expect(screen.getByText("165 m²")).toBeInTheDocument();
   expect(screen.getByRole("img", { name: "Front" })).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Save 3 Bedroom Apartment" }),
+  ).toHaveAttribute("aria-pressed", "false");
 });
 
 test("studio and missing photo", () => {

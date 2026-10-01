@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 import environ
+from celery.schedules import crontab
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -46,6 +47,7 @@ LOCAL_APPS = [
     "apps.listings",
     "apps.projects",
     "apps.blog",
+    "apps.saved",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -202,6 +204,7 @@ REST_FRAMEWORK = {
         "user": "300/min",
         "comments_burst": "5/min",
         "comments_daily": "50/day",
+        "account_delete": "10/hour",
     },
 }
 
@@ -240,6 +243,13 @@ CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TASK_TIME_LIMIT = 5 * 60
 CELERY_TASK_SOFT_TIME_LIMIT = 4 * 60
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BEAT_SCHEDULE = {
+    # Saved-search digest, every morning (Nairobi time).
+    "saved-search-alerts": {
+        "task": "apps.saved.tasks.send_saved_search_alerts",
+        "schedule": crontab(hour=7, minute=0),
+    },
+}
 
 # ------------------------------------------------------------------ email
 # Development: Gmail SMTP (app password, port 587 + STARTTLS).

@@ -4,6 +4,27 @@
  */
 
 export interface paths {
+    "/api/v1/alerts/unsubscribe/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Turn off saved-search emails from the link in an email (no sign-in needed).
+         *
+         *     Also the RFC 8058 one-click target of the List-Unsubscribe header (token in the URL).
+         */
+        post: operations["alerts_unsubscribe_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/amenities/": {
         parameters: {
             query?: never;
@@ -378,14 +399,140 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description The signed-in user (403 when signed out). */
+        /** @description The signed-in user (403 when signed out). PATCH updates the visitor's own details. */
         get: operations["me_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** @description The signed-in user (403 when signed out). PATCH updates the visitor's own details. */
+        patch: operations["me_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/me/delete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Delete your account. Comments stay on the blog as "Former reader"; everything else
+         *     (profile, favourites, saved searches, sign-in methods) is removed.
+         */
+        post: operations["me_delete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Download a copy of your data (JSON). */
+        get: operations["me_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/favourites/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Most recently saved first. */
+        get: operations["me_favourites_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/favourites/{slug}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Saved properties. Sold and let listings stay (marked); withdrawn ones disappear. */
+        put: operations["me_favourites_update"];
+        post?: never;
+        /** @description Saved properties. Sold and let listings stay (marked); withdrawn ones disappear. */
+        delete: operations["me_favourites_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/favourites/slugs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Slugs of every saved property (to show filled hearts on any page). */
+        get: operations["me_favourites_slugs_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/saved-searches/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Saved searches. Saving the same search twice returns the existing one. */
+        get: operations["me_saved_searches_list"];
+        put?: never;
+        /** @description Saved searches. Saving the same search twice returns the existing one. */
+        post: operations["me_saved_searches_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/saved-searches/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Saved searches. Saving the same search twice returns the existing one. */
+        delete: operations["me_saved_searches_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Saved searches. Saving the same search twice returns the existing one. */
+        patch: operations["me_saved_searches_partial_update"];
         trace?: never;
     };
     "/api/v1/projects/": {
@@ -620,7 +767,7 @@ export interface components {
                 [key: string]: string;
             };
             readonly author_name: string;
-            /** Format: email */
+            /** @description Empty for a reader who has deleted their account. */
             readonly author_email: string;
             readonly body: string;
             /** Format: date-time */
@@ -812,6 +959,11 @@ export interface components {
          * @enum {string}
          */
         DealTypeEnum: "sale" | "rent" | "lease";
+        DeleteAccountRequest: {
+            password?: string;
+            /** @description "DELETE", for accounts without a password. */
+            confirm?: string;
+        };
         /**
          * @description * `unfurnished` - Unfurnished
          *     * `semi` - Semi-furnished
@@ -888,21 +1040,36 @@ export interface components {
             readonly lng: number | null;
             readonly cover_image: string | null;
         };
+        /** @description The signed-in user. Visitors may change their name, phone and email preferences. */
         Me: {
             /**
              * Email address
              * Format: email
              */
-            email: string;
+            readonly email: string;
             first_name?: string;
             last_name?: string;
-            full_name: string;
+            readonly full_name: string;
             phone?: string;
             /** @description Designates whether the user can access the staff dashboard. */
-            is_staff?: boolean;
+            readonly is_staff: boolean;
             readonly mfa_enabled: boolean;
             readonly email_verified: boolean;
             readonly can_comment: boolean;
+            /** @description False for Google-only accounts (no password to change or confirm with). */
+            readonly has_password: boolean;
+            /**
+             * News and offers by email
+             * @description The visitor's own choice.
+             */
+            marketing_opt_in?: boolean;
+            /**
+             * Format: date-time
+             * @description When the visitor last opted in (consent record).
+             */
+            readonly marketing_opt_in_at: string | null;
+            /** Format: date-time */
+            readonly date_joined: string;
         };
         /** @description Cloudinary asset. Clients build sized URLs from `public_id`; `url` is the original. */
         Media: {
@@ -1074,11 +1241,29 @@ export interface components {
             seo_title?: string;
             seo_description?: string;
         };
+        /** @description The signed-in user. Visitors may change their name, phone and email preferences. */
+        PatchedMeRequest: {
+            first_name?: string;
+            last_name?: string;
+            phone?: string;
+            /**
+             * News and offers by email
+             * @description The visitor's own choice.
+             */
+            marketing_opt_in?: boolean;
+        };
         PatchedPropertyMediaRequest: {
             kind?: components["schemas"]["PropertyMediaKindEnum"];
             /** @description Describe the photo for screen readers and SEO. */
             alt_text?: string;
             caption?: string;
+        };
+        PatchedSavedSearchRequest: {
+            name?: string;
+            /** @description Normalised /properties query string (search filters only). */
+            query?: string;
+            /** Daily email */
+            alerts?: boolean;
         };
         PostDetail: {
             slug: string;
@@ -1276,6 +1461,27 @@ export interface components {
         ReorderRequest: {
             ids: number[];
         };
+        SavedSearch: {
+            /** Format: uuid */
+            readonly uuid: string;
+            name?: string;
+            /** @description Normalised /properties query string (search filters only). */
+            query: string;
+            /** @description /properties?… for this search */
+            readonly path: string;
+            /** Daily email */
+            alerts?: boolean;
+            readonly match_count: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        SavedSearchRequest: {
+            name?: string;
+            /** @description Normalised /properties query string (search filters only). */
+            query: string;
+            /** Daily email */
+            alerts?: boolean;
+        };
         /**
          * @description * `blog` - blog
          *     * `projects` - projects
@@ -1302,6 +1508,13 @@ export interface components {
              */
             price_to?: number | null;
             units_available?: number | null;
+        };
+        UnsubscribeRequestRequest: {
+            token: string;
+        };
+        UnsubscribeResult: {
+            /** Format: email */
+            email: string;
         };
         UploadSignature: {
             /** Format: uri */
@@ -1351,6 +1564,31 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    alerts_unsubscribe_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UnsubscribeRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["UnsubscribeRequestRequest"];
+                "multipart/form-data": components["schemas"]["UnsubscribeRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnsubscribeResult"];
+                };
+            };
+        };
+    };
     amenities_list: {
         parameters: {
             query?: {
@@ -2156,6 +2394,245 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Me"];
+                };
+            };
+        };
+    };
+    me_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMeRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+        };
+    };
+    me_delete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DeleteAccountRequest"];
+                "multipart/form-data": components["schemas"]["DeleteAccountRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    me_export_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    me_favourites_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyList"][];
+                };
+            };
+        };
+    };
+    me_favourites_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    me_favourites_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    me_favourites_slugs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+        };
+    };
+    me_saved_searches_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearch"][];
+                };
+            };
+        };
+    };
+    me_saved_searches_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedSearchRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SavedSearchRequest"];
+                "multipart/form-data": components["schemas"]["SavedSearchRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearch"];
+                };
+            };
+        };
+    };
+    me_saved_searches_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    me_saved_searches_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSavedSearchRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSavedSearchRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSavedSearchRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearch"];
                 };
             };
         };

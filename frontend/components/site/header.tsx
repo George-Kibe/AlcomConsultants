@@ -1,4 +1,5 @@
 import { WhatsAppIcon } from "@/components/icons";
+import { AccountMenu } from "@/components/site/account-menu";
 import { Logo } from "@/components/site/logo";
 import { MobileNav } from "@/components/site/mobile-nav";
 import { NavLinks } from "@/components/site/nav-links";
@@ -20,6 +21,7 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-1">
           <ThemeToggle />
+          <AccountMenu />
           <Button
             asChild
             variant="whatsapp"

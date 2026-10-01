@@ -114,8 +114,12 @@ class Comment(TimeStampedModel):
     """A signed-in reader's comment on a post. Published at once; staff can hide it."""
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    # Kept when the reader deletes their account; shown as "Former reader".
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blog_comments"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="blog_comments",
     )
     body = models.TextField(max_length=2000)
     is_hidden = models.BooleanField(default=False, db_index=True)
@@ -134,12 +138,14 @@ class Comment(TimeStampedModel):
         indexes = [models.Index(fields=["post", "is_hidden", "created_at"])]
 
     def __str__(self) -> str:
-        return f"{self.author} on {self.post}"
+        return f"{self.author or 'Former reader'} on {self.post}"
 
     @property
     def author_name(self) -> str:
         """First name and last initial (e.g. "Jane W."), never the email address."""
         user = self.author
+        if user is None:
+            return "Former reader"
         if user.is_staff:
             return f"{user.first_name or 'Alcom'} (Alcom Consultants)"
         last = f" {user.last_name[0]}." if user.last_name else ""

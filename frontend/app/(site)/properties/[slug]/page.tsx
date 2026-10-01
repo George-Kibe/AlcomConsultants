@@ -19,6 +19,7 @@ import {
 
 import { WhatsAppIcon } from "@/components/icons";
 import { AmenityIcon } from "@/components/listings/amenity-icon";
+import { FavouriteButton } from "@/components/listings/favourite-button";
 import { Gallery } from "@/components/listings/gallery";
 import { LocationMapLoader } from "@/components/listings/location-map-loader";
 import { NearbyPlaces } from "@/components/listings/nearby-places";
@@ -239,9 +240,12 @@ export default async function PropertyPage({
           <h1 className="mt-1 text-2xl font-bold sm:text-4xl">{p.title}</h1>
           <p className="text-muted-foreground mt-2">{where}</p>
         </div>
-        <p className="text-primary text-2xl font-bold sm:text-3xl">
-          {formatListingPrice(p.price, p.price_unit, p.price_on_request)}
-        </p>
+        <div className="flex flex-wrap items-center gap-4 sm:flex-col sm:items-end">
+          <p className="text-primary text-2xl font-bold sm:text-3xl">
+            {formatListingPrice(p.price, p.price_unit, p.price_on_request)}
+          </p>
+          <FavouriteButton slug={p.slug} title={p.title} variant="labelled" />
+        </div>
       </header>
 
       <Gallery photos={photos} title={p.title} />

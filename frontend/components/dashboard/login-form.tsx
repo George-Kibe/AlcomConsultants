@@ -28,7 +28,7 @@ const noopSubscribe = () => () => {};
 
 /**
  * Email + password sign-in with the two-step verification step. "staff" is the dashboard
- * login; "reader" (blog commenters) adds Google and a link to create an account.
+ * login; "reader" (visitor accounts) adds Google and a link to create an account.
  */
 export function LoginForm({
   variant = "staff",
@@ -60,9 +60,9 @@ export function LoginForm({
   async function done() {
     let target = next;
     if (!target) {
-      // Reader page without ?next=: staff go to the dashboard, everyone else to the blog.
+      // Reader page without ?next=: staff go to the dashboard, everyone else to their account.
       const me = await api.GET("/api/v1/me/");
-      target = me.data?.is_staff ? "/dashboard" : "/blog";
+      target = me.data?.is_staff ? "/dashboard" : "/account";
     }
     router.replace(target);
     router.refresh();
@@ -190,7 +190,7 @@ export function LoginForm({
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
           {reader
-            ? "Join the conversation on our blog."
+            ? "Your saved properties, searches and comments."
             : "Alcom Consultants dashboard"}
         </p>
       </div>
@@ -244,7 +244,7 @@ export function LoginForm({
       </Button>
       {reader && (
         <>
-          <GoogleButton next={next || "/blog"} />
+          <GoogleButton next={next || "/account"} />
           <p className="text-muted-foreground text-center text-sm">
             New here?{" "}
             <Link

@@ -1,0 +1,24 @@
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+
+import { Toaster } from "@/components/ui/sonner";
+
+/** Client state for the public site: the signed-in visitor, favourites, saved searches. */
+export function SiteProviders({ children }: { children: React.ReactNode }) {
+  const [client] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { refetchOnWindowFocus: false, staleTime: 30_000 },
+        },
+      }),
+  );
+  return (
+    <QueryClientProvider client={client}>
+      {children}
+      <Toaster richColors position="top-center" />
+    </QueryClientProvider>
+  );
+}
