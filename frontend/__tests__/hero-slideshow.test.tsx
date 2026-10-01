@@ -74,3 +74,16 @@ describe("HeroSlideshow", () => {
     expect(currentDot()).toBe(0);
   });
 });
+
+describe("hero images", () => {
+  test("are delivered by Cloudinary with automatic format and quality", () => {
+    const { container } = render(<HeroSlideshow slides={heroSlides} />);
+    const src = container.querySelector("img")!.getAttribute("src")!;
+    expect(src).toMatch(
+      /^https:\/\/res\.cloudinary\.com\/ictdclhd\/image\/upload\//,
+    );
+    expect(src).toContain("f_auto");
+    expect(src).toContain("q_auto");
+    expect(src).toContain("alcom_images/site/hero/01-nairobi-kicc");
+  });
+});

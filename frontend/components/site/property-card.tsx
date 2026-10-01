@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { BathIcon, BedDoubleIcon, MapPinIcon, RulerIcon } from "lucide-react";
 import { cn } from "cn";
 
+import { CloudImage } from "@/components/cloud-image";
 import {
   dealTypeLabel,
   formatPrice,
@@ -36,8 +36,8 @@ export function PropertyCard({
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
-          src={image.src}
+        <CloudImage
+          src={image.publicId}
           alt={image.alt}
           fill
           sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 85vw"

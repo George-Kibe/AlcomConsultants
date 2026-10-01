@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { PauseIcon, PlayIcon } from "lucide-react";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { cn } from "cn";
 
+import { CloudImage } from "@/components/cloud-image";
 import type { HeroSlide } from "@/lib/hero-slides";
 
 export const INTERVAL_MS = 4000;
@@ -88,7 +88,7 @@ export function HeroSlideshow({
       >
         {slides.map((slide, i) =>
           mounted.has(i) ? (
-            <Image
+            <CloudImage
               key={slide.src}
               src={slide.src}
               alt=""
