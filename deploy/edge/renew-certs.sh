@@ -4,6 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 docker compose run --rm certbot renew --webroot -w /var/www/certbot --quiet "$@"
+./cert-permissions.sh # renewed files must stay readable by Nginx's workers
 docker compose exec -T nginx nginx -s reload
 # The mail server (deploy/mail) reads mail.<domain>'s certificate from the same volume.
 if [ -n "$(docker ps -q -f name='^mail-front-1$')" ]; then

@@ -29,6 +29,7 @@ docker run --rm -v mail_dkim:/dkim alpine:3.22 sh -c "
 (cd ../edge && set -a && . ./.env && set +a &&
   docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d "$HOST" \
     --email "$LETSENCRYPT_EMAIL" --agree-tos --no-eff-email --keep-until-expiring --non-interactive)
+../edge/cert-permissions.sh # the webmail vhost reads it from an Nginx worker
 
 # 4. Firewall: incoming mail (25), sending (465), IMAP (993).
 for port in 25 465 993; do ufw allow "$port/tcp" >/dev/null; done
@@ -51,9 +52,10 @@ for user in info noreply admin; do
     echo "$user@$DOMAIN $password" >> "$CREDENTIALS"
     echo "Created $user@$DOMAIN"
     if [ "$user" = noreply ]; then
-      sed -i '/^EMAIL_HOST=/d; /^EMAIL_PORT=/d; /^EMAIL_USE_TLS=/d; /^EMAIL_USE_SSL=/d; /^EMAIL_HOST_USER=/d; /^EMAIL_HOST_PASSWORD=/d' "$APP_ENV"
-      printf 'EMAIL_HOST=%s\nEMAIL_PORT=465\nEMAIL_USE_TLS=false\nEMAIL_USE_SSL=true\nEMAIL_HOST_USER=noreply@%s\nEMAIL_HOST_PASSWORD=%s\n' \
-        "$HOST" "$DOMAIN" "$password" >> "$APP_ENV"
+      sed -i '/^EMAIL_HOST=/d; /^EMAIL_PORT=/d; /^EMAIL_USE_TLS=/d; /^EMAIL_USE_SSL=/d; /^EMAIL_HOST_USER=/d; /^EMAIL_HOST_PASSWORD=/d; /^DEFAULT_FROM_EMAIL=/d' "$APP_ENV"
+      # The From address must be the mailbox the site signs in as (Mailu rejects others).
+      printf 'EMAIL_HOST=%s\nEMAIL_PORT=465\nEMAIL_USE_TLS=false\nEMAIL_USE_SSL=true\nEMAIL_HOST_USER=noreply@%s\nEMAIL_HOST_PASSWORD=%s\nDEFAULT_FROM_EMAIL=Alcom Consultants <noreply@%s>\n' \
+        "$HOST" "$DOMAIN" "$password" "$DOMAIN" >> "$APP_ENV"
     fi
   else
     echo "Exists  $user@$DOMAIN"

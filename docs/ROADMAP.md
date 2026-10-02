@@ -2,7 +2,7 @@
 
 No hard deadline; quality first. Each step ends with passing CI (incl. full-stack E2E), an automatic deploy and your review.
 
-**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; 2e mail server waiting on DNS; 2f blog + comments ✅) · Phase 3 ✅ (2026-10-02, live email test waits for mail DNS) · Phase 4 ✅ (2026-10-02)
+**Status (2026-10-01):** Phase 0 ✅ · Phase 1 ✅ (except SSH password-off) · Phase 2 in progress (2a ✅, 2b ✅, 2c ✅; 2e mail server live, reverse DNS pending; 2f blog + comments ✅) · Phase 3 ✅ (2026-10-02) · Phase 4 ✅ (2026-10-02)
 
 ## Release 1: Listings platform + marketing site
 
@@ -37,7 +37,9 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 <!-- - Development projects: models, dashboard, public project pages: Defer this for later -->
 - [ ] **2e** Mail server (Mailu, Docker) for info@ / noreply@ / admin@ (room for ~10), tested locally and live. Runbook: `docs/MAIL.md`
   - [x] Stack, edge webmail vhost, setup script, local trial + automated tests (send, IMAP, DKIM, relay, antivirus)
-  - [ ] DNS records + reverse DNS (owner), then `setup.sh` on the server and the live test; website sends via noreply@
+  - [x] DNS in Cloudflare (MX, SPF, DKIM, DMARC, autoconfig; mail records DNS only); `setup.sh` on the server; mailboxes info@ / noreply@ / admin@; webmail at https://mail.alcomconsultants.co.ke
+  - [x] Live tests (2026-10-02): sending and IMAP delivery, DKIM, wrong passwords, no open relay (from outside), virus rejection, valid certificate, inbound from Gmail, mailbox create/delete. Every website email (sign-up, password reset, enquiries, reminders, digest) is delivered via noreply@. Port25 report: SPF pass, DKIM pass
+  - [ ] Reverse DNS (PTR) for 178.162.254.192 → mail.alcomconsultants.co.ke (requested from the VPS provider). Until then Gmail holds our mail; re-check Gmail delivery afterwards
 - [x] **2f-1** Blog: dashboard (article list, rich-text editor, single cover photo via signed upload, publish / unpublish / delete-draft, slug + SEO), public `/blog` and article pages (BlogPosting JSON-LD, share image, WhatsApp share, more articles); body sanitised server-side
 - [x] **2f-2** Blog comments: reader accounts (`/account/*`: sign-up with name, email confirmation link, sign-in, password reset; Google once configured, docs/AUTH.md), comments published instantly (rate-limited, link-limited), delete own, staff hide / restore / delete in the dashboard
 ### Phase 3: Enquiries and CRM ✅
@@ -46,7 +48,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] WhatsApp click-to-chat on property and service pages and in the enquiry confirmation; staff WhatsApp a lead from the dashboard
 - [x] Lead pipeline in the dashboard: New → Contacted → Viewing → Negotiating → Won / Lost, assignee, follow-up date, notes and automatic history, views (open, due, mine, unassigned, won, lost, spam), overview counts
 - [x] Emails via Celery with a shared branded template: office notification (reply goes to the visitor), visitor confirmation with reference, 07:30 follow-up reminders; tested locally
-- [ ] Live email test once the mail server's DNS records are in place (Phase 2e)
+- [x] Live email test (2026-10-02): office notification and visitor confirmation delivered via noreply@
 
 ### Phase 4: Visitor accounts ✅
 - [x] Sign up / verify / sign in / reset (email and password, Google once configured), shared with blog comments; account menu in the header
