@@ -12,7 +12,7 @@ export function Header() {
     <header className="bg-background/90 supports-[backdrop-filter]:bg-background/75 sticky top-0 z-40 border-b backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Logo />
-        <nav aria-label="Main" className="hidden md:block">
+        <nav aria-label="Main" className="hidden lg:block">
           <NavLinks
             items={mainNav}
             className="flex items-center gap-1"
@@ -26,7 +26,7 @@ export function Header() {
             asChild
             variant="whatsapp"
             size="lg"
-            className="hidden lg:inline-flex"
+            className="hidden xl:inline-flex"
           >
             <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
               <WhatsAppIcon />

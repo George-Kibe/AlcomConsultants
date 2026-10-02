@@ -78,18 +78,14 @@ export default async function Home() {
           className="absolute inset-0 -z-10 bg-linear-to-t from-black/70 via-black/45 to-black/30 sm:bg-linear-to-r sm:from-black/70 sm:via-black/35 sm:via-45% sm:to-transparent sm:to-80%"
         />
         <div className="container-page flex min-h-150 flex-col justify-center gap-8 pt-16 pb-24 sm:min-h-160 sm:py-20">
-          <div className="max-w-2xl">
+          <div className="max-w-4xl">
             <p className="mb-3 inline-flex rounded-full bg-black/35 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm">
               Your Property. Our Expertise. Better Results.
             </p>
-            <h1 className="text-3xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-4xl lg:text-8xl">
+            <h1 className="text-3xl leading-tight font-bold text-balance text-shadow-black/40 text-shadow-lg sm:text-4xl lg:text-5xl">
               From finding the right property to managing, selling and valuing
-              it, We’ve got you covered across Kenya.
+              it, we’ve got you covered across Kenya.
             </h1>
-            <p className="mt-4 max-w-xl text-lg font-medium text-white text-shadow-black/60 text-shadow-lg">
-              Homes, land and commercial space to buy or rent, and expert help
-              looking after the property you own.
-            </p>
           </div>
           <HeroSearch />
         </div>
