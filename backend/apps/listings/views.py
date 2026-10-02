@@ -1,8 +1,11 @@
+from typing import Any
+
 from django.db.models import Case, F, IntegerField, Prefetch, QuerySet, Value, When
 from django.db.models.functions import Abs
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -25,12 +28,38 @@ MAP_LIMIT = 500
 SIMILAR_LIMIT = 4
 
 
+class PropertyPagination(PageNumberPagination):
+    """20 per page by default; `?page_size=` up to 48 (the home page asks for 6).
+    Responses also say which page this is and how many there are."""
+
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 48
+
+    def get_paginated_response(self, data: Any) -> Response:
+        response = super().get_paginated_response(data)
+        page = self.page
+        if page is not None:
+            response.data["page"] = page.number
+            response.data["pages"] = page.paginator.num_pages
+            response.data["page_size"] = page.paginator.per_page
+        return response
+
+    def get_paginated_response_schema(self, schema: dict[str, Any]) -> dict[str, Any]:
+        result = super().get_paginated_response_schema(schema)
+        for key in ("page", "pages", "page_size"):
+            result["properties"][key] = {"type": "integer"}
+            result["required"].append(key)
+        return result
+
+
 class PropertyViewSet(viewsets.ReadOnlyModelViewSet[Property]):
     """Public listings. Search shows active listings; sold/let pages stay reachable."""
 
     permission_classes = [AllowAny]
     lookup_field = "slug"
     filterset_class = PropertyFilter
+    pagination_class = PropertyPagination
     ordering_fields: list[str] = []  # sorting is via ?sort=
 
     def get_queryset(self) -> QuerySet[Property]:

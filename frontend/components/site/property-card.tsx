@@ -1,14 +1,8 @@
-import {
-  BathIcon,
-  BedDoubleIcon,
-  ImageOffIcon,
-  MapPinIcon,
-  RulerIcon,
-} from "lucide-react";
+import { BathIcon, BedDoubleIcon, MapPinIcon, RulerIcon } from "lucide-react";
 import Link from "next/link";
 import { cn } from "cn";
 
-import { CloudImage } from "@/components/cloud-image";
+import { CardGallery } from "@/components/listings/card-gallery";
 import { FavouriteButton } from "@/components/listings/favourite-button";
 import { formatListingPrice } from "@/lib/format";
 import { locationLabel, type PropertyListItem } from "@/lib/listings";
@@ -59,22 +53,21 @@ export function PropertyCard({
       )}
     >
       <div className="bg-muted relative aspect-[4/3] overflow-hidden">
-        {cover ? (
-          <CloudImage
-            src={cover.public_id}
-            alt={cover.alt_text || title}
-            fill
-            sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 85vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
-          />
-        ) : (
-          <span className="text-muted-foreground flex h-full items-center justify-center">
-            <ImageOffIcon className="size-8" aria-label="No photo yet" />
-          </span>
-        )}
+        <CardGallery
+          photos={
+            property.photos?.length
+              ? property.photos
+              : cover
+                ? [{ public_id: cover.public_id, alt_text: cover.alt_text }]
+                : []
+          }
+          href={`/properties/${slug}`}
+          title={title}
+          sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 85vw"
+        />
         <span
           className={cn(
-            "absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-semibold shadow-sm",
+            "absolute top-3 left-3 z-[2] rounded-full px-3 py-1 text-xs font-semibold shadow-sm",
             deal_type === "sale"
               ? "bg-brand-navy text-white"
               : "bg-success text-success-foreground",
@@ -83,7 +76,7 @@ export function PropertyCard({
           {DEAL_LABEL[deal_type]}
         </span>
         {flag && (
-          <span className="bg-background/95 text-foreground absolute top-3 right-3 rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
+          <span className="bg-background/95 text-foreground absolute top-3 right-3 z-[2] rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
             {flag}
           </span>
         )}
@@ -91,7 +84,7 @@ export function PropertyCard({
         <FavouriteButton
           slug={slug}
           title={title}
-          className="absolute right-3 bottom-3 z-10"
+          className="absolute right-3 bottom-3 z-[3]"
         />
       </div>
 
