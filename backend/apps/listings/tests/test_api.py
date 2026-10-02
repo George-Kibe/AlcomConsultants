@@ -52,6 +52,30 @@ def test_list_without_photos_has_no_cover(api):
     assert api.get(LIST).json()["results"][0]["cover_image"] is None
 
 
+def test_card_photos_follow_the_gallery_order(api):
+    prop = PropertyFactory()
+    second = PropertyMediaFactory(property=prop, order=1, alt_text="Kitchen")
+    first = PropertyMediaFactory(property=prop, order=0, alt_text="")
+    PropertyMediaFactory(property=prop, order=2, kind=MediaKind.FLOOR_PLAN)
+    for i in range(3, 12):
+        PropertyMediaFactory(property=prop, order=i)
+    photos = api.get(LIST).json()["results"][0]["photos"]
+    assert len(photos) == 8  # floor plans excluded, capped for the card
+    assert [p["public_id"] for p in photos[:2]] == [first.public_id, second.public_id]
+    assert photos[0]["alt_text"] == f"{prop.title}, photo 1"  # fallback description
+    assert photos[1]["alt_text"] == "Kitchen"
+
+
+def test_pagination(api):
+    for _ in range(7):
+        PropertyFactory()
+    data = api.get(LIST, {"page_size": 3, "page": 2}).json()
+    assert (data["count"], data["page"], data["pages"], data["page_size"]) == (7, 2, 3, 3)
+    assert len(data["results"]) == 3 and data["next"] and data["previous"]
+    assert api.get(LIST, {"page_size": 1000}).json()["page_size"] == 48
+    assert api.get(LIST, {"page": 99}).status_code == 404
+
+
 def test_filters(api):
     apartment, house = PropertyTypeFactory(slug="flat"), PropertyTypeFactory(slug="home")
     area = AreaFactory(slug="kileleshwa-x")

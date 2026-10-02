@@ -46,14 +46,14 @@ async function homeListings(): Promise<PropertyListItem[]> {
   await connection(); // always render with current listings
   const featured = await safely(() =>
     serverApi.GET("/api/v1/properties/", {
-      params: { query: { featured: true } },
+      params: { query: { featured: true, page_size: FEATURED_COUNT } },
     }),
   );
   const items = featured.data?.results.slice(0, FEATURED_COUNT) ?? [];
   if (items.length >= FEATURED_COUNT || featured.data === null) return items;
   const latest = await safely(() =>
     serverApi.GET("/api/v1/properties/", {
-      params: { query: { sort: "newest" } },
+      params: { query: { sort: "newest", page_size: FEATURED_COUNT * 2 } },
     }),
   );
   const extra = (latest.data?.results ?? []).filter(

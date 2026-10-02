@@ -53,10 +53,24 @@ class AgentSerializer(serializers.Serializer[Any]):
     email = serializers.EmailField()
 
 
+#: Photos sent with each search result for the card's swipeable gallery.
+CARD_PHOTOS = 8
+
+
+class CardPhotoSerializer(serializers.Serializer[Any]):
+    public_id = serializers.CharField()
+    alt_text = serializers.CharField()
+    width = serializers.IntegerField(allow_null=True)
+    height = serializers.IntegerField(allow_null=True)
+
+
 class PropertyListSerializer(serializers.ModelSerializer[Property]):
     property_type = PropertyTypeSerializer(read_only=True)
     location = LocationSerializer(source="*", read_only=True)
     cover_image = serializers.SerializerMethodField()
+    photos = serializers.SerializerMethodField(
+        help_text=f"Up to {CARD_PHOTOS} photos for the card gallery, cover first."
+    )
 
     class Meta:
         model = Property
@@ -77,16 +91,34 @@ class PropertyListSerializer(serializers.ModelSerializer[Property]):
             "land_area_unit",
             "location",
             "cover_image",
+            "photos",
             "is_featured",
             "published_at",
         ]
 
-    @extend_schema_field(MediaSerializer(allow_null=True))
-    def get_cover_image(self, obj: Property) -> dict[str, Any] | None:
+    @staticmethod
+    def _images(obj: Property) -> list[Any]:
         images = getattr(obj, "images", None)
         if images is None:  # not prefetched (e.g. single object)
             images = [m for m in obj.media.all() if m.kind == MediaKind.IMAGE]
+        return list(images)
+
+    @extend_schema_field(MediaSerializer(allow_null=True))
+    def get_cover_image(self, obj: Property) -> dict[str, Any] | None:
+        images = self._images(obj)
         return MediaSerializer(images[0]).data if images else None
+
+    @extend_schema_field(CardPhotoSerializer(many=True))
+    def get_photos(self, obj: Property) -> list[dict[str, Any]]:
+        return [
+            {
+                "public_id": m.public_id,
+                "alt_text": m.alt_text or f"{obj.title}, photo {i + 1}",
+                "width": m.width,
+                "height": m.height,
+            }
+            for i, m in enumerate(self._images(obj)[:CARD_PHOTOS])
+        ]
 
 
 class PropertyDetailSerializer(PropertyListSerializer):

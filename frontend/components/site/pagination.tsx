@@ -1,4 +1,7 @@
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+
+const step = "flex h-10 items-center gap-1 rounded-lg px-3 text-sm font-medium";
 
 /** Page links for server-rendered lists; `href` builds the URL of page n. */
 export function Pagination({
@@ -24,14 +27,23 @@ export function Pagination({
       aria-label="Pagination"
       className="flex flex-wrap items-center justify-center gap-1"
     >
-      {page > 1 && (
+      {page > 1 ? (
         <Link
           href={link(page - 1)}
           rel="prev"
-          className="hover:bg-muted rounded-lg px-3 py-2 text-sm font-medium"
+          className={`${step} hover:bg-muted`}
         >
+          <ChevronLeftIcon className="size-4" aria-hidden />
           Previous
         </Link>
+      ) : (
+        <span
+          aria-disabled="true"
+          className={`${step} text-muted-foreground/60`}
+        >
+          <ChevronLeftIcon className="size-4" aria-hidden />
+          Previous
+        </span>
       )}
       {window.map((n, i) => (
         <span key={n} className="flex items-center">
@@ -48,14 +60,23 @@ export function Pagination({
           </Link>
         </span>
       ))}
-      {page < pages && (
+      {page < pages ? (
         <Link
           href={link(page + 1)}
           rel="next"
-          className="hover:bg-muted rounded-lg px-3 py-2 text-sm font-medium"
+          className={`${step} hover:bg-muted`}
         >
           Next
+          <ChevronRightIcon className="size-4" aria-hidden />
         </Link>
+      ) : (
+        <span
+          aria-disabled="true"
+          className={`${step} text-muted-foreground/60`}
+        >
+          Next
+          <ChevronRightIcon className="size-4" aria-hidden />
+        </span>
       )}
     </nav>
   );

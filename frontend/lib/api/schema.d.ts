@@ -816,6 +816,12 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        CardPhoto: {
+            public_id: string;
+            alt_text: string;
+            width: number | null;
+            height: number | null;
+        };
         /**
          * @description * `residential` - Residential
          *     * `commercial` - Commercial
@@ -1440,6 +1446,9 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["PropertyList"][];
+            page: number;
+            pages: number;
+            page_size: number;
         };
         PatchedDashboardCommentRequest: {
             is_hidden?: boolean;
@@ -1637,6 +1646,8 @@ export interface components {
             land_area_unit?: components["schemas"]["LandAreaUnitEnum"];
             readonly location: components["schemas"]["Location"];
             readonly cover_image: components["schemas"]["Media"] | null;
+            /** @description Up to 8 photos for the card gallery, cover first. */
+            readonly photos: components["schemas"]["CardPhoto"][];
             is_featured?: boolean;
             /** Format: date-time */
             published_at?: string | null;
@@ -1680,6 +1691,8 @@ export interface components {
             land_area_unit?: components["schemas"]["LandAreaUnitEnum"];
             readonly location: components["schemas"]["Location"];
             readonly cover_image: components["schemas"]["Media"] | null;
+            /** @description Up to 8 photos for the card gallery, cover first. */
+            readonly photos: components["schemas"]["CardPhoto"][];
             is_featured?: boolean;
             /** Format: date-time */
             published_at?: string | null;
@@ -3193,6 +3206,8 @@ export interface operations {
                 ordering?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
                 /** @description Keyword, reference or place name */
                 q?: string;
                 /**

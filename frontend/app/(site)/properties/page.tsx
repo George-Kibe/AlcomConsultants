@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { HomeIcon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
@@ -32,10 +33,12 @@ export async function generateMetadata({
   const state = readSearch(await searchParams);
   const { types } = await lookups();
   const typeName = types.find((t) => t.slug === state.type)?.name;
-  const title = searchHeading(state, typeName);
+  const heading = searchHeading(state, typeName);
+  const page = Number(state.page ?? 1);
+  const title = page > 1 ? `${heading} (page ${page})` : heading;
   return {
     title,
-    description: `${title}. Browse photos, prices and locations, and contact Alcom Consultants.`,
+    description: `${heading}. Browse photos, prices and locations, and contact Alcom Consultants.`,
     alternates: { canonical: "/properties" },
   };
 }
@@ -56,8 +59,14 @@ export default async function PropertiesPage({
     lookups(),
   ]);
   const typeName = types.find((t) => t.slug === state.type)?.name;
+  // A page past the end (an old link, or the results shrank): back to page 1.
+  if (results.status === 404 && Number(state.page) > 1)
+    redirect(searchHref(state, { page: undefined }));
   const unavailable = state.view !== "map" && results.data === null;
   const items = results.data?.results ?? [];
+  const page = results.data?.page ?? 1;
+  const pageSize = results.data?.page_size ?? 20;
+  const total = results.data?.count ?? 0;
 
   return (
     <>
@@ -137,14 +146,21 @@ export default async function PropertiesPage({
                 </li>
               ))}
             </ul>
-            <Pagination
-              page={Number(state.page ?? 1)}
-              total={results.data?.count ?? 0}
-              pageSize={20}
-              href={(n) =>
-                searchHref(state, { page: n === 1 ? undefined : String(n) })
-              }
-            />
+            <div className="flex flex-col items-center gap-3">
+              <Pagination
+                page={page}
+                total={total}
+                pageSize={pageSize}
+                href={(n) =>
+                  searchHref(state, { page: n === 1 ? undefined : String(n) })
+                }
+              />
+              <p className="text-muted-foreground text-sm">
+                Showing {(page - 1) * pageSize + 1}–
+                {(page - 1) * pageSize + items.length} of {total}{" "}
+                {total === 1 ? "property" : "properties"}
+              </p>
+            </div>
           </>
         )}
       </section>
