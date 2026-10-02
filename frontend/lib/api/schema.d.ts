@@ -110,6 +110,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/careers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Open vacancies (published, closing date not passed). */
+        get: operations["careers_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/careers/{slug}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description A published vacancy (still reachable after it closes, marked as closed). */
+        get: operations["careers_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/content/faqs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description FAQs shown on the website; `?category=valuation,general` narrows them. */
+        get: operations["content_faqs_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/content/team/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Team members shown on the website, in order. */
+        get: operations["content_team_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/content/testimonials/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["content_testimonials_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/blog/comments/": {
         parameters: {
             query?: never;
@@ -195,6 +279,200 @@ export interface paths {
         post: operations["dashboard_blog_posts_cover_create"];
         /** @description Set (replacing any previous one) or remove the cover photo. */
         delete: operations["dashboard_blog_posts_cover_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/faqs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        get: operations["dashboard_content_faqs_list"];
+        put?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        post: operations["dashboard_content_faqs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/faqs/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        get: operations["dashboard_content_faqs_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        delete: operations["dashboard_content_faqs_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        patch: operations["dashboard_content_faqs_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/faqs/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Save a new order: every item's uuid, top to bottom. */
+        post: operations["dashboard_content_faqs_reorder_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/jobs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dashboard_content_jobs_list"];
+        put?: never;
+        post: operations["dashboard_content_jobs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/jobs/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["dashboard_content_jobs_retrieve"];
+        put?: never;
+        post?: never;
+        delete: operations["dashboard_content_jobs_destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["dashboard_content_jobs_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/team/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        get: operations["dashboard_content_team_list"];
+        put?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        post: operations["dashboard_content_team_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/team/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        get: operations["dashboard_content_team_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        delete: operations["dashboard_content_team_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        patch: operations["dashboard_content_team_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/team/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Save a new order: every item's uuid, top to bottom. */
+        post: operations["dashboard_content_team_reorder_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/testimonials/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        get: operations["dashboard_content_testimonials_list"];
+        put?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        post: operations["dashboard_content_testimonials_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/testimonials/{uuid}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        get: operations["dashboard_content_testimonials_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        delete: operations["dashboard_content_testimonials_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Staff CRUD for an orderable model; new items go to the end; `reorder` saves a drag. */
+        patch: operations["dashboard_content_testimonials_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/dashboard/content/testimonials/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Save a new order: every item's uuid, top to bottom. */
+        post: operations["dashboard_content_testimonials_reorder_create"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -822,13 +1100,6 @@ export interface components {
             width: number | null;
             height: number | null;
         };
-        /**
-         * @description * `residential` - Residential
-         *     * `commercial` - Commercial
-         *     * `land` - Land
-         * @enum {string}
-         */
-        CategoryEnum: "residential" | "commercial" | "land";
         Comment: {
             readonly id: number;
             readonly author_name: string;
@@ -839,6 +1110,9 @@ export interface components {
         };
         CommentRequest: {
             body: string;
+        };
+        ContentReorderRequest: {
+            uuids: string[];
         };
         CountyTree: {
             /** @description Official county code (1-47) */
@@ -887,6 +1161,65 @@ export interface components {
             readonly hidden_by_name: string;
             /** Format: date-time */
             readonly hidden_at: string | null;
+        };
+        DashboardFaq: {
+            /** Format: uuid */
+            readonly uuid: string;
+            question: string;
+            answer: string;
+            category?: components["schemas"]["FaqCategoryEnum"];
+            readonly order: number;
+            /** Shown on the website */
+            is_published?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        DashboardFaqRequest: {
+            question: string;
+            answer: string;
+            category?: components["schemas"]["FaqCategoryEnum"];
+            /** Shown on the website */
+            is_published?: boolean;
+        };
+        DashboardJob: {
+            /** Format: uuid */
+            readonly uuid: string;
+            slug?: string;
+            title: string;
+            location?: string;
+            employment_type?: components["schemas"]["EmploymentTypeEnum"];
+            readonly employment_type_label: string;
+            summary: string;
+            /** Format: date */
+            closing_date?: string | null;
+            readonly is_open: boolean;
+            /** Format: date-time */
+            readonly published_at: string | null;
+            /** @description Rich text, sanitised on save. */
+            description?: string;
+            /** Format: email */
+            apply_email?: string;
+            is_published?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        DashboardJobRequest: {
+            slug?: string;
+            title: string;
+            location?: string;
+            employment_type?: components["schemas"]["EmploymentTypeEnum"];
+            summary: string;
+            /** Format: date */
+            closing_date?: string | null;
+            /** @description Rich text, sanitised on save. */
+            description?: string;
+            /** Format: email */
+            apply_email?: string;
+            is_published?: boolean;
         };
         DashboardOverview: {
             total: number;
@@ -1063,6 +1396,65 @@ export interface components {
             seo_title?: string;
             seo_description?: string;
         };
+        DashboardTeamMember: {
+            /** Format: uuid */
+            readonly uuid: string;
+            name: string;
+            /** @description e.g. "Registered Valuer" */
+            role: string;
+            bio?: string;
+            readonly photo: components["schemas"]["Photo"] | null;
+            /** @description Shown publicly if set. */
+            email?: string;
+            linkedin_url?: string;
+            readonly order: number;
+            /** Shown on the website */
+            is_published?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        DashboardTeamMemberRequest: {
+            name: string;
+            /** @description e.g. "Registered Valuer" */
+            role: string;
+            bio?: string;
+            /** @description Shown publicly if set. */
+            email?: string;
+            linkedin_url?: string;
+            /** Shown on the website */
+            is_published?: boolean;
+            photo_upload?: components["schemas"]["PhotoUploadRequest"];
+            remove_photo?: boolean;
+        };
+        DashboardTestimonial: {
+            /** Format: uuid */
+            readonly uuid: string;
+            quote: string;
+            name: string;
+            /** @description e.g. "Landlord, Kilimani" */
+            role?: string;
+            /** @description 1 to 5 stars */
+            rating?: number | null;
+            readonly order: number;
+            /** Shown on the website */
+            is_published?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        DashboardTestimonialRequest: {
+            quote: string;
+            name: string;
+            /** @description e.g. "Landlord, Kilimani" */
+            role?: string;
+            /** @description 1 to 5 stars */
+            rating?: number | null;
+            /** Shown on the website */
+            is_published?: boolean;
+        };
         /**
          * @description * `sale` - For Sale
          *     * `rent` - For Rent
@@ -1075,6 +1467,14 @@ export interface components {
             /** @description "DELETE", for accounts without a password. */
             confirm?: string;
         };
+        /**
+         * @description * `full_time` - Full time
+         *     * `part_time` - Part time
+         *     * `contract` - Contract
+         *     * `internship` - Internship or attachment
+         * @enum {string}
+         */
+        EmploymentTypeEnum: "full_time" | "part_time" | "contract" | "internship";
         EnquiryDetail: {
             /** Format: uuid */
             readonly uuid: string;
@@ -1201,6 +1601,24 @@ export interface components {
             mine: number;
             spam: number;
         };
+        Faq: {
+            /** Format: uuid */
+            readonly uuid: string;
+            question: string;
+            answer: string;
+            category?: components["schemas"]["FaqCategoryEnum"];
+        };
+        /**
+         * @description * `general` - General
+         *     * `buying` - Buying and renting
+         *     * `selling` - Selling and letting
+         *     * `management` - Property management
+         *     * `valuation` - Valuations
+         *     * `assets` - Asset management
+         *     * `survey` - Land surveys
+         * @enum {string}
+         */
+        FaqCategoryEnum: "general" | "buying" | "selling" | "management" | "valuation" | "assets" | "survey";
         /**
          * @description * `unfurnished` - Unfurnished
          *     * `semi` - Semi-furnished
@@ -1212,6 +1630,36 @@ export interface components {
             status: string;
             database: boolean;
             cache: boolean;
+        };
+        JobDetail: {
+            slug: string;
+            title: string;
+            location?: string;
+            employment_type?: components["schemas"]["EmploymentTypeEnum"];
+            readonly employment_type_label: string;
+            summary: string;
+            /** Format: date */
+            closing_date?: string | null;
+            readonly is_open: boolean;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** @description Rich text, sanitised on save. */
+            description?: string;
+            /** Format: email */
+            apply_email?: string;
+        };
+        JobList: {
+            slug: string;
+            title: string;
+            location?: string;
+            employment_type?: components["schemas"]["EmploymentTypeEnum"];
+            readonly employment_type_label: string;
+            summary: string;
+            /** Format: date */
+            closing_date?: string | null;
+            readonly is_open: boolean;
+            /** Format: date-time */
+            published_at?: string | null;
         };
         /**
          * @description * `acres` - acres
@@ -1455,6 +1903,27 @@ export interface components {
         PatchedDashboardCommentRequest: {
             is_hidden?: boolean;
         };
+        PatchedDashboardFaqRequest: {
+            question?: string;
+            answer?: string;
+            category?: components["schemas"]["FaqCategoryEnum"];
+            /** Shown on the website */
+            is_published?: boolean;
+        };
+        PatchedDashboardJobRequest: {
+            slug?: string;
+            title?: string;
+            location?: string;
+            employment_type?: components["schemas"]["EmploymentTypeEnum"];
+            summary?: string;
+            /** Format: date */
+            closing_date?: string | null;
+            /** @description Rich text, sanitised on save. */
+            description?: string;
+            /** Format: email */
+            apply_email?: string;
+            is_published?: boolean;
+        };
         PatchedDashboardPostRequest: {
             title?: string;
             slug?: string;
@@ -1508,6 +1977,29 @@ export interface components {
             seo_title?: string;
             seo_description?: string;
         };
+        PatchedDashboardTeamMemberRequest: {
+            name?: string;
+            /** @description e.g. "Registered Valuer" */
+            role?: string;
+            bio?: string;
+            /** @description Shown publicly if set. */
+            email?: string;
+            linkedin_url?: string;
+            /** Shown on the website */
+            is_published?: boolean;
+            photo_upload?: components["schemas"]["PhotoUploadRequest"];
+            remove_photo?: boolean;
+        };
+        PatchedDashboardTestimonialRequest: {
+            quote?: string;
+            name?: string;
+            /** @description e.g. "Landlord, Kilimani" */
+            role?: string;
+            /** @description 1 to 5 stars */
+            rating?: number | null;
+            /** Shown on the website */
+            is_published?: boolean;
+        };
         PatchedEnquiryDetailRequest: {
             stage?: components["schemas"]["EnquiryStageEnum"];
             assigned_to?: number | null;
@@ -1538,6 +2030,28 @@ export interface components {
             query?: string;
             /** Daily email */
             alerts?: boolean;
+        };
+        Photo: {
+            public_id: string;
+            width: number | null;
+            height: number | null;
+            url: string;
+        };
+        /** @description A signed direct-upload result from Cloudinary (target "team"). */
+        PhotoUpload: {
+            public_id: string;
+            version: number;
+            signature: string;
+            width?: number | null;
+            height?: number | null;
+        };
+        /** @description A signed direct-upload result from Cloudinary (target "team"). */
+        PhotoUploadRequest: {
+            public_id: string;
+            version: number;
+            signature: string;
+            width?: number | null;
+            height?: number | null;
         };
         PostDetail: {
             slug: string;
@@ -1734,8 +2248,15 @@ export interface components {
         PropertyType: {
             name: string;
             slug: string;
-            category: components["schemas"]["CategoryEnum"];
+            category: components["schemas"]["PropertyTypeCategoryEnum"];
         };
+        /**
+         * @description * `residential` - Residential
+         *     * `commercial` - Commercial
+         *     * `land` - Land
+         * @enum {string}
+         */
+        PropertyTypeCategoryEnum: "residential" | "commercial" | "land";
         /**
          * @description * `mortgage` - Mortgage or bank loan
          *     * `sale` - Selling
@@ -1774,9 +2295,32 @@ export interface components {
          * @description * `blog` - blog
          *     * `projects` - projects
          *     * `properties` - properties
+         *     * `team` - team
          * @enum {string}
          */
-        TargetEnum: "blog" | "projects" | "properties";
+        TargetEnum: "blog" | "projects" | "properties" | "team";
+        TeamMember: {
+            /** Format: uuid */
+            readonly uuid: string;
+            name: string;
+            /** @description e.g. "Registered Valuer" */
+            role: string;
+            bio?: string;
+            readonly photo: components["schemas"]["Photo"] | null;
+            /** @description Shown publicly if set. */
+            email?: string;
+            linkedin_url?: string;
+        };
+        Testimonial: {
+            /** Format: uuid */
+            readonly uuid: string;
+            quote: string;
+            name: string;
+            /** @description e.g. "Landlord, Kilimani" */
+            role?: string;
+            /** @description 1 to 5 stars */
+            rating?: number | null;
+        };
         UnitType: {
             /** @description e.g. 2 Bedroom Apartment */
             name: string;
@@ -2010,6 +2554,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PostDetail"];
+                };
+            };
+        };
+    };
+    careers_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobList"][];
+                };
+            };
+        };
+    };
+    careers_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobDetail"];
+                };
+            };
+        };
+    };
+    content_faqs_list: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated categories, e.g. valuation,general */
+                category?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Faq"][];
+                };
+            };
+        };
+    };
+    content_team_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamMember"][];
+                };
+            };
+        };
+    };
+    content_testimonials_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Testimonial"][];
                 };
             };
         };
@@ -2252,6 +2896,526 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_faqs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardFaq"][];
+                };
+            };
+        };
+    };
+    dashboard_content_faqs_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardFaqRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DashboardFaqRequest"];
+                "multipart/form-data": components["schemas"]["DashboardFaqRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardFaq"];
+                };
+            };
+        };
+    };
+    dashboard_content_faqs_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardFaq"];
+                };
+            };
+        };
+    };
+    dashboard_content_faqs_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_faqs_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardFaqRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardFaqRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardFaqRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardFaq"];
+                };
+            };
+        };
+    };
+    dashboard_content_faqs_reorder_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContentReorderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContentReorderRequest"];
+                "multipart/form-data": components["schemas"]["ContentReorderRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_jobs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardJob"][];
+                };
+            };
+        };
+    };
+    dashboard_content_jobs_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardJobRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DashboardJobRequest"];
+                "multipart/form-data": components["schemas"]["DashboardJobRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardJob"];
+                };
+            };
+        };
+    };
+    dashboard_content_jobs_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardJob"];
+                };
+            };
+        };
+    };
+    dashboard_content_jobs_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_jobs_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardJobRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardJobRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardJobRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardJob"];
+                };
+            };
+        };
+    };
+    dashboard_content_team_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTeamMember"][];
+                };
+            };
+        };
+    };
+    dashboard_content_team_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardTeamMemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DashboardTeamMemberRequest"];
+                "multipart/form-data": components["schemas"]["DashboardTeamMemberRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTeamMember"];
+                };
+            };
+        };
+    };
+    dashboard_content_team_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTeamMember"];
+                };
+            };
+        };
+    };
+    dashboard_content_team_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_team_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardTeamMemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardTeamMemberRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardTeamMemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTeamMember"];
+                };
+            };
+        };
+    };
+    dashboard_content_team_reorder_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContentReorderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContentReorderRequest"];
+                "multipart/form-data": components["schemas"]["ContentReorderRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_testimonials_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTestimonial"][];
+                };
+            };
+        };
+    };
+    dashboard_content_testimonials_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DashboardTestimonialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DashboardTestimonialRequest"];
+                "multipart/form-data": components["schemas"]["DashboardTestimonialRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTestimonial"];
+                };
+            };
+        };
+    };
+    dashboard_content_testimonials_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTestimonial"];
+                };
+            };
+        };
+    };
+    dashboard_content_testimonials_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dashboard_content_testimonials_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDashboardTestimonialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDashboardTestimonialRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDashboardTestimonialRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardTestimonial"];
+                };
+            };
+        };
+    };
+    dashboard_content_testimonials_reorder_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContentReorderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContentReorderRequest"];
+                "multipart/form-data": components["schemas"]["ContentReorderRequest"];
+            };
+        };
         responses: {
             /** @description No response body */
             204: {

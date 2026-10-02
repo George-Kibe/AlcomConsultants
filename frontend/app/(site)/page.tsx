@@ -13,6 +13,7 @@ import { FeaturedProperties } from "@/components/site/featured-properties";
 import { HeroSearch } from "@/components/site/hero-search";
 import { HeroSlideshow } from "@/components/site/hero-slideshow";
 import { ServicesGrid } from "@/components/site/services-grid";
+import { Testimonials } from "@/components/site/testimonials";
 import { heroSlides } from "@/lib/hero-slides";
 import { safely, serverApi } from "@/lib/api/server";
 import type { PropertyListItem } from "@/lib/listings";
@@ -81,7 +82,7 @@ export default async function Home() {
             <p className="mb-3 inline-flex rounded-full bg-black/35 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm">
               Your Property. Our Expertise. Better Results.
             </p>
-            <h1 className="text-3xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-5xl lg:text-8xl">
+            <h1 className="text-3xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-4xl lg:text-8xl">
               From finding the right property to managing, selling and valuing
               it, We’ve got you covered across Kenya.
             </h1>
@@ -146,6 +147,8 @@ export default async function Home() {
           </p>
         </div>
       </section>
+
+      <Testimonials />
 
       <ClientTypes />
 

@@ -154,7 +154,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
         timeout-minutes: 10 # a stalled download/apt mirror once hung CI for an hour
         working-directory: frontend
-      - run: npx playwright test e2e/dashboard.spec.ts e2e/dashboard-listings.spec.ts e2e/dashboard-photos.spec.ts e2e/public-listings.spec.ts e2e/blog.spec.ts e2e/visitor-account.spec.ts e2e/enquiries.spec.ts
+      - run: npx playwright test e2e/dashboard.spec.ts e2e/dashboard-listings.spec.ts e2e/dashboard-photos.spec.ts e2e/public-listings.spec.ts e2e/blog.spec.ts e2e/visitor-account.spec.ts e2e/enquiries.spec.ts e2e/site-content.spec.ts
         working-directory: frontend
       - name: Service logs
         if: failure()

@@ -49,6 +49,7 @@ LOCAL_APPS = [
     "apps.blog",
     "apps.saved",
     "apps.enquiries",
+    "apps.content",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -224,6 +225,8 @@ SPECTACULAR_SETTINGS = {
         "PostStatusEnum": "apps.blog.models.PostStatus",
         "EnquiryKindEnum": "apps.enquiries.models.Kind",
         "EnquiryStageEnum": "apps.enquiries.models.Stage",
+        "FaqCategoryEnum": "apps.content.models.FaqCategory",
+        "EmploymentTypeEnum": "apps.content.models.EmploymentType",
     },
 }
 

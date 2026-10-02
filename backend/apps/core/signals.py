@@ -12,7 +12,8 @@ def is_uploaded_asset(public_id: str) -> bool:
     """Only staff uploads may be deleted; shared site imagery (e.g. demo listings that reuse
     the hero photos) must never be removed from Cloudinary."""
     prefix = settings.CLOUDINARY_FOLDER
-    return public_id.startswith((f"{prefix}/properties/", f"{prefix}/projects/", f"{prefix}/blog/"))
+    folders = ("properties", "projects", "blog", "team")
+    return public_id.startswith(tuple(f"{prefix}/{folder}/" for folder in folders))
 
 
 def schedule_cloudinary_delete(public_id: str, resource_type: str = "image") -> None:
@@ -30,8 +31,14 @@ def remove_post_cover(sender: type[Any], instance: Any, **kwargs: Any) -> None:
         schedule_cloudinary_delete(instance.cover_public_id)
 
 
+def remove_team_photo(sender: type[Any], instance: Any, **kwargs: Any) -> None:
+    if instance.photo_public_id:
+        schedule_cloudinary_delete(instance.photo_public_id)
+
+
 def connect() -> None:
     from apps.blog.models import Post
+    from apps.content.models import TeamMember
     from apps.listings.models import PropertyMedia
     from apps.projects.models import ProjectMedia
 
@@ -42,3 +49,6 @@ def connect() -> None:
             dispatch_uid=f"cloudinary-cleanup-{model.__name__}",
         )
     post_delete.connect(remove_post_cover, sender=Post, dispatch_uid="cloudinary-cleanup-Post")
+    post_delete.connect(
+        remove_team_photo, sender=TeamMember, dispatch_uid="cloudinary-cleanup-TeamMember"
+    )

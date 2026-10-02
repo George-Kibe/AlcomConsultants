@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { CheckCircle2Icon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
 import { EnquiryForm } from "@/components/enquiries/enquiry-form";
 import { CtaBand } from "@/components/site/cta-band";
+import { FaqList, loadFaqs } from "@/components/site/faq-list";
 import { PageHeader } from "@/components/site/page-header";
 import { ServiceIcon } from "@/components/site/service-icon";
 import { Button } from "@/components/ui/button";
 import { services, whatsappLink } from "@/lib/site-config";
 
 export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return services.map((service) => ({ slug: service.slug }));
-}
 
 function getService(slug: string) {
   return services.find((service) => service.slug === slug);
@@ -33,6 +31,8 @@ export default async function ServicePage({
 }: PageProps<"/services/[slug]">) {
   const service = getService((await params).slug);
   if (!service) notFound();
+  await connection(); // FAQs come from the dashboard
+  const faqs = await loadFaqs(service.faqCategories);
 
   const others = services.filter((s) => s.slug !== service.slug);
 
@@ -116,6 +116,19 @@ export default async function ServicePage({
           </nav>
         </aside>
       </section>
+      {faqs.length > 0 && (
+        <section
+          aria-labelledby="service-faqs"
+          className="container-page pb-12 sm:pb-16"
+        >
+          <h2 id="service-faqs" className="mb-4 text-2xl font-bold">
+            Frequently asked questions
+          </h2>
+          <div className="max-w-3xl">
+            <FaqList faqs={faqs} />
+          </div>
+        </section>
+      )}
       <section
         id="enquire"
         aria-labelledby="enquire-title"
