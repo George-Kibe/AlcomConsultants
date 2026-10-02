@@ -7,7 +7,7 @@ export const siteConfig = {
   shortName: "Alcom Consultants",
   tagline: "Registered Valuers • Property Managers • Estate Agents",
   description:
-    "Registered valuers, property managers and estate agents in Westlands, Nairobi, serving clients across Kenya.",
+    "Houses, apartments, land and commercial property for sale and rent in Nairobi and across Kenya. Registered valuers, property managers and estate agents in Westlands, Nairobi.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080",
   contact: {
     phone: "+254 181 943550",

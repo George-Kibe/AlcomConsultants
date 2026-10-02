@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ChevronRightIcon } from "lucide-react";
 
+import { JsonLd } from "@/components/json-ld";
+import { breadcrumbJsonLd } from "@/lib/seo";
+
 type Crumb = { title: string; href?: string };
 
 type PageHeaderProps = {
@@ -22,6 +25,7 @@ export function PageHeader({
 
   return (
     <section className="bg-muted/60 border-b">
+      <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <div className="container-page py-10 sm:py-14">
         <nav aria-label="Breadcrumb" className="mb-4">
           <ol className="text-muted-foreground flex flex-wrap items-center gap-1 text-sm">

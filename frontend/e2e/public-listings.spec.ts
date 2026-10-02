@@ -110,9 +110,11 @@ test("property page", async ({ page }) => {
     .textContent())!.trim();
 
   // Structured data for search engines.
-  const ld = JSON.parse(
-    (await page.locator('script[type="application/ld+json"]').textContent())!,
-  );
+  const blocks = (
+    await page.locator('script[type="application/ld+json"]').allTextContents()
+  ).map((b) => JSON.parse(b));
+  const ld = blocks.find((b) => b["@type"] === "RealEstateListing");
+  expect(blocks.map((b) => b["@type"])).toContain("BreadcrumbList");
   expect(ld).toMatchObject({
     "@type": "RealEstateListing",
     name: VILLA,

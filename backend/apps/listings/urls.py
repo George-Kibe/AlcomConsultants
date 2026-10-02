@@ -6,6 +6,7 @@ from apps.projects.views import ProjectViewSet
 
 from .dashboard import DashboardPropertyViewSet, LookupsView, OverviewView
 from .dashboard_media import PropertyMediaViewSet, UploadSignatureView
+from .seo import LocationPagesView, SitemapView
 from .views import AmenityListView, PropertyTypeListView, PropertyViewSet
 
 router = SimpleRouter(trailing_slash=True)
@@ -24,6 +25,8 @@ urlpatterns = [
     path("amenities/", AmenityListView.as_view(), name="amenities"),
     path("locations/", CountyTreeView.as_view(), name="locations"),
     path("locations/search/", LocationSearchView.as_view(), name="location-search"),
+    path("seo/locations/", LocationPagesView.as_view(), name="seo-locations"),
+    path("seo/sitemap/", SitemapView.as_view(), name="seo-sitemap"),
     path("dashboard/overview/", OverviewView.as_view(), name="dashboard-overview"),
     path("dashboard/lookups/", LookupsView.as_view(), name="dashboard-lookups"),
     path("dashboard/uploads/signature/", UploadSignatureView.as_view(), name="upload-signature"),

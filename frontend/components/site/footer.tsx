@@ -148,6 +148,17 @@ export function Footer() {
           <div className="container-page text-inverse-muted flex flex-col gap-3 py-6 text-sm sm:flex-row sm:items-center sm:justify-between">
             <p>
               © {year} {siteConfig.name}. All rights reserved.
+              <span className="block sm:mt-1">
+                Developed by{" "}
+                <a
+                  href="https://www.realhiveconsultants.com/"
+                  target="_blank"
+                  rel="noopener"
+                  className={`font-medium underline underline-offset-4 ${linkClass}`}
+                >
+                  Realhive Consultants
+                </a>
+              </span>
             </p>
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {legalNav.map((item) => (

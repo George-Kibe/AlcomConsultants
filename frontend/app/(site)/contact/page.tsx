@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/site/page-header";
 import { siteConfig, telLink, whatsappLink } from "@/lib/site-config";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact us",
   description: `Contact ${siteConfig.name} by WhatsApp, phone or email about buying, renting, managing or valuing property.`,
 };

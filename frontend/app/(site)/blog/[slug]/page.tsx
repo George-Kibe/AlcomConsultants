@@ -38,6 +38,8 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: `/blog/${post.slug}` },
+    // Demo articles stay out of search engines.
+    ...(post.is_demo && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,

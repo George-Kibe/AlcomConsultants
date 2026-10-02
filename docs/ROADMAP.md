@@ -59,7 +59,8 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 ### Phase 5: Content and SEO
 - [x] Blog/Insights (TipTap editor): done in 2f
 - [x] **5a** Team, Testimonials, FAQs and Careers, editable in Dashboard → Site content (add, edit, reorder, show/hide; team photos via signed uploads). Team on About; testimonials on Home and About; FAQs on Contact and, by category, on each service page (the old hard-coded FAQs were migrated); `/careers` with apply-by-email and JobPosting structured data; every section hides itself when empty
-- SEO location landing pages, sitemap, robots, schema.org, Open Graph images
+- [x] **5b** SEO (docs/SEO.md): location landing pages (`/property-for-sale|rent/<place>`, `/commercial-property-to-let/<place>`), dynamic sitemap.xml, robots with sitemap, schema.org (RealEstateAgent, WebSite search box, BreadcrumbList, FAQPage, ItemList, JobPosting, alongside the existing RealEstateListing and BlogPosting), canonical URLs everywhere, default share image, keyword-led home title, "Browse by location" internal links; demo data noindexed and kept out of the sitemap; "Developed by Realhive Consultants" in the footer
+- [ ] Indexing switched on (`SITE_ENV=production`) once 5b is deployed; owner submits the sitemap in Search Console
 - Cookie consent + GA4 + Search Console
 
 ### Phase 6: Hardening and launch

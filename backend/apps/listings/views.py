@@ -67,7 +67,7 @@ class PropertyViewSet(viewsets.ReadOnlyModelViewSet[Property]):
         if self.action == "retrieve":
             return (
                 base.visible()
-                .select_related("agent", "project")
+                .select_related("agent", "project", "created_by")
                 .prefetch_related("amenities", "media")
             )
         images = PropertyMedia.objects.filter(kind=MediaKind.IMAGE).order_by("order", "id")
