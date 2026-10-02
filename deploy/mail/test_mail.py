@@ -2,11 +2,14 @@
 """End-to-end checks for the mail server (standard library only).
 
 Local:  ./local.sh test
-Live:   MAIL_TEST_PASSWORD=... [MAIL_TEST_EXTERNAL_TO=you@gmail.com] python3 test_mail.py
+Live:   MAIL_TEST_INFO_PASSWORD=... MAIL_TEST_NOREPLY_PASSWORD=... \
+          [MAIL_TEST_EXTERNAL_TO=you@gmail.com] python3 test_mail.py
+        (MAIL_TEST_PASSWORD sets both at once; MAIL_TEST_SKIP_RELAY=1 when running on the
+        mail server itself, where port 25 traffic comes from a trusted address)
 
 Checks: authenticated sending on 465 (implicit TLS; Mailu keeps 587/STARTTLS off), delivery to an IMAP inbox,
 DKIM signing, wrong passwords rejected, no open relay on port 25, viruses rejected,
-and (live) a valid certificate. MAIL_TEST_PASSWORD is the password of info@ and noreply@.
+and (live) a valid certificate.
 """
 
 import imaplib
@@ -20,7 +23,12 @@ from email.message import EmailMessage
 
 DOMAIN = "alcomconsultants.co.ke"
 HOST = os.environ.get("MAIL_TEST_HOST", f"mail.{DOMAIN}")
-PASSWORD = os.environ["MAIL_TEST_PASSWORD"]
+PASSWORD = os.environ.get("MAIL_TEST_PASSWORD", "")
+# Separate passwords per mailbox (as setup.sh creates them); default: MAIL_TEST_PASSWORD.
+PASSWORDS = {
+    f"info@{DOMAIN}": os.environ.get("MAIL_TEST_INFO_PASSWORD", PASSWORD),
+    f"noreply@{DOMAIN}": os.environ.get("MAIL_TEST_NOREPLY_PASSWORD", PASSWORD),
+}
 SMTP, SMTPS, IMAPS = map(int, os.environ.get("MAIL_TEST_PORTS", "25,465,993").split(","))
 EXTERNAL_TO = os.environ.get("MAIL_TEST_EXTERNAL_TO")
 EICAR = r"X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
@@ -50,9 +58,9 @@ def message(sender, to, subject, body="Test message from test_mail.py"):
     return msg
 
 
-def submit(msg, user, password=PASSWORD):
+def submit(msg, user, password=None):
     with smtplib.SMTP_SSL(HOST, SMTPS, context=TLS, timeout=30) as s:
-        s.login(user, password)
+        s.login(user, password or PASSWORDS[user])
         s.send_message(msg)
 
 
@@ -61,7 +69,7 @@ def wait_for(user, subject, timeout=90):
     deadline = time.time() + timeout
     while time.time() < deadline:
         with imaplib.IMAP4_SSL(HOST, IMAPS, ssl_context=TLS) as imap:
-            imap.login(user, PASSWORD)
+            imap.login(user, PASSWORDS[user])
             imap.select("INBOX")
             _, ids = imap.search(None, "SUBJECT", f'"{subject}"')
             if ids[0]:
@@ -125,7 +133,12 @@ def external():
 print(f"Mail server: {HOST}")
 check("send on 465 + IMAP delivery on 993", delivery)
 check("wrong password rejected", wrong_password)
-check("not an open relay (port 25)", no_open_relay)
+if os.environ.get("MAIL_TEST_INSECURE") or os.environ.get("MAIL_TEST_SKIP_RELAY"):
+    # Locally (and on the server itself), Docker forwards 127.0.0.1 through its gateway, an address Mailu trusts, so
+    # this can't be judged here. The live run checks it from outside.
+    print("SKIP  not an open relay (port 25): run this check from another machine")
+else:
+    check("not an open relay (port 25)", no_open_relay)
 check("virus attachment rejected", virus_rejected)
 if not os.environ.get("MAIL_TEST_INSECURE"):
     check("trusted TLS certificate", certificate)

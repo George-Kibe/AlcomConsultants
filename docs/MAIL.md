@@ -20,7 +20,7 @@ Self-hosted email for `@alcomconsultants.co.ke` using [Mailu](https://mailu.io) 
 
 ## DNS
 
-Records at the registrar's DNS (rcnoc nameservers). Check them with `dig +short <type> <name>`.
+DNS is managed in **Cloudflare** (since 2026-10-02). Every mail record must be **DNS only (grey cloud)**: Cloudflare's proxy carries only web traffic, so a proxied `mail` record breaks SMTP and IMAP. (Cloudflare then also swaps the MX target for a `_dc-mx…` placeholder.) The website's own `@` and `www` records stay proxied, with SSL mode **Full (strict)**. Check the records with `dig +short <type> <name> @1.1.1.1`.
 
 | Type | Name | Value |
 |---|---|---|
@@ -29,7 +29,7 @@ Records at the registrar's DNS (rcnoc nameservers). Check them with `dig +short 
 | TXT | `@` | `v=spf1 mx ~all` (move to `-all` once mail has flowed cleanly for a few weeks) |
 | TXT | `dkim._domainkey` | `v=DKIM1; k=rsa; p=…` (public key below) |
 | TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:admin@alcomconsultants.co.ke` (move to `p=quarantine` after reviewing a few weeks of reports) |
-| CNAME | `autoconfig` | `mail.alcomconsultants.co.ke` (optional: lets Thunderbird and similar clients set themselves up) |
+| CNAME | `autoconfig` | `mail.alcomconsultants.co.ke`, DNS only (optional: lets Thunderbird and similar clients set themselves up) |
 
 The VPS provider must also set **reverse DNS (PTR)** for `178.162.254.192` to `mail.alcomconsultants.co.ke`. Gmail and Outlook reject or spam-folder mail from IPs without a matching PTR.
 
@@ -84,11 +84,29 @@ cd deploy/mail
 ./local.sh down    # add -v to delete the local mail data
 ```
 
-**Live**, from anywhere:
+**Live**, on the server, reading the passwords from the credentials file. They are never printed. The relay check is skipped there, because port 25 traffic from the server itself comes from a trusted address:
 
 ```bash
-MAIL_TEST_PASSWORD='<info@ and noreply@ password>' MAIL_TEST_EXTERNAL_TO=you@gmail.com python3 deploy/mail/test_mail.py
+cd /opt/alcom/deploy/mail
+MAIL_TEST_INFO_PASSWORD="$(awk '/^info@/{print $2}' /root/mail-credentials.txt)" \
+MAIL_TEST_NOREPLY_PASSWORD="$(awk '/^noreply@/{print $2}' /root/mail-credentials.txt)" \
+MAIL_TEST_SKIP_RELAY=1 MAIL_TEST_EXTERNAL_TO=you@gmail.com python3 test_mail.py
 ```
+
+Then check from another machine that the server is **not an open relay**. Each line stops at the recipient check, so nothing is sent:
+
+```bash
+python3 -c "
+import smtplib
+s = smtplib.SMTP('mail.alcomconsultants.co.ke', 25); s.ehlo('probe.example'); s.starttls(); s.ehlo('probe.example')
+s.mail('tester@gmail.com'); print(s.rcpt('someone@outlook.com'))   # expect 554 Relay access denied
+s.rset(); s.mail('tester@gmail.com'); print(s.rcpt('info@alcomconsultants.co.ke'))   # expect 250 Ok
+"
+```
+
+For an independent authentication report, send any message from `noreply@` to `check-auth@verifier.port25.com`. The reply, which comes back to `noreply@`, lists SPF, DKIM and reverse DNS ("iprev") results.
+
+Locally the relay check is skipped. Docker forwards `127.0.0.1` through its network gateway, an address Mailu trusts, so the check can't be judged on a laptop. Production publishes the mail ports on IPv4 only (`0.0.0.0`), so the same effect can't happen over IPv6 there.
 
 Then open the message in Gmail → ⋮ → *Show original*. SPF, DKIM and DMARC should all read **PASS**. [mail-tester.com](https://www.mail-tester.com) gives a deliverability score.
 
@@ -106,4 +124,6 @@ Then open the message in Gmail → ⋮ → *Show original*. SPF, DKIM and DMARC 
 | Gmail puts mail in spam or rejects it | PTR set? `dig +short -x 178.162.254.192` should return `mail.alcomconsultants.co.ke.`. Check SPF/DKIM/DMARC in *Show original* and the IP on blocklists (mxtoolbox.com). |
 | No incoming mail | `dig +short MX alcomconsultants.co.ke`; port 25 reachable from outside (`nc -vz mail.alcomconsultants.co.ke 25`); `docker compose logs smtp`. |
 | Mail clients complain about the certificate | `docker compose logs front`; the cert exists in `edge_letsencrypt` at `live/mail.alcomconsultants.co.ke/`. |
-| Website emails fail | Check `EMAIL_*` in `/opt/alcom/.env`, then `docker compose -f compose.yaml -f compose.prod.yaml logs backend worker`. The noreply@ account must exist and not be rate-limited (`MESSAGE_RATELIMIT` in `mailu.env`). |
+| Website emails fail | Check `EMAIL_*` in `/opt/alcom/.env`, then `docker compose -f compose.yaml -f compose.prod.yaml logs backend worker`. The noreply@ account must exist and not be rate-limited (`MESSAGE_RATELIMIT` in `mailu.env`). `DEFAULT_FROM_EMAIL` must be `noreply@…`, the mailbox the site signs in as: Mailu rejects other senders. |
+| Webmail: TLS "internal error"; edge log says `cannot load certificate … Permission denied` | The webmail vhost loads its certificate in an Nginx worker (uid/gid 101). Run `deploy/edge/cert-permissions.sh`. `setup.sh` and `renew-certs.sh` run it automatically. |
+| Gmail accepts (`250 OK` in `docker compose logs smtp`) but the mail never shows up | Usually missing reverse DNS on a new server. Check the PTR, and use the Port25 report above. |

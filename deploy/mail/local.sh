@@ -19,7 +19,7 @@ case "${1:-}" in
     docker run --rm -v mail-local-certs:/certs alpine:3.22 sh -c "
       apk add -q openssl >/dev/null; d=/certs/live/$HOST; mkdir -p \$d
       [ -f \$d/fullchain.pem ] || openssl req -x509 -newkey rsa:2048 -nodes -days 30 \
-        -subj /CN=$HOST -keyout \$d/privkey.pem -out \$d/fullchain.pem 2>/dev/null"
+        -subj /CN=$HOST -addext subjectAltName=DNS:$HOST -keyout \$d/privkey.pem -out \$d/fullchain.pem 2>/dev/null"
     # DKIM key (on the server it is created the same way, see docs/MAIL.md).
     docker run --rm -v mail-local_dkim:/dkim alpine:3.22 sh -c "
       apk add -q openssl >/dev/null; f=/dkim/alcomconsultants.co.ke.dkim.key
