@@ -13,10 +13,10 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.blog.models import Post, PostStatus
+from apps.core.demo import DEMO_EMAIL
 from apps.listings.models import Amenity, Property, PropertyMedia, PropertyType, Status
 from apps.locations.models import Area
 
-DEMO_EMAIL = "demo-data@alcom.invalid"
 SITE = "alcom_images/site"
 PHOTOS = {
     "villa": [

@@ -140,3 +140,9 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Pages that show this content render per request (`connection()`), so dashboard edits appear immediately without a rebuild.
 - Ordering uses Move up / Move down buttons rather than drag and drop: it works the same with a keyboard and on phones.
 
+## SEO (Phase 5b, 2026-10-03)
+- Owner's choices: index the site as soon as 5b is deployed; keep the demo data for now, but mark it `noindex` and keep it out of the sitemap (fake listings must not reach Google); GA4 follows in 5c with the owner's Measurement ID.
+- Location landing pages exist for every county and area with active listings, but are only indexed once they have a real (non-demo) listing, so Google never sees thin or demo-only pages.
+- Location URLs use plain, searchable words (`/property-for-rent/kilimani`) rather than query strings, and property breadcrumbs link to them to strengthen internal linking.
+- The sitemap is generated per request, so new listings and articles appear in it straight away.
+

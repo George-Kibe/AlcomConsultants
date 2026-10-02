@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { HomeIcon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
+import { PopularLocations } from "@/components/listings/popular-locations";
 import { SaveSearchButton } from "@/components/listings/save-search-button";
 import { SearchFilters } from "@/components/listings/search-filters";
 import { SearchMapLoader } from "@/components/listings/search-map-loader";
@@ -164,6 +165,7 @@ export default async function PropertiesPage({
           </>
         )}
       </section>
+      <PopularLocations />
     </>
   );
 }

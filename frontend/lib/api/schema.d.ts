@@ -1051,6 +1051,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/seo/locations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Location landing pages (e.g. property for rent in Kilimani), busiest first. */
+        get: operations["seo_locations_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/seo/sitemap/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Everything worth listing in sitemap.xml. Demo listings and articles are left out. */
+        get: operations["seo_sitemap_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1698,6 +1732,26 @@ export interface components {
          * @enum {string}
          */
         LocationMatchKindEnum: "county" | "area" | "neighbourhood";
+        LocationPage: {
+            deal: string;
+            kind: components["schemas"]["LocationPageKindEnum"];
+            slug: string;
+            name: string;
+            county: string;
+            county_slug: string;
+            /** @description Active listings, demo included */
+            listings: number;
+            /** @description Active listings, demo excluded */
+            real_listings: number;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        /**
+         * @description * `county` - county
+         *     * `area` - area
+         * @enum {string}
+         */
+        LocationPageKindEnum: "county" | "area";
         Lookups: {
             property_types: components["schemas"]["_Choice"][];
             amenities: components["schemas"]["_Choice"][];
@@ -2067,6 +2121,8 @@ export interface components {
             seo_description?: string;
             /** Format: date-time */
             readonly updated_at: string;
+            /** @description Demo content: keep out of search. */
+            readonly is_demo: boolean;
         };
         PostList: {
             slug: string;
@@ -2183,6 +2239,8 @@ export interface components {
             seo_description?: string;
             /** Format: date-time */
             readonly updated_at: string;
+            /** @description Demo listing: keep out of search. */
+            readonly is_demo: boolean;
         };
         PropertyList: {
             readonly reference: string | null;
@@ -2290,6 +2348,17 @@ export interface components {
             query: string;
             /** Daily email */
             alerts?: boolean;
+        };
+        Sitemap: {
+            properties: components["schemas"]["SitemapEntry"][];
+            posts: components["schemas"]["SitemapEntry"][];
+            jobs: components["schemas"]["SitemapEntry"][];
+            locations: components["schemas"]["LocationPage"][];
+        };
+        SitemapEntry: {
+            slug: string;
+            /** Format: date-time */
+            updated_at: string;
         };
         /**
          * @description * `blog` - blog
@@ -4620,6 +4689,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PropertyType"][];
+                };
+            };
+        };
+    };
+    seo_locations_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LocationPage"][];
+                };
+            };
+        };
+    };
+    seo_sitemap_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sitemap"];
                 };
             };
         };

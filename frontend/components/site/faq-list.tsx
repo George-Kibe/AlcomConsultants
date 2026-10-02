@@ -4,7 +4,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { JsonLd } from "@/components/json-ld";
 import { safely, serverApi } from "@/lib/api/server";
+import { faqJsonLd } from "@/lib/seo";
 
 export type FaqItem = { uuid: string; question: string; answer: string };
 
@@ -20,21 +22,24 @@ export async function loadFaqs(category?: string): Promise<FaqItem[]> {
 
 export function FaqList({ faqs }: { faqs: FaqItem[] }) {
   return (
-    <Accordion
-      type="single"
-      collapsible
-      className="bg-card rounded-2xl border px-5"
-    >
-      {faqs.map((faq) => (
-        <AccordionItem key={faq.uuid} value={faq.uuid}>
-          <AccordionTrigger className="py-4 text-base">
-            {faq.question}
-          </AccordionTrigger>
-          <AccordionContent className="text-muted-foreground text-base whitespace-pre-line">
-            {faq.answer}
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
+    <>
+      <JsonLd data={faqJsonLd(faqs)} />
+      <Accordion
+        type="single"
+        collapsible
+        className="bg-card rounded-2xl border px-5"
+      >
+        {faqs.map((faq) => (
+          <AccordionItem key={faq.uuid} value={faq.uuid}>
+            <AccordionTrigger className="py-4 text-base">
+              {faq.question}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground text-base whitespace-pre-line">
+              {faq.answer}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </>
   );
 }

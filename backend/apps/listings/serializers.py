@@ -3,6 +3,7 @@ from typing import Any
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.core.demo import is_demo
 from apps.core.media import MediaKind
 from apps.core.serializers import MediaSerializer
 
@@ -122,6 +123,7 @@ class PropertyListSerializer(serializers.ModelSerializer[Property]):
 
 
 class PropertyDetailSerializer(PropertyListSerializer):
+    is_demo = serializers.SerializerMethodField(help_text="Demo listing: keep out of search.")
     amenities = AmenitySerializer(many=True, read_only=True)
     media = MediaSerializer(many=True, read_only=True)
     agent = AgentSerializer(read_only=True, allow_null=True)
@@ -141,6 +143,7 @@ class PropertyDetailSerializer(PropertyListSerializer):
             "seo_title",
             "seo_description",
             "updated_at",
+            "is_demo",
         ]
 
     @extend_schema_field(
@@ -153,6 +156,9 @@ class PropertyDetailSerializer(PropertyListSerializer):
     def get_project(self, obj: Property) -> dict[str, str] | None:
         p = obj.project
         return {"name": p.name, "slug": p.slug} if p and p.is_published else None
+
+    def get_is_demo(self, obj: Property) -> bool:
+        return is_demo(obj)
 
 
 class MapPointSerializer(serializers.ModelSerializer[Property]):

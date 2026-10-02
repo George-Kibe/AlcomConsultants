@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import {
@@ -12,7 +13,10 @@ import { CtaBand } from "@/components/site/cta-band";
 import { FeaturedProperties } from "@/components/site/featured-properties";
 import { HeroSearch } from "@/components/site/hero-search";
 import { HeroSlideshow } from "@/components/site/hero-slideshow";
+import { JsonLd } from "@/components/json-ld";
+import { PopularLocations } from "@/components/listings/popular-locations";
 import { ServicesGrid } from "@/components/site/services-grid";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { Testimonials } from "@/components/site/testimonials";
 import { heroSlides } from "@/lib/hero-slides";
 import { safely, serverApi } from "@/lib/api/server";
@@ -41,6 +45,15 @@ const reasons = [
   },
 ];
 
+export const metadata: Metadata = {
+  // Absolute: the home page leads with what people search for.
+  title: {
+    absolute:
+      "Property for Sale & Rent in Kenya | Alcom Consultants: Valuers & Estate Agents",
+  },
+  alternates: { canonical: "/" },
+};
+
 const FEATURED_COUNT = 6;
 
 /** Featured listings, topped up with the newest ones; empty if the API is unavailable. */
@@ -68,6 +81,8 @@ export default async function Home() {
   const listings = await homeListings();
   return (
     <>
+      <JsonLd data={organizationJsonLd()} />
+      <JsonLd data={websiteJsonLd()} />
       <section className="bg-brand-navy relative isolate overflow-hidden text-white">
         <HeroSlideshow
           slides={heroSlides}
@@ -143,6 +158,8 @@ export default async function Home() {
           </p>
         </div>
       </section>
+
+      <PopularLocations />
 
       <Testimonials />
 

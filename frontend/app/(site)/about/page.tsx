@@ -21,6 +21,7 @@ import { Testimonials } from "@/components/site/testimonials";
 import { alliedServices, siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
   title: "About us",
   description: `${siteConfig.name} is a Kenyan firm of registered valuers, property managers and estate agents, based in Westlands, Nairobi.`,
 };

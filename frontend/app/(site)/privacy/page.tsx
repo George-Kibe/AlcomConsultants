@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/legal-page";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "Privacy Policy",
   description:
     "How Alcom Consultants collects, uses and protects your personal data under the Kenya Data Protection Act, 2019.",

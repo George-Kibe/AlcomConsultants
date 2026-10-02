@@ -7,8 +7,13 @@ export default function robots(): MetadataRoute.Robots {
   const isProduction = process.env.NEXT_PUBLIC_SITE_ENV === "production";
   return {
     rules: isProduction
-      ? { userAgent: "*", allow: "/", disallow: ["/api/", "/dashboard/"] }
+      ? {
+          userAgent: "*",
+          allow: "/",
+          disallow: ["/api/", "/dashboard/", "/account/"],
+        }
       : { userAgent: "*", disallow: "/" },
     host: siteConfig.url,
+    ...(isProduction && { sitemap: `${siteConfig.url}/sitemap.xml` }),
   };
 }

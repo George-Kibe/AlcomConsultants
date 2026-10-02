@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/site/page-header";
 import { ServicesGrid } from "@/components/site/services-grid";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/services" },
   title: "Services",
   description:
     "Property agency, property management and property valuations across Kenya from Alcom Consultants.",

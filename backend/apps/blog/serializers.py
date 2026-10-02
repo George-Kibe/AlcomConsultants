@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.core import media
+from apps.core.demo import is_demo
 
 from .models import Post, PostStatus
 
@@ -53,6 +54,8 @@ class PostListSerializer(serializers.ModelSerializer[Post]):
 
 
 class PostDetailSerializer(PostListSerializer):
+    is_demo = serializers.SerializerMethodField(help_text="Demo content: keep out of search.")
+
     class Meta(PostListSerializer.Meta):
         fields = [
             *PostListSerializer.Meta.fields,
@@ -60,7 +63,11 @@ class PostDetailSerializer(PostListSerializer):
             "seo_title",
             "seo_description",
             "updated_at",
+            "is_demo",
         ]
+
+    def get_is_demo(self, post: Post) -> bool:
+        return is_demo(post)
 
 
 # ------------------------------------------------------------------ dashboard

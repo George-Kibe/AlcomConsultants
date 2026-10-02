@@ -19,6 +19,7 @@ import {
 import { WhatsAppIcon } from "@/components/icons";
 import { AmenityIcon } from "@/components/listings/amenity-icon";
 import { EnquiryForm } from "@/components/enquiries/enquiry-form";
+import { JsonLd } from "@/components/json-ld";
 import { FavouriteButton } from "@/components/listings/favourite-button";
 import { Gallery } from "@/components/listings/gallery";
 import { LocationMapLoader } from "@/components/listings/location-map-loader";
@@ -37,6 +38,7 @@ import {
   paragraphs,
   videoEmbed,
 } from "@/lib/listings";
+import { DEALS, breadcrumbJsonLd, type Deal } from "@/lib/seo";
 import { siteConfig, telLink, whatsappLink } from "@/lib/site-config";
 
 const DEAL_LABEL: Record<string, string> = {
@@ -77,6 +79,8 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: `/properties/${p.slug}` },
+    // Demo listings stay out of search engines.
+    ...(p.is_demo && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
@@ -122,6 +126,10 @@ export default async function PropertyPage({
   const contactPhone = p.agent?.phone || siteConfig.contact.phone;
   const enquiry = `Hello Alcom, I'm interested in ${p.reference}: ${p.title} (${pageUrl})`;
   const closed = p.status ? CLOSED[p.status] : undefined;
+  // Active listings link to their location page; sold/let ones to the search.
+  const areaHref = closed
+    ? `/properties?county=${p.location.county_slug}&area=${p.location.area_slug}&where=${encodeURIComponent(`${p.location.area}, ${p.location.county}`)}`
+    : `${DEALS[p.deal_type as Deal].path}/${p.location.area_slug}`;
 
   const facts: { icon: LucideIcon; label: string; value: string }[] = [
     { icon: HomeIcon, label: "Type", value: p.property_type.name },
@@ -192,6 +200,14 @@ export default async function PropertyPage({
         }}
       />
 
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { title: "Home", href: "/" },
+          { title: "Properties", href: "/properties" },
+          { title: p.location.area, href: areaHref },
+          { title: p.title },
+        ])}
+      />
       <nav aria-label="Breadcrumb">
         <ol className="text-muted-foreground flex flex-wrap items-center gap-1 text-sm">
           <li>
@@ -207,10 +223,7 @@ export default async function PropertyPage({
           </li>
           <li className="flex items-center gap-1">
             <ChevronRightIcon className="size-3.5" aria-hidden />
-            <Link
-              href={`/properties?county=${p.location.county_slug}&area=${p.location.area_slug}&where=${encodeURIComponent(`${p.location.area}, ${p.location.county}`)}`}
-              className="hover:text-foreground"
-            >
+            <Link href={areaHref} className="hover:text-foreground">
               {p.location.area}
             </Link>
           </li>

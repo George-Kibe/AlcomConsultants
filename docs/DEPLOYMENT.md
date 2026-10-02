@@ -177,7 +177,8 @@ dc restart frontend
 dc exec backend python manage.py shell
 (cd deploy/edge && docker compose logs -f nginx)
 ```
-
+ create a superuser
+ ```docker exec -it alcom-prod-backend-1 python3 manage.py createsuperuser```
 ## Troubleshooting
 | Symptom | Check |
 |---|---|
