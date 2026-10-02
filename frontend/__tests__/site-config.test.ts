@@ -4,6 +4,10 @@ import { isActive } from "@/components/site/nav-links";
 import { services, siteConfig, telLink, whatsappLink } from "@/lib/site-config";
 
 describe("whatsappLink", () => {
+  test("every WhatsApp chat goes to +254 181 943550", () => {
+    expect(siteConfig.contact.whatsapp).toBe("254181943550");
+  });
+
   test("links to the business number", () => {
     expect(whatsappLink()).toBe(`https://wa.me/${siteConfig.contact.whatsapp}`);
   });

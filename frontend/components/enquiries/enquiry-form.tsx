@@ -310,39 +310,39 @@ export function EnquiryForm({
       </Field>
 
       {(kind === "valuation" || kind === "management") && (
-        <>
-          <Field id={f("type")} label="Type of property">
-            <Select value={propertyType} onValueChange={setPropertyType}>
-              <SelectTrigger id={f("type")} className="h-11 w-full">
-                <SelectValue placeholder="Choose…" />
-              </SelectTrigger>
-              <SelectContent>
-                {PROPERTY_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field
+        <Field id={f("type")} label="Type of property">
+          <Select value={propertyType} onValueChange={setPropertyType}>
+            <SelectTrigger id={f("type")} className="h-11 w-full">
+              <SelectValue placeholder="Choose…" />
+            </SelectTrigger>
+            <SelectContent>
+              {PROPERTY_TYPES.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+      )}
+      {(kind === "valuation" || kind === "management" || kind === "survey") && (
+        <Field
+          id={f("location")}
+          label={kind === "survey" ? "Where is the land?" : "Where is it?"}
+          error={err("location")}
+          hint="Area and county, e.g. Kitengela, Kajiado"
+        >
+          <Input
             id={f("location")}
-            label="Where is it?"
-            error={err("location")}
-            hint="Area and county, e.g. Kitengela, Kajiado"
-          >
-            <Input
-              id={f("location")}
-              name="location"
-              required
-              aria-invalid={!!err("location")}
-              aria-describedby={
-                describedBy("location") ?? `${f("location")}-hint`
-              }
-              className="h-11"
-            />
-          </Field>
-        </>
+            name="location"
+            required
+            aria-invalid={!!err("location")}
+            aria-describedby={
+              describedBy("location") ?? `${f("location")}-hint`
+            }
+            className="h-11"
+          />
+        </Field>
       )}
       {kind === "valuation" && (
         <Field
@@ -384,7 +384,11 @@ export function EnquiryForm({
 
       <Field
         id={f("message")}
-        label={kind === "contact" ? "How can we help?" : "Message (optional)"}
+        label={
+          kind === "contact" || kind === "assets"
+            ? "How can we help?"
+            : "Message (optional)"
+        }
         error={err("message")}
         className={compact ? undefined : "sm:col-span-2"}
       >
@@ -394,7 +398,7 @@ export function EnquiryForm({
           rows={compact ? 3 : 5}
           maxLength={3000}
           defaultValue={defaultMessage}
-          required={kind === "contact"}
+          required={kind === "contact" || kind === "assets"}
           aria-invalid={!!err("message")}
           aria-describedby={describedBy("message")}
         />
