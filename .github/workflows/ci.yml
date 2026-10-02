@@ -215,5 +215,6 @@ jobs:
             APP_VERSION=${{ steps.img.outputs.version }}
             NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL || 'https://alcomconsultants.co.ke' }}
             NEXT_PUBLIC_SITE_ENV=${{ vars.SITE_ENV || 'staging' }}
+            NEXT_PUBLIC_GA_ID=${{ vars.GA_MEASUREMENT_ID }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend

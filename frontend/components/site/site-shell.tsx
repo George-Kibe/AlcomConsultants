@@ -1,3 +1,4 @@
+import { CookieConsent } from "@/components/site/cookie-consent";
 import { Footer } from "@/components/site/footer";
 import { Header } from "@/components/site/header";
 import { SiteProviders } from "@/components/site/providers";
@@ -19,6 +20,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       </main>
       <Footer />
       <WhatsAppFab />
+      <CookieConsent />
     </SiteProviders>
   );
 }
