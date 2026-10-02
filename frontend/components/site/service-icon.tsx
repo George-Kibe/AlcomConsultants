@@ -1,7 +1,9 @@
 import {
   BuildingIcon,
   KeyRoundIcon,
+  LandPlotIcon,
   ScaleIcon,
+  TagsIcon,
   type LucideProps,
 } from "lucide-react";
 
@@ -11,6 +13,8 @@ const icons = {
   "property-agency": KeyRoundIcon,
   "property-management": BuildingIcon,
   "property-valuations": ScaleIcon,
+  "asset-management": TagsIcon,
+  "land-survey": LandPlotIcon,
 } satisfies Record<Service["slug"], unknown>;
 
 export function ServiceIcon({

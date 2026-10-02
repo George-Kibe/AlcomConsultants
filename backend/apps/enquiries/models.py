@@ -23,6 +23,8 @@ class Kind(models.TextChoices):
     CONTACT = "contact", "General enquiry"
     VALUATION = "valuation", "Valuation request"
     MANAGEMENT = "management", "Property management"
+    ASSETS = "assets", "Asset management"
+    SURVEY = "survey", "Land survey"
 
 
 class Stage(models.TextChoices):

@@ -109,9 +109,10 @@ class EnquirySerializer(serializers.ModelSerializer[Enquiry]):
         errors: dict[str, str] = {}
         if kind == Kind.LISTING and not attrs.get("property"):
             errors["property"] = "Choose the property you're asking about."
-        if kind in (Kind.VALUATION, Kind.MANAGEMENT) and not attrs.get("location", "").strip():
+        located = (Kind.VALUATION, Kind.MANAGEMENT, Kind.SURVEY)
+        if kind in located and not attrs.get("location", "").strip():
             errors["location"] = "Tell us where the property is."
-        if kind == Kind.CONTACT and len(attrs.get("message", "")) < 10:
+        if kind in (Kind.CONTACT, Kind.ASSETS) and len(attrs.get("message", "")) < 10:
             errors["message"] = "Tell us a little about what you need."
         if errors:
             raise serializers.ValidationError(errors)

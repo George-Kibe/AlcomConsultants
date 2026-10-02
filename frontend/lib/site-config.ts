@@ -10,9 +10,9 @@ export const siteConfig = {
     "Registered valuers, property managers and estate agents in Westlands, Nairobi, serving clients across Kenya.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080",
   contact: {
-    phone: "+254 792 616 015",
+    phone: "+254 181 943550",
     altPhone: "+254 716 014 087",
-    whatsapp: "254792616015", // international format, digits only
+    whatsapp: "254181943550", // all WhatsApp chats; international format, digits only
     email: "info@alcomconsultants.co.ke",
     address: "Westlands, Nairobi, Kenya",
     hours: "Mon – Fri: 8:00am – 5:00pm · Sat: 9:00am – 1:00pm",
@@ -44,15 +44,22 @@ export const legalNav: NavItem[] = [
 ];
 
 export type Service = {
-  slug: "property-agency" | "property-management" | "property-valuations";
+  slug:
+    | "property-agency"
+    | "property-management"
+    | "property-valuations"
+    | "asset-management"
+    | "land-survey";
   title: string;
+  /** Short strapline shown on the service page. */
+  tagline?: string;
   summary: string;
   description: string;
   highlights: string[];
   cta: { label: string; href: string };
   /** The enquiry form at the bottom of the service page (#enquire). */
   enquiry: {
-    kind: "contact" | "valuation" | "management";
+    kind: "contact" | "valuation" | "management" | "assets" | "survey";
     title: string;
     intro: string;
   };
@@ -127,9 +134,71 @@ export const services: Service[] = [
         "Tell us what you need valued and why. We'll reply with our fee and the earliest inspection date.",
     },
   },
+  {
+    slug: "asset-management",
+    title: "Asset Tagging, Register Creation & Asset Management",
+    tagline: "Identify • Tag • Value • Register • Manage",
+    summary:
+      "Comprehensive asset management solutions for land, buildings and movable assets, aligned with National Treasury Guidelines.",
+    description:
+      "We help organisations know exactly what they own, where it is and what it is worth. Our team identifies and verifies land, buildings and movable assets, tags each one, values it, and builds a complete asset register aligned with National Treasury Guidelines, so you have a reliable basis for financial reporting, audits, insurance and planning.",
+    highlights: [
+      "Identification and physical verification of land, buildings and movable assets",
+      "Asset tagging with unique identification tags",
+      "Valuation of assets for financial reporting",
+      "Fixed asset register creation and updating",
+      "Asset management in line with National Treasury Guidelines",
+      "Periodic asset verification and reconciliation",
+    ],
+    cta: { label: "Talk to us about your assets", href: "#enquire" },
+    enquiry: {
+      kind: "assets",
+      title: "Talk to us about your assets",
+      intro:
+        "Tell us about your organisation and the assets to tag, value or register. We'll get back to you with a proposal.",
+    },
+  },
+  {
+    slug: "land-survey",
+    title: "Land Survey Services",
+    tagline: "Accurate. Reliable. Professional.",
+    summary:
+      "Comprehensive land surveying solutions including boundary surveys, subdivision, amalgamation, beacon reinstatement, topographical surveys, mutation surveys and land verification.",
+    description:
+      "Accurate surveys protect your investment and keep transactions moving. We carry out boundary, topographical and mutation surveys, subdivide and amalgamate parcels, reinstate missing beacons, and verify land on the ground and against the records, so you know exactly what you own or are buying.",
+    highlights: [
+      "Boundary surveys",
+      "Subdivision and amalgamation",
+      "Beacon reinstatement",
+      "Topographical surveys",
+      "Mutation surveys",
+      "Land verification",
+    ],
+    cta: { label: "Request a survey", href: "#enquire" },
+    enquiry: {
+      kind: "survey",
+      title: "Request a land survey",
+      intro:
+        "Tell us where the land is and what you need surveyed. We'll reply with our fee and the earliest date we can be on site.",
+    },
+  },
 ];
 
-/** Complementary services offered alongside the three core service lines. */
+/** The kinds of clients we serve (About and home pages). */
+export const clientTypes = [
+  { label: "Corporate & Private Companies", icon: "corporate" },
+  { label: "Government Institutions & Parastatals", icon: "government" },
+  { label: "Schools, Universities & Tertiary Institutions", icon: "education" },
+  { label: "Property Owners & Developers", icon: "developers" },
+  { label: "Banks & Financial Institutions", icon: "banks" },
+  { label: "Individual Property Owners & Investors", icon: "individuals" },
+  { label: "Law Firms & Legal Practitioners", icon: "legal" },
+  { label: "Contractors & Construction Companies", icon: "construction" },
+  { label: "Residential & Commercial Property Owners", icon: "owners" },
+  { label: "NGOs & Non-Profit Organisations", icon: "ngos" },
+] as const;
+
+/** Complementary services offered alongside the core service lines. */
 export const alliedServices = [
   "Real estate investment advisory and feasibility studies",
   "Project management and development consultancy",

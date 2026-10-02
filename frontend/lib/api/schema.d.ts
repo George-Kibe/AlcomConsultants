@@ -1129,9 +1129,11 @@ export interface components {
          *     * `contact` - General enquiry
          *     * `valuation` - Valuation request
          *     * `management` - Property management
+         *     * `assets` - Asset management
+         *     * `survey` - Land survey
          * @enum {string}
          */
-        EnquiryKindEnum: "listing" | "contact" | "valuation" | "management";
+        EnquiryKindEnum: "listing" | "contact" | "valuation" | "management" | "assets" | "survey";
         EnquiryList: {
             /** Format: uuid */
             readonly uuid: string;
@@ -2272,8 +2274,10 @@ export interface operations {
                  *     * `contact` - General enquiry
                  *     * `valuation` - Valuation request
                  *     * `management` - Property management
+                 *     * `assets` - Asset management
+                 *     * `survey` - Land survey
                  */
-                kind?: "contact" | "listing" | "management" | "valuation";
+                kind?: "assets" | "contact" | "listing" | "management" | "survey" | "valuation";
                 /** @description Which field to use when ordering the results. */
                 ordering?: string;
                 /** @description A page number within the paginated result set. */

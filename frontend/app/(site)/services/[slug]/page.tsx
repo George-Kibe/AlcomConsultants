@@ -45,6 +45,11 @@ export default async function ServicePage({
       />
       <section className="container-page grid gap-10 py-12 sm:py-16 lg:grid-cols-3">
         <div className="lg:col-span-2">
+          {service.tagline && (
+            <p className="text-success mb-4 text-sm font-semibold tracking-wide uppercase">
+              {service.tagline}
+            </p>
+          )}
           <p className="text-lg leading-relaxed">{service.description}</p>
           <h2 className="mt-10 mb-5 text-2xl font-bold">What we offer</h2>
           <ul className="grid gap-3 sm:grid-cols-2">

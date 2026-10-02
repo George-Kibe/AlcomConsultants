@@ -2,12 +2,20 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const pages = [
-  { path: "/", h1: /We find, manage, sell and value property/ },
+  {
+    path: "/",
+    h1: /From finding the right property to managing, selling and valuing it/,
+  },
   { path: "/properties", h1: "Properties for sale and rent in Kenya" },
   { path: "/services", h1: "Our services" },
   { path: "/services/property-agency", h1: "Estate Agency" },
   { path: "/services/property-management", h1: "Property Management" },
   { path: "/services/property-valuations", h1: "Valuation Services" },
+  {
+    path: "/services/asset-management",
+    h1: "Asset Tagging, Register Creation & Asset Management",
+  },
+  { path: "/services/land-survey", h1: "Land Survey Services" },
   { path: "/about", h1: "About us" },
   { path: "/blog", h1: "Blog" },
   { path: "/account/sign-in", h1: "Sign in" },

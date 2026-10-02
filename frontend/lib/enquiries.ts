@@ -20,6 +20,8 @@ export const KINDS: { value: EnquiryKind; label: string }[] = [
   { value: "contact", label: "General enquiry" },
   { value: "valuation", label: "Valuation request" },
   { value: "management", label: "Property management" },
+  { value: "assets", label: "Asset management" },
+  { value: "survey", label: "Land survey" },
 ];
 
 export const stageLabel = (stage: string) =>

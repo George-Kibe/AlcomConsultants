@@ -147,6 +147,25 @@ def test_kind_specific_rules(api):
     assert (latest.units, latest.purpose) == (12, "")
 
 
+def test_survey_and_asset_management_enquiries(api):
+    survey = send(api, kind="survey", location="", message="Boundary survey please")
+    assert "location" in survey.json()
+    ok = send(api, kind="survey", location="Ruiru, Kiambu", message="", units=3, purpose="sale")
+    assert ok.status_code == 201
+    enquiry = Enquiry.objects.get()
+    assert (enquiry.kind, enquiry.units, enquiry.purpose) == ("survey", None, "")
+    assert "Land survey from Grace Achieng" in mail.outbox[0].subject
+
+    assert "message" in send(api, kind="assets", message="Tags").json()
+    assert send(api, kind="assets", message="Tag and value 400 school assets.").status_code == 201
+
+
+def test_confirmation_uses_the_whatsapp_number(api, settings):
+    send(api)
+    assert f"https://wa.me/{settings.COMPANY_WHATSAPP}" in mail.outbox[1].body
+    assert settings.COMPANY_WHATSAPP == "254181943550"
+
+
 def test_validation(api):
     errors = send(
         api,

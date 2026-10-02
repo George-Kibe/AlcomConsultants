@@ -285,8 +285,8 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # New website enquiries are emailed here (comma-separated); the first also receives replies
 # to the confirmation sent to the visitor.
 ENQUIRY_NOTIFY_EMAILS = env.list("ENQUIRY_NOTIFY_EMAILS", default=["info@alcomconsultants.co.ke"])
-COMPANY_PHONE = "+254 792 616 015"
-COMPANY_WHATSAPP = "254792616015"
+COMPANY_PHONE = "+254 181 943550"
+COMPANY_WHATSAPP = "254181943550"
 
 # ------------------------------------------------------------------ spam protection
 # Cloudflare Turnstile on enquiry forms (docs/ENQUIRIES.md). Without keys the forms rely on

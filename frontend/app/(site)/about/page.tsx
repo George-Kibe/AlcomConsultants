@@ -11,6 +11,7 @@ import {
   UsersIcon,
 } from "lucide-react";
 
+import { ClientTypes } from "@/components/site/client-types";
 import { CtaBand } from "@/components/site/cta-band";
 import { PageHeader } from "@/components/site/page-header";
 import { ServicesGrid } from "@/components/site/services-grid";
@@ -61,9 +62,10 @@ export default function AboutPage() {
             {siteConfig.name} is a registered real estate services firm
             incorporated in the Republic of Kenya. We offer specialised,
             reliable and professional services in property valuation, property
-            management, estate agency and real estate consultancy to individual,
-            corporate and institutional clients across Kenya and the wider East
-            African region.
+            management, estate agency, asset tagging and management, land
+            surveying and real estate consultancy to individual, corporate and
+            institutional clients across Kenya and the wider East African
+            region.
           </p>
           <p>
             The firm is led by registered and experienced professionals,
@@ -153,6 +155,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <ClientTypes id="about-clients" />
+
       <CtaBand />
     </>
   );

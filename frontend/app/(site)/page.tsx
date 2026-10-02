@@ -7,6 +7,7 @@ import {
   MessagesSquareIcon,
 } from "lucide-react";
 
+import { ClientTypes } from "@/components/site/client-types";
 import { CtaBand } from "@/components/site/cta-band";
 import { FeaturedProperties } from "@/components/site/featured-properties";
 import { HeroSearch } from "@/components/site/hero-search";
@@ -29,8 +30,8 @@ const reasons = [
   },
   {
     Icon: HandshakeIcon,
-    title: "One partner, three services",
-    text: "Valuation, property management and estate agency under one roof, so your property is in consistent hands.",
+    title: "One Partner, All Property Services",
+    text: "Valuation, property management, estate agency, asset management and land surveying under one roof, so your property is in consistent hands.",
   },
   {
     Icon: MessagesSquareIcon,
@@ -78,10 +79,11 @@ export default async function Home() {
         <div className="container-page flex min-h-150 flex-col justify-center gap-8 pt-16 pb-24 sm:min-h-160 sm:py-20">
           <div className="max-w-2xl">
             <p className="mb-3 inline-flex rounded-full bg-black/35 px-3 py-1 text-sm font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm">
-              Property agency · Management · Valuations
+              Your Property. Our Expertise. Better Results.
             </p>
-            <h1 className="text-4xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-5xl lg:text-6xl">
-              We find, manage, sell and value property across Kenya
+            <h1 className="text-3xl leading-tight font-bold text-shadow-black/40 text-shadow-lg sm:text-5xl lg:text-8xl">
+              From finding the right property to managing, selling and valuing
+              it, We’ve got you covered across Kenya.
             </h1>
             <p className="mt-4 max-w-xl text-lg font-medium text-white text-shadow-black/60 text-shadow-lg">
               Homes, land and commercial space to buy or rent, and expert help
@@ -144,6 +146,8 @@ export default async function Home() {
           </p>
         </div>
       </section>
+
+      <ClientTypes />
 
       <CtaBand />
     </>
