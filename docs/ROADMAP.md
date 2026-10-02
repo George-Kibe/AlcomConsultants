@@ -61,7 +61,8 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 - [x] **5a** Team, Testimonials, FAQs and Careers, editable in Dashboard → Site content (add, edit, reorder, show/hide; team photos via signed uploads). Team on About; testimonials on Home and About; FAQs on Contact and, by category, on each service page (the old hard-coded FAQs were migrated); `/careers` with apply-by-email and JobPosting structured data; every section hides itself when empty
 - [x] **5b** SEO (docs/SEO.md): location landing pages (`/property-for-sale|rent/<place>`, `/commercial-property-to-let/<place>`), dynamic sitemap.xml, robots with sitemap, schema.org (RealEstateAgent, WebSite search box, BreadcrumbList, FAQPage, ItemList, JobPosting, alongside the existing RealEstateListing and BlogPosting), canonical URLs everywhere, default share image, keyword-led home title, "Browse by location" internal links; demo data noindexed and kept out of the sitemap; "Developed by Realhive Consultants" in the footer
 - [ ] Indexing switched on (`SITE_ENV=production`) once 5b is deployed; owner submits the sitemap in Search Console
-- Cookie consent + GA4 + Search Console
+- [x] **5c** Cookie consent + GA4 (loads only after "Accept analytics"; Consent Mode with ads denied; "Cookie settings" in the footer; Cookie Policy lists the cookies). Switched on by the `GA_MEASUREMENT_ID` repository variable (docs/SEO.md)
+- [x] Search Console: domain verified by the owner; sitemap ready to submit
 
 ### Phase 6: Hardening and launch
 - Security review, performance and accessibility audits, Lighthouse ≥ 90

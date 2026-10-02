@@ -28,7 +28,10 @@ COPY . .
 # NEXT_PUBLIC_* values are inlined into the client bundle at build time.
 ARG NEXT_PUBLIC_SITE_URL=http://localhost:8080
 ARG NEXT_PUBLIC_SITE_ENV=development
-ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_PUBLIC_SITE_ENV=${NEXT_PUBLIC_SITE_ENV}
+# Google Analytics 4 measurement ID (G-…); empty = no analytics and no cookie banner.
+ARG NEXT_PUBLIC_GA_ID=
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_PUBLIC_SITE_ENV=${NEXT_PUBLIC_SITE_ENV} \
+    NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
 RUN npm run build
 
 # ---------------------------------------------------------------- production

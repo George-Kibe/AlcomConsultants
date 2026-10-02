@@ -8,6 +8,7 @@ import {
   WhatsAppIcon,
   XIcon,
 } from "@/components/icons";
+import { CookieSettingsLink } from "@/components/site/cookie-consent";
 import { Logo } from "@/components/site/logo";
 import { Skyline } from "@/components/site/skyline";
 import {
@@ -168,6 +169,9 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookieSettingsLink className={linkClass} />
+              </li>
             </ul>
           </div>
         </div>

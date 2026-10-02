@@ -42,3 +42,21 @@ New sites usually appear within days to a few weeks. Ranking for competitive sea
 - **Regular articles** answering what buyers, landlords and investors search for (the blog is set up for this).
 - **A Google Business Profile** for the Westlands office, with the same name, phone and address as the website. This matters most for map and "near me" searches.
 - **Links from other sites:** directories, partners, the Institution of Surveyors of Kenya and the Estate Agents Registration Board listings, and press.
+
+## Google Analytics 4 and cookie consent
+
+Analytics is off until a GA4 measurement ID is configured. When it is:
+- A banner asks each visitor once: *Essential only* or *Accept analytics*. Nothing from Google loads before *Accept*, which suits Kenya's Data Protection Act.
+- "Cookie settings" in the footer reopens the choice. Withdrawing deletes the `_ga` cookies.
+- Advertising features stay off (Consent Mode: `ad_storage`, `ad_user_data` and `ad_personalization` denied).
+- The Cookie Policy page lists every cookie the site sets.
+
+**Set up (owner):**
+1. In https://analytics.google.com, create a GA4 property for *Alcom Consultants* (time zone Nairobi, currency KES), then a **Web** data stream for `https://alcomconsultants.co.ke`. Keep *Enhanced measurement* on.
+2. Copy the **Measurement ID** (`G-XXXXXXXXXX`).
+3. Save it as a GitHub repository variable (it's built into the frontend):
+   ```bash
+   gh variable set GA_MEASUREMENT_ID --body G-XXXXXXXXXX
+   ```
+   Then rebuild (push to `main`, or re-run the latest CI run on `main`).
+4. In Search Console → **Settings → Associations**, link the GA4 property, so search queries show up in Analytics.
