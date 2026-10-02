@@ -25,7 +25,7 @@ Indexing is controlled by the GitHub repository variable `SITE_ENV`, which is bu
 gh variable set SITE_ENV --body production   # staging blocks all crawling
 ```
 
-Then rebuild (any push to `main`, or re-run the latest CI run on `main`). Check that https://alcomconsultants.co.ke/robots.txt shows `Allow: /` and a `Sitemap:` line.
+Then push a new commit to `main` (an empty commit is fine). Re-running an old CI run publishes the new image under the same version tag, and the deploy does not swap it in. Check that https://alcomconsultants.co.ke/robots.txt shows `Allow: /` and a `Sitemap:` line.
 
 ## Google Search Console (owner)
 
@@ -58,5 +58,5 @@ Analytics is off until a GA4 measurement ID is configured. When it is:
    ```bash
    gh variable set GA_MEASUREMENT_ID --body G-XXXXXXXXXX
    ```
-   Then rebuild (push to `main`, or re-run the latest CI run on `main`).
+   Then push a new commit to `main` (see the note above about re-running CI).
 4. In Search Console → **Settings → Associations**, link the GA4 property, so search queries show up in Analytics.

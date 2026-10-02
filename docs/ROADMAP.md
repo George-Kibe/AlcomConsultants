@@ -66,7 +66,7 @@ No hard deadline; quality first. Each step ends with passing CI (incl. full-stac
 
 ### Phase 6: Hardening and launch
 - Security review, performance and accessibility audits, Lighthouse ≥ 90
-- Legal texts finalised (after lawyer review)
+- Legal texts finalised (after lawyer review). Drafts of the Privacy Policy, Terms of Use and Cookie Policy are live since 2026-10-02; review points are in docs/LEGAL.md
 - Production deployment, snapshots, Sentry alerts, go-live checklist
 - Before launch: remove the demo listings and articles seeded for testing (`manage.py seed_demo_listings --clear --allow-production`; seeded 2026-10-02: 10 listings, 5 articles)
 
