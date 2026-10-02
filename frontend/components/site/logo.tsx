@@ -14,7 +14,10 @@ export function Logo({ className, onDark = false }: LogoProps) {
   return (
     <Link
       href="/"
-      className={cn("flex items-center gap-2.5 rounded-lg", className)}
+      className={cn(
+        "flex shrink-0 items-center gap-2.5 rounded-lg whitespace-nowrap",
+        className,
+      )}
       aria-label={`${siteConfig.name}, home`}
     >
       <Image
