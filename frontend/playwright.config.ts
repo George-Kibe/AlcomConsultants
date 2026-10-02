@@ -14,6 +14,7 @@ export default defineConfig({
         "**/blog.spec.ts",
         "**/visitor-account.spec.ts",
         "**/enquiries.spec.ts",
+        "**/site-content.spec.ts",
       ],
   fullyParallel: true,
   // Full-stack runs share one staff account, so run them one at a time.

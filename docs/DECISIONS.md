@@ -134,3 +134,9 @@ Mobile First: Over 60% of property browsing happens on mobile screens. Pay close
 - Forms submit with `onSubmit`, not React form actions: React resets a form after its action runs, which wiped what visitors had typed whenever there was an error. The sign-in, sign-up and password-reset forms were changed the same way.
 - Demo data was seeded in production on the owner's request (10 listings, 5 articles) for testing; it is removed before launch (Phase 6 checklist).
 
+## Site content (Phase 5a, 2026-10-02)
+- Owner's choices: team, testimonials, FAQs and careers are **editable in the dashboard**; job applications are **by email only** (the website stores no CVs).
+- Each section hides itself until it has published items, so nothing looks empty before Alcom adds content. No sample team members or testimonials are seeded, because invented people or quotes must never reach production.
+- Pages that show this content render per request (`connection()`), so dashboard edits appear immediately without a rebuild.
+- Ordering uses Move up / Move down buttons rather than drag and drop: it works the same with a keyboard and on phones.
+

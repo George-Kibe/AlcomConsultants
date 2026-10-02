@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import {
   BadgeCheckIcon,
   BriefcaseIcon,
@@ -15,6 +16,8 @@ import { ClientTypes } from "@/components/site/client-types";
 import { CtaBand } from "@/components/site/cta-band";
 import { PageHeader } from "@/components/site/page-header";
 import { ServicesGrid } from "@/components/site/services-grid";
+import { TeamSection } from "@/components/site/team-section";
+import { Testimonials } from "@/components/site/testimonials";
 import { alliedServices, siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -50,7 +53,8 @@ const values = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  await connection(); // team and testimonials come from the dashboard
   return (
     <>
       <PageHeader title="About us" intro={siteConfig.tagline} />
@@ -155,6 +159,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <TeamSection />
+      <Testimonials />
       <ClientTypes id="about-clients" />
 
       <CtaBand />

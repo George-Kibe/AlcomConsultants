@@ -53,6 +53,8 @@ export type Service = {
   title: string;
   /** Short strapline shown on the service page. */
   tagline?: string;
+  /** FAQ categories shown on the service page (dashboard → Site content → FAQs). */
+  faqCategories: string;
   summary: string;
   description: string;
   highlights: string[];
@@ -68,6 +70,7 @@ export type Service = {
 export const services: Service[] = [
   {
     slug: "property-agency",
+    faqCategories: "buying,selling",
     title: "Estate Agency",
     summary:
       "Sale, purchase and letting of residential, commercial and industrial property across Kenya.",
@@ -89,6 +92,7 @@ export const services: Service[] = [
   },
   {
     slug: "property-management",
+    faqCategories: "management",
     title: "Property Management",
     summary:
       "Property and facilities management for residential, commercial and mixed-use developments.",
@@ -112,6 +116,7 @@ export const services: Service[] = [
   },
   {
     slug: "property-valuations",
+    faqCategories: "valuation",
     title: "Valuation Services",
     summary:
       "Professional valuations by Registered Valuers for lending, sale, insurance, reporting and more.",
@@ -136,6 +141,7 @@ export const services: Service[] = [
   },
   {
     slug: "asset-management",
+    faqCategories: "assets",
     title: "Asset Tagging, Register Creation & Asset Management",
     tagline: "Identify • Tag • Value • Register • Manage",
     summary:
@@ -160,6 +166,7 @@ export const services: Service[] = [
   },
   {
     slug: "land-survey",
+    faqCategories: "survey",
     title: "Land Survey Services",
     tagline: "Accurate. Reliable. Professional.",
     summary:

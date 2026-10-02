@@ -18,7 +18,7 @@ from apps.core.permissions import IsStaff
 
 from .models import Property, PropertyMedia
 
-UPLOAD_TARGETS = {"properties", "projects", "blog"}
+UPLOAD_TARGETS = {"properties", "projects", "blog", "team"}
 
 
 class UploadSignatureView(APIView):

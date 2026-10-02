@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { ClockIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
 import { WhatsAppIcon } from "@/components/icons";
 import { EnquiryForm } from "@/components/enquiries/enquiry-form";
-import { FaqList } from "@/components/site/faq-list";
+import { FaqList, loadFaqs } from "@/components/site/faq-list";
 import { PageHeader } from "@/components/site/page-header";
 import { siteConfig, telLink, whatsappLink } from "@/lib/site-config";
 
@@ -34,7 +35,9 @@ const channels = [
   },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  await connection(); // FAQs come from the dashboard
+  const faqs = await loadFaqs();
   return (
     <>
       <PageHeader
@@ -91,12 +94,16 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-      <section className="container-page pb-12 sm:pb-16" id="faqs">
-        <h2 className="mb-4 text-2xl font-bold">Frequently asked questions</h2>
-        <div className="max-w-3xl">
-          <FaqList />
-        </div>
-      </section>
+      {faqs.length > 0 && (
+        <section className="container-page pb-12 sm:pb-16" id="faqs">
+          <h2 className="mb-4 text-2xl font-bold">
+            Frequently asked questions
+          </h2>
+          <div className="max-w-3xl">
+            <FaqList faqs={faqs} />
+          </div>
+        </section>
+      )}
     </>
   );
 }

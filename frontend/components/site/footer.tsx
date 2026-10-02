@@ -74,13 +74,15 @@ export function Footer() {
               Quick links
             </h2>
             <ul className="flex flex-col gap-3 text-sm">
-              {mainNav.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className={linkClass}>
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
+              {[...mainNav, { title: "Careers", href: "/careers" }].map(
+                (item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className={linkClass}>
+                      {item.title}
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
           </nav>
 
