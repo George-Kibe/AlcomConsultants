@@ -96,6 +96,9 @@ test("upload photos, set the cover, describe, reorder and delete", async ({
 
   // Clean up the draft (and its remaining photo).
   await page.getByRole("button", { name: "Delete", exact: true }).click();
-  await page.getByRole("button", { name: "Delete draft" }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click();
   await page.waitForURL((url) => url.pathname === "/dashboard/properties");
 });

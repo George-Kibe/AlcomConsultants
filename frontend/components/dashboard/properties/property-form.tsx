@@ -2,24 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLinkIcon, Trash2Icon } from "lucide-react";
+import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo } from "react";
 import { Controller, useForm, useWatch, type FieldPath } from "react-hook-form";
 import { toast } from "sonner";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -49,6 +38,7 @@ import {
   type ListingFormValues,
 } from "@/lib/listing-form";
 
+import { ConfirmDelete, deleteListingText } from "../confirm-delete";
 import { Field, Section } from "../form-parts";
 
 import { PhotoManager } from "./photo-manager";
@@ -164,7 +154,7 @@ export function PropertyForm({ property }: Props) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.properties });
       void queryClient.invalidateQueries({ queryKey: queryKeys.overview });
-      toast.success("Draft deleted");
+      toast.success("Listing deleted");
       router.replace("/dashboard/properties");
     },
     onError: () => toast.error("Couldn't delete this listing."),
@@ -224,31 +214,13 @@ export function PropertyForm({ property }: Props) {
                 </Link>
               </Button>
             )}
-            {property.status === "draft" && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" type="button">
-                    <Trash2Icon data-icon="inline-start" />
-                    Delete
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this draft?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {property.reference} and its photos will be removed. This
-                      can&apos;t be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => remove.mutate()}>
-                      Delete draft
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
+            <ConfirmDelete
+              name={property.reference ?? property.title}
+              title="Delete this listing?"
+              description={deleteListingText(property)}
+              onConfirm={() => remove.mutate()}
+              disabled={remove.isPending}
+            />
           </div>
         )}
       </div>

@@ -1,13 +1,17 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BriefcaseIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useJobs } from "@/lib/api/content";
+import { ApiError, api } from "@/lib/api/client";
+import { jobsKey, useJobs } from "@/lib/api/content";
 import { formatDate } from "@/lib/format";
 
+import { ConfirmDelete } from "../confirm-delete";
 import { ContentHeader } from "./content-tabs";
 
 function JobStatus({
@@ -33,6 +37,23 @@ function JobStatus({
 
 export function JobList() {
   const jobs = useJobs();
+  const queryClient = useQueryClient();
+  const remove = useMutation({
+    mutationFn: async (uuid: string) => {
+      const result = await api.DELETE(
+        "/api/v1/dashboard/content/jobs/{uuid}/",
+        {
+          params: { path: { uuid } },
+        },
+      );
+      if (!result.response.ok) throw new ApiError(result.response.status);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: jobsKey });
+      toast.success("Job opening deleted");
+    },
+    onError: () => toast.error("Couldn't delete this job opening."),
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -76,10 +97,10 @@ export function JobList() {
           aria-label="Job openings"
         >
           {jobs.data.map((job) => (
-            <li key={job.uuid}>
+            <li key={job.uuid} className="hover:bg-muted/60 flex items-center">
               <Link
                 href={`/dashboard/content/careers/${job.uuid}`}
-                className="hover:bg-muted/60 flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex min-w-0 flex-1 flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -99,6 +120,16 @@ export function JobList() {
                     : "No closing date"}
                 </p>
               </Link>
+              <div className="pr-2 sm:pr-3">
+                <ConfirmDelete
+                  icon
+                  name={job.title}
+                  title={`Delete “${job.title}”?`}
+                  description="It is removed from the Careers page for good. This can't be undone."
+                  onConfirm={() => remove.mutate(job.uuid)}
+                  disabled={remove.isPending}
+                />
+              </div>
             </li>
           ))}
         </ul>

@@ -72,7 +72,7 @@ test("create, publish, edit and archive a listing", async ({
   await saveChanges(page);
   await expect(page.getByRole("button", { name: "Saved" })).toBeDisabled();
 
-  // Archive (published listings can't be deleted).
+  // Archive.
   await choose(page, "Status", "Archived");
   await saveChanges(page);
   const after = await request.get(
@@ -80,11 +80,22 @@ test("create, publish, edit and archive a listing", async ({
   );
   expect((await after.json()).results).toHaveLength(0);
 
-  // Listed under the Archived tab.
+  // Listed under the Archived tab, and can be deleted from the list.
   await page.goto("/dashboard/properties?status=archived");
-  await expect(
-    page.getByRole("link", { name: new RegExp(title) }),
-  ).toBeVisible();
+  const row = page.getByRole("link", { name: new RegExp(title) });
+  await expect(row).toBeVisible();
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: title })
+    .getByRole("button", { name: /^Delete ALC-/ })
+    .click();
+  await expect(page.getByRole("alertdialog")).toContainText(title);
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click();
+  await expect(page.getByText("Listing deleted")).toBeVisible();
+  await expect(row).toHaveCount(0);
 });
 
 test("save a draft, then delete it", async ({ page }) => {
@@ -103,8 +114,11 @@ test("save a draft, then delete it", async ({ page }) => {
   await page.getByRole("button", { name: "Save as draft" }).click();
   await expect(page.getByText(/created as a draft/)).toBeVisible();
 
-  await page.getByRole("button", { name: "Delete" }).click();
-  await page.getByRole("button", { name: "Delete draft" }).click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click();
   await expect(page).toHaveURL(/\/dashboard\/properties$/);
   await page.getByLabel("Search properties", { exact: true }).fill(title);
   await expect(page.getByText("No properties match.")).toBeVisible();

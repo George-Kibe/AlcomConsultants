@@ -1,18 +1,22 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImageOffIcon, PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { CloudImage } from "@/components/cloud-image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboardPosts } from "@/lib/api/hooks";
+import { ApiError, api } from "@/lib/api/client";
+import { queryKeys, useDashboardPosts } from "@/lib/api/hooks";
 import { formatDate } from "@/lib/format";
 
+import { ConfirmDelete, deleteArticleText } from "../confirm-delete";
 import { StatusBadge } from "../properties/status-badge";
 import { BlogTabs } from "./blog-tabs";
 
@@ -31,6 +35,20 @@ export function PostList() {
   const page = Number(params.get("page") ?? "1");
   const [q, setQ] = useState(params.get("q") ?? "");
   const list = useDashboardPosts({ status, q: params.get("q") ?? "", page });
+  const queryClient = useQueryClient();
+  const remove = useMutation({
+    mutationFn: async (uuid: string) => {
+      const result = await api.DELETE("/api/v1/dashboard/blog/posts/{uuid}/", {
+        params: { path: { uuid } },
+      });
+      if (!result.response.ok) throw new ApiError(result.response.status);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.posts });
+      toast.success("Article deleted");
+    },
+    onError: () => toast.error("Couldn't delete this article."),
+  });
 
   function update(next: Record<string, string | number | undefined>) {
     const sp = new URLSearchParams(params);
@@ -135,10 +153,10 @@ export function PostList() {
           aria-label="Articles"
         >
           {rows.map((post) => (
-            <li key={post.uuid}>
+            <li key={post.uuid} className="hover:bg-muted/60 flex items-center">
               <Link
                 href={`/dashboard/blog/${post.uuid}`}
-                className="hover:bg-muted/60 flex items-center gap-4 p-3 sm:p-4"
+                className="flex min-w-0 flex-1 items-center gap-4 p-3 sm:p-4"
               >
                 {post.cover ? (
                   <CloudImage
@@ -171,6 +189,16 @@ export function PostList() {
                   </p>
                 </div>
               </Link>
+              <div className="pr-2 sm:pr-3">
+                <ConfirmDelete
+                  icon
+                  name={post.title}
+                  title={`Delete “${post.title}”?`}
+                  description={deleteArticleText(post)}
+                  onConfirm={() => remove.mutate(post.uuid)}
+                  disabled={remove.isPending}
+                />
+              </div>
             </li>
           ))}
         </ul>

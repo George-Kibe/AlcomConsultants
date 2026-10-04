@@ -1,9 +1,11 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImageOffIcon, PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { CloudImage } from "@/components/cloud-image";
 import { Button } from "@/components/ui/button";
@@ -17,9 +19,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDashboardProperties, useOverview } from "@/lib/api/hooks";
+import { ApiError, api } from "@/lib/api/client";
+import {
+  queryKeys,
+  useDashboardProperties,
+  useOverview,
+} from "@/lib/api/hooks";
 import { formatDate, formatListingPrice } from "@/lib/format";
 
+import { ConfirmDelete, deleteListingText } from "../confirm-delete";
 import { StatusBadge } from "./status-badge";
 
 const TABS = [
@@ -71,6 +79,21 @@ export function PropertyList() {
     q: params.get("q") ?? "",
     page,
     sort,
+  });
+  const queryClient = useQueryClient();
+  const remove = useMutation({
+    mutationFn: async (uuid: string) => {
+      const result = await api.DELETE("/api/v1/dashboard/properties/{uuid}/", {
+        params: { path: { uuid } },
+      });
+      if (!result.response.ok) throw new ApiError(result.response.status);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.properties });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.overview });
+      toast.success("Listing deleted");
+    },
+    onError: () => toast.error("Couldn't delete this listing."),
   });
 
   function update(next: Record<string, string | number | undefined>) {
@@ -204,10 +227,10 @@ export function PropertyList() {
           aria-label="Properties"
         >
           {rows.map((p) => (
-            <li key={p.uuid}>
+            <li key={p.uuid} className="hover:bg-muted/60 flex items-center">
               <Link
                 href={`/dashboard/properties/${p.uuid}`}
-                className="hover:bg-muted/60 flex items-center gap-4 p-3 sm:p-4"
+                className="flex min-w-0 flex-1 items-center gap-4 p-3 sm:p-4"
               >
                 <Thumb publicId={p.cover_image} alt="" />
                 <div className="min-w-0 flex-1">
@@ -244,6 +267,16 @@ export function PropertyList() {
                   </p>
                 </div>
               </Link>
+              <div className="pr-2 sm:pr-3">
+                <ConfirmDelete
+                  icon
+                  name={p.reference ?? p.title}
+                  title={`Delete “${p.title}”?`}
+                  description={deleteListingText(p)}
+                  onConfirm={() => remove.mutate(p.uuid)}
+                  disabled={remove.isPending}
+                />
+              </div>
             </li>
           ))}
         </ul>
