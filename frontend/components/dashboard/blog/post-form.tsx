@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLinkIcon, Trash2Icon } from "lucide-react";
+import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
@@ -36,6 +36,7 @@ import {
 import { formatDate } from "@/lib/format";
 import type { CloudinaryUploadResult } from "@/lib/uploads";
 
+import { ConfirmDelete, deleteArticleText } from "../confirm-delete";
 import { Field, Section } from "../form-parts";
 import { StatusBadge } from "../properties/status-badge";
 import { CoverPicker } from "./cover-picker";
@@ -159,10 +160,10 @@ export function PostForm({ post }: { post?: DashboardPost }) {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.posts });
-      toast.success("Draft deleted");
+      toast.success("Article deleted");
       router.replace("/dashboard/blog");
     },
-    onError: () => toast.error("Couldn't delete this draft."),
+    onError: () => toast.error("Couldn't delete this article."),
   });
 
   const submit = (status?: Status) =>
@@ -220,31 +221,13 @@ export function PostForm({ post }: { post?: DashboardPost }) {
                 </Link>
               </Button>
             )}
-            {post.status === "draft" && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" type="button">
-                    <Trash2Icon data-icon="inline-start" />
-                    Delete
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this draft?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      The article and its cover photo will be removed. This
-                      can&apos;t be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => remove.mutate()}>
-                      Delete draft
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
+            <ConfirmDelete
+              name={post.title}
+              title="Delete this article?"
+              description={deleteArticleText(post)}
+              onConfirm={() => remove.mutate()}
+              disabled={remove.isPending}
+            />
           </div>
         )}
       </div>

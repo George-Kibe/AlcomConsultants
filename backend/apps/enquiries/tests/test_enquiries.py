@@ -32,6 +32,12 @@ def no_rate_limits(request):
 
 
 @pytest.fixture(autouse=True)
+def no_turnstile(settings):
+    """Turnstile is off unless a test turns it on, whatever the local .env says."""
+    settings.TURNSTILE_SITE_KEY, settings.TURNSTILE_SECRET_KEY = "", ""
+
+
+@pytest.fixture(autouse=True)
 def emails_on_commit(django_capture_on_commit_callbacks, monkeypatch):
     """Run the on-commit email tasks as soon as each request finishes."""
     from rest_framework.test import APIClient

@@ -156,12 +156,10 @@ def test_filters_and_delete_rules(staff_client):
     assert [p["title"] for p in staff_client.get(url, {"q": "rent"}).json()["results"]] == [
         "Draft about rent"
     ]
-    refused = staff_client.delete(reverse("dashboard-blog-post-detail", args=[live.uuid]))
-    assert refused.status_code == 400
-    assert (
-        staff_client.delete(reverse("dashboard-blog-post-detail", args=[draft.uuid])).status_code
-        == 204
-    )
+    for post in (live, draft):
+        response = staff_client.delete(reverse("dashboard-blog-post-detail", args=[post.uuid]))
+        assert response.status_code == 204
+    assert not Post.objects.filter(pk__in=[live.pk, draft.pk]).exists()
 
 
 def test_cover_upload_is_verified_and_replaces_the_old_one(

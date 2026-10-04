@@ -107,11 +107,18 @@ test("property enquiry, worked as a lead in the dashboard", async ({
     staff.getByRole("link", { name: new RegExp(name) }),
   ).toBeVisible();
 
-  // Clean up.
-  await staff.getByRole("link", { name: new RegExp(name) }).click();
-  await staff.getByRole("button", { name: "Delete" }).click();
-  await staff.getByRole("button", { name: "Delete enquiry" }).click();
-  await staff.waitForURL((url) => url.pathname === "/dashboard/enquiries");
+  // Clean up: delete it straight from the list.
+  await staff
+    .getByRole("button", { name: new RegExp(`^Delete E-\\d+ from ${name}$`) })
+    .click();
+  await staff
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click();
+  await expect(staff.getByText("Enquiry deleted")).toBeVisible();
+  await expect(staff.getByRole("link", { name: new RegExp(name) })).toHaveCount(
+    0,
+  );
   await staffContext.close();
 });
 

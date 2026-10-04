@@ -236,10 +236,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        /** @description Staff blog posts. Deleting a post also removes its comments and cover photo. */
         get: operations["dashboard_blog_posts_list"];
         put?: never;
-        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        /** @description Staff blog posts. Deleting a post also removes its comments and cover photo. */
         post: operations["dashboard_blog_posts_create"];
         delete?: never;
         options?: never;
@@ -254,15 +254,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        /** @description Staff blog posts. Deleting a post also removes its comments and cover photo. */
         get: operations["dashboard_blog_posts_retrieve"];
         put?: never;
         post?: never;
-        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        /** @description Staff blog posts. Deleting a post also removes its comments and cover photo. */
         delete: operations["dashboard_blog_posts_destroy"];
         options?: never;
         head?: never;
-        /** @description Staff blog posts. Published posts are unpublished (back to draft), not deleted. */
+        /** @description Staff blog posts. Deleting a post also removes its comments and cover photo. */
         patch: operations["dashboard_blog_posts_partial_update"];
         trace?: never;
     };
@@ -589,10 +589,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Staff listing management. Published listings are archived, not deleted. */
+        /**
+         * @description Staff listing management. Deleting a listing also removes its photos; its enquiries are
+         *     kept with the listing's name.
+         */
         get: operations["dashboard_properties_list"];
         put?: never;
-        /** @description Staff listing management. Published listings are archived, not deleted. */
+        /**
+         * @description Staff listing management. Deleting a listing also removes its photos; its enquiries are
+         *     kept with the listing's name.
+         */
         post: operations["dashboard_properties_create"];
         delete?: never;
         options?: never;
@@ -660,15 +666,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Staff listing management. Published listings are archived, not deleted. */
+        /**
+         * @description Staff listing management. Deleting a listing also removes its photos; its enquiries are
+         *     kept with the listing's name.
+         */
         get: operations["dashboard_properties_retrieve"];
         put?: never;
         post?: never;
-        /** @description Staff listing management. Published listings are archived, not deleted. */
+        /**
+         * @description Staff listing management. Deleting a listing also removes its photos; its enquiries are
+         *     kept with the listing's name.
+         */
         delete: operations["dashboard_properties_destroy"];
         options?: never;
         head?: never;
-        /** @description Staff listing management. Published listings are archived, not deleted. */
+        /**
+         * @description Staff listing management. Deleting a listing also removes its photos; its enquiries are
+         *     kept with the listing's name.
+         */
         patch: operations["dashboard_properties_partial_update"];
         trace?: never;
     };

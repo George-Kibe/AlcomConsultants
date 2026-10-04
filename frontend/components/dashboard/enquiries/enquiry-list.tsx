@@ -1,9 +1,11 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarClockIcon, InboxIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +18,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ApiError, api } from "@/lib/api/client";
 import {
+  queryKeys,
   useDashboardEnquiries,
   useEnquirySummary,
   type EnquiryListParams,
@@ -25,6 +29,7 @@ import { KINDS, STAGES, kindLabel } from "@/lib/enquiries";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+import { ConfirmDelete } from "../confirm-delete";
 import { StageBadge } from "./stage-badge";
 
 type Summary = NonNullable<ReturnType<typeof useEnquirySummary>["data"]>;
@@ -96,6 +101,20 @@ export function EnquiryList() {
     kind,
     q: params.get("q") ?? "",
     page,
+  });
+  const queryClient = useQueryClient();
+  const remove = useMutation({
+    mutationFn: async (uuid: string) => {
+      const result = await api.DELETE("/api/v1/dashboard/enquiries/{uuid}/", {
+        params: { path: { uuid } },
+      });
+      if (!result.response.ok) throw new ApiError(result.response.status);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.enquiries });
+      toast.success("Enquiry deleted");
+    },
+    onError: () => toast.error("Couldn't delete the enquiry."),
   });
 
   function update(next: Record<string, string | number | undefined>) {
@@ -266,10 +285,10 @@ export function EnquiryList() {
           aria-label="Enquiries"
         >
           {rows.map((e) => (
-            <li key={e.uuid}>
+            <li key={e.uuid} className="hover:bg-muted/60 flex items-center">
               <Link
                 href={`/dashboard/enquiries/${e.uuid}`}
-                className="hover:bg-muted/60 flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4"
+                className="flex min-w-0 flex-1 flex-col gap-2 p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -303,6 +322,16 @@ export function EnquiryList() {
                   <span>{formatDate(e.created_at)}</span>
                 </div>
               </Link>
+              <div className="pr-2 sm:pr-3">
+                <ConfirmDelete
+                  icon
+                  name={`${e.reference} from ${e.name}`}
+                  title={`Delete ${e.reference} from ${e.name}?`}
+                  description="The enquiry, its notes and the person's details are removed for good. Use this for spam or when someone asks to be forgotten; otherwise mark the lead as lost."
+                  onConfirm={() => remove.mutate(e.uuid)}
+                  disabled={remove.isPending}
+                />
+              </div>
             </li>
           ))}
         </ul>

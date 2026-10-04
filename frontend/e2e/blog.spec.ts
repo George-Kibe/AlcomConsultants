@@ -138,9 +138,12 @@ test("write, publish, unpublish and delete an article", async ({
   await unpublished;
   expect((await article.goto(slug))?.status()).toBe(404);
 
-  // Drafts can be deleted.
+  // Delete from the edit page.
   await page.getByRole("button", { name: "Delete", exact: true }).click();
-  await page.getByRole("button", { name: "Delete draft", exact: true }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click();
   await page.waitForURL((url) => url.pathname === "/dashboard/blog");
   await expect(page.getByText(title)).toHaveCount(0);
 });
@@ -189,15 +192,18 @@ test("a new article gets its cover before the first save and publishes at once",
   ).toBeVisible();
   await article.close();
 
-  // Clean up: unpublish, then delete the draft.
-  await page.getByRole("button", { name: "Unpublish", exact: true }).click();
+  // Published articles can be deleted straight from the list.
+  await page.goto("/dashboard/blog");
+  await page.getByRole("button", { name: `Delete ${title}` }).click();
   await page
     .getByRole("alertdialog")
-    .getByRole("button", { name: "Unpublish", exact: true })
+    .getByRole("button", { name: "Delete", exact: true })
     .click();
-  await page.getByRole("button", { name: "Delete", exact: true }).click();
-  await page.getByRole("button", { name: "Delete draft", exact: true }).click();
-  await page.waitForURL((url) => url.pathname === "/dashboard/blog");
+  await expect(page.getByText("Article deleted")).toBeVisible();
+  await expect(page.getByRole("link", { name: new RegExp(title) })).toHaveCount(
+    0,
+  );
+  expect((await page.request.get(href)).status()).toBe(404);
 });
 
 test("readers sign up, confirm their email and comment; staff can hide comments", async ({

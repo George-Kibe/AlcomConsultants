@@ -1,7 +1,9 @@
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.accounts.tests.factories import UserFactory
+from apps.enquiries.models import Enquiry, Kind
 from apps.listings.models import Property, Status
 
 from .factories import (
@@ -168,14 +170,17 @@ def test_list_sorting(client):
     assert [r["uuid"] for r in rows] == [str(dear.uuid), str(cheap.uuid)]
 
 
-def test_only_drafts_can_be_deleted(client):
-    live = PropertyFactory(status=Status.PUBLISHED)
-    response = client.delete(detail(live))
-    assert response.status_code == 400
-    assert "Archive" in response.json()["detail"]
-    draft = PropertyFactory(status=Status.DRAFT)
-    assert client.delete(detail(draft)).status_code == 204
-    assert not Property.objects.filter(pk=draft.pk).exists()
+def test_any_listing_can_be_deleted_and_its_enquiries_are_kept(client):
+    for status in Status.values:
+        prop = PropertyFactory(status=status)
+        enquiry = Enquiry.objects.create(
+            kind=Kind.LISTING, name="Lead", email="l@example.com", property=prop,
+            property_label=prop.title, consent_at=timezone.now(),
+        )  # fmt: skip
+        assert client.delete(detail(prop)).status_code == 204
+        assert not Property.objects.filter(pk=prop.pk).exists()
+        enquiry.refresh_from_db()
+        assert (enquiry.property, enquiry.property_label) == (None, prop.title)
 
 
 def test_put_is_not_allowed(client, payload):

@@ -1,7 +1,5 @@
 """Staff blog management: posts and their cover photo."""
 
-from typing import Any
-
 import django_filters
 from django.db import transaction
 from django.db.models import Q, QuerySet
@@ -35,7 +33,7 @@ class DashboardPostFilter(django_filters.FilterSet):
 
 
 class DashboardPostViewSet(viewsets.ModelViewSet[Post]):
-    """Staff blog posts. Published posts are unpublished (back to draft), not deleted."""
+    """Staff blog posts. Deleting a post also removes its comments and cover photo."""
 
     permission_classes = [IsStaff]
     lookup_field = "uuid"
@@ -55,16 +53,6 @@ class DashboardPostViewSet(viewsets.ModelViewSet[Post]):
 
     def perform_update(self, serializer: serializers.BaseSerializer[Post]) -> None:
         serializer.save(updated_by=self.request.user)
-
-    def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        post = self.get_object()
-        if post.status != PostStatus.DRAFT:
-            return Response(
-                {"detail": "Only drafts can be deleted. Unpublish this post first."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(
         methods=["POST"], request=CoverUploadSerializer, responses=DashboardPostSerializer

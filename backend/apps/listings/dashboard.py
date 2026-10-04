@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from django.db.models import Count, Prefetch, Q, QuerySet
 from django_filters import rest_framework as filters
 from drf_spectacular.utils import extend_schema, extend_schema_field, inline_serializer
-from rest_framework import serializers, status, viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -348,7 +348,8 @@ class DashboardPropertyFilter(filters.FilterSet):
 
 
 class DashboardPropertyViewSet(viewsets.ModelViewSet[Property]):
-    """Staff listing management. Published listings are archived, not deleted."""
+    """Staff listing management. Deleting a listing also removes its photos; its enquiries are
+    kept with the listing's name."""
 
     permission_classes = [IsStaff]
     lookup_field = "uuid"
@@ -379,13 +380,3 @@ class DashboardPropertyViewSet(viewsets.ModelViewSet[Property]):
         if self.action == "list":
             return DashboardPropertyListSerializer
         return DashboardPropertySerializer
-
-    def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        prop = self.get_object()
-        if prop.status != Status.DRAFT:
-            return Response(
-                {"detail": "Only drafts can be deleted. Archive this listing instead."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        prop.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
