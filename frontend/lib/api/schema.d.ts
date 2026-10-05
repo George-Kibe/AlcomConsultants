@@ -687,6 +687,23 @@ export interface paths {
         patch: operations["dashboard_properties_partial_update"];
         trace?: never;
     };
+    "/api/v1/dashboard/properties/{uuid}/preview/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The listing as the public page shows it, whatever its status. */
+        get: operations["dashboard_properties_preview_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/uploads/signature/": {
         parameters: {
             query?: never;
@@ -1356,7 +1373,7 @@ export interface components {
             furnishing?: components["schemas"]["FurnishingEnum"] | components["schemas"]["BlankEnum"];
             amenities?: string[];
             readonly county: number;
-            area: number;
+            area?: number;
             neighbourhood?: number | null;
             /** Format: double */
             lat?: number | null;
@@ -1429,7 +1446,10 @@ export interface components {
             land_area_unit?: components["schemas"]["LandAreaUnitEnum"];
             furnishing?: components["schemas"]["FurnishingEnum"] | components["schemas"]["BlankEnum"];
             amenities?: string[];
-            area: number;
+            area?: number;
+            /** @description An area that isn't in the list yet; added to `new_area_county` on save. */
+            new_area?: string;
+            new_area_county?: number | null;
             neighbourhood?: number | null;
             /** Format: double */
             lat?: number | null;
@@ -2031,6 +2051,9 @@ export interface components {
             furnishing?: components["schemas"]["FurnishingEnum"] | components["schemas"]["BlankEnum"];
             amenities?: string[];
             area?: number;
+            /** @description An area that isn't in the list yet; added to `new_area_county` on save. */
+            new_area?: string;
+            new_area_county?: number | null;
             neighbourhood?: number | null;
             /** Format: double */
             lat?: number | null;
@@ -3986,6 +4009,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardProperty"];
+                };
+            };
+        };
+    };
+    dashboard_properties_preview_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropertyDetail"];
                 };
             };
         };

@@ -84,7 +84,9 @@ export const listingSchema = z
     furnishing: z.union([z.enum(values(FURNISHING)), z.literal("")]),
     amenities: z.array(z.string()),
     county: z.string().min(1, "Choose a county"),
-    area: z.string().min(1, "Choose an area"),
+    area: z.string(),
+    /** Typed when the area isn't in the list; added under the county on save. */
+    new_area: z.string().trim().max(100, "Keep it under 100 characters"),
     neighbourhood: z.string(),
     lat: coordinate,
     lng: coordinate,
@@ -103,6 +105,13 @@ export const listingSchema = z
     seo_description: z.string().trim().max(160, "Keep it under 160 characters"),
   })
   .superRefine((v, ctx) => {
+    if (v.county && !v.area && !v.new_area) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["area"],
+        message: "Choose an area, or type it if it isn't listed",
+      });
+    }
     if (!v.price_on_request && v.price === "") {
       ctx.addIssue({
         code: "custom",
@@ -140,6 +149,7 @@ export const emptyListing: ListingFormValues = {
   amenities: [],
   county: "",
   area: "",
+  new_area: "",
   neighbourhood: "",
   lat: "",
   lng: "",
@@ -176,6 +186,7 @@ export function fromApi(p: ApiProperty): ListingFormValues {
     amenities: p.amenities ?? [],
     county: str(p.county),
     area: str(p.area),
+    new_area: "",
     neighbourhood: str(p.neighbourhood),
     lat: str(p.lat),
     lng: str(p.lng),
@@ -207,8 +218,16 @@ export function toPayload(v: ListingFormValues): ListingPayload {
     land_area_unit: v.land_area_unit,
     furnishing: v.furnishing,
     amenities: v.amenities,
-    area: Number(v.area),
-    neighbourhood: v.neighbourhood ? Number(v.neighbourhood) : null,
+    ...(v.new_area
+      ? {
+          new_area: v.new_area,
+          new_area_county: Number(v.county),
+          neighbourhood: null,
+        }
+      : {
+          area: Number(v.area),
+          neighbourhood: v.neighbourhood ? Number(v.neighbourhood) : null,
+        }),
     lat: v.lat === "" ? null : Number(v.lat),
     lng: v.lng === "" ? null : Number(v.lng),
     show_exact_location: v.show_exact_location,

@@ -3,10 +3,13 @@
 from typing import Any
 
 from django.contrib.gis.geos import Point
+from django.db import transaction
 from django.db.models import Count, Prefetch, Q, QuerySet
+from django.utils.text import slugify
 from django_filters import rest_framework as filters
 from drf_spectacular.utils import extend_schema, extend_schema_field, inline_serializer
 from rest_framework import serializers, viewsets
+from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,6 +21,7 @@ from apps.locations.models import Area, County, Neighbourhood
 from apps.projects.models import Project
 
 from .models import Amenity, DealType, Property, PropertyMedia, PropertyType, Status
+from .serializers import PropertyDetailSerializer
 
 # Rough bounding box of Kenya, to catch swapped or mistyped coordinates.
 KENYA_LAT = (-5.0, 5.5)
@@ -194,8 +198,18 @@ class DashboardPropertySerializer(serializers.ModelSerializer[Property]):
     amenities = serializers.SlugRelatedField(
         slug_field="slug", queryset=Amenity.objects.all(), many=True, required=False
     )
-    area = serializers.PrimaryKeyRelatedField(queryset=Area.objects.all())
+    area = serializers.PrimaryKeyRelatedField(queryset=Area.objects.all(), required=False)
     county = serializers.IntegerField(source="area.county_id", read_only=True)
+    new_area = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+        max_length=100,
+        help_text="An area that isn't in the list yet; added to `new_area_county` on save.",
+    )
+    new_area_county = serializers.PrimaryKeyRelatedField(
+        queryset=County.objects.all(), write_only=True, required=False, allow_null=True
+    )
     neighbourhood = serializers.PrimaryKeyRelatedField(
         queryset=Neighbourhood.objects.all(), allow_null=True, required=False
     )
@@ -234,6 +248,8 @@ class DashboardPropertySerializer(serializers.ModelSerializer[Property]):
             "amenities",
             "county",
             "area",
+            "new_area",
+            "new_area_county",
             "neighbourhood",
             "lat",
             "lng",
@@ -276,6 +292,20 @@ class DashboardPropertySerializer(serializers.ModelSerializer[Property]):
             return attrs[name] if name in attrs else getattr(current, name, None)
 
         errors: dict[str, str] = {}
+        new_area = " ".join(attrs.pop("new_area", "").split())
+        new_area_county = attrs.pop("new_area_county", None)
+        if new_area:
+            if new_area_county is None:
+                errors["new_area"] = "Choose the county first."
+            elif not slugify(new_area):
+                errors["new_area"] = "Enter the area's name."
+            else:
+                attrs["area"] = self._find_or_prepare_area(new_area_county, new_area)
+                if attrs["area"].pk is None:
+                    attrs["neighbourhood"] = None
+        elif value("area") is None:
+            errors["area"] = "Choose an area, or type it if it isn't listed."
+
         area, hood = value("area"), value("neighbourhood")
         if hood is not None and area is not None and hood.area_id != area.id:
             errors["neighbourhood"] = "This neighbourhood is not in the selected area."
@@ -299,13 +329,35 @@ class DashboardPropertySerializer(serializers.ModelSerializer[Property]):
             raise serializers.ValidationError(errors)
         return attrs
 
+    @staticmethod
+    def _find_or_prepare_area(county: County, name: str) -> Area:
+        """The existing area with this name (any capitalisation) in the county, or a new,
+        unsaved one, created only when the listing itself saves."""
+        slug = slugify(name)
+        existing = Area.objects.filter(county=county).filter(Q(name__iexact=name) | Q(slug=slug))
+        if found := existing.first():
+            return found
+        if name == name.lower():
+            name = name.title()
+        return Area(county=county, name=name, slug=slug)
+
+    @staticmethod
+    def _save_new_area(validated_data: dict[str, Any]) -> None:
+        area = validated_data.get("area")
+        if area is not None and area.pk is None:
+            area.save()
+
+    @transaction.atomic
     def create(self, validated_data: dict[str, Any]) -> Property:
         user = self.context["request"].user
         validated_data["created_by"] = validated_data["updated_by"] = user
+        self._save_new_area(validated_data)
         return super().create(validated_data)
 
+    @transaction.atomic
     def update(self, instance: Property, validated_data: dict[str, Any]) -> Property:
         validated_data["updated_by"] = self.context["request"].user
+        self._save_new_area(validated_data)
         return super().update(instance, validated_data)
 
 
@@ -380,3 +432,10 @@ class DashboardPropertyViewSet(viewsets.ModelViewSet[Property]):
         if self.action == "list":
             return DashboardPropertyListSerializer
         return DashboardPropertySerializer
+
+    @extend_schema(responses=PropertyDetailSerializer)
+    @action(detail=True)
+    def preview(self, request: Request, uuid: str) -> Response:
+        """The listing as the public page shows it, whatever its status."""
+        prop = self.get_object()
+        return Response(PropertyDetailSerializer(prop, context={"request": request}).data)

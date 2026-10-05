@@ -5,6 +5,7 @@ from django.utils import timezone
 from apps.accounts.tests.factories import UserFactory
 from apps.enquiries.models import Enquiry, Kind
 from apps.listings.models import Property, Status
+from apps.locations.models import Area
 
 from .factories import (
     AmenityFactory,
@@ -186,3 +187,54 @@ def test_any_listing_can_be_deleted_and_its_enquiries_are_kept(client):
 def test_put_is_not_allowed(client, payload):
     prop = PropertyFactory()
     assert client.put(detail(prop), payload, format="json").status_code == 405
+
+
+def test_an_unlisted_area_is_added_with_the_listing(client, payload):
+    county = AreaFactory().county
+    payload.pop("area")
+    payload.update(new_area="  kitisuru   ridge ", new_area_county=county.id)
+    response = client.post(LIST, payload, format="json")
+    assert response.status_code == 201, response.json()
+    area = Area.objects.get(county=county, slug="kitisuru-ridge")
+    assert area.name == "Kitisuru Ridge"  # tidied and capitalised
+    assert response.json()["area"] == area.id
+
+    # Typing it again (any capitalisation) reuses it; it is listed in the lookups.
+    payload.update(new_area="KITISURU RIDGE")
+    again = client.post(LIST, payload, format="json")
+    assert again.json()["area"] == area.id
+    assert Area.objects.filter(county=county, slug="kitisuru-ridge").count() == 1
+    lookups = client.get(reverse("dashboard-lookups")).json()
+    areas = next(c for c in lookups["counties"] if c["id"] == county.id)["areas"]
+    assert "Kitisuru Ridge" in [a["name"] for a in areas]
+
+
+def test_new_area_validation(client, payload):
+    payload.pop("area")
+    assert client.post(LIST, payload, format="json").json()["area"]
+    payload["new_area"] = "Somewhere"
+    assert client.post(LIST, payload, format="json").json()["new_area"]
+    assert not Area.objects.filter(name="Somewhere").exists()
+
+
+def test_a_failed_save_does_not_add_the_area(client, payload):
+    county = AreaFactory().county
+    payload.pop("area")
+    payload.update(new_area="Ghost Town", new_area_county=county.id, price=None)
+    assert client.post(LIST, payload, format="json").status_code == 400
+    assert not Area.objects.filter(name="Ghost Town").exists()
+
+
+def test_preview_shows_the_public_page_for_any_status(client, api):
+    draft = PropertyFactory(status=Status.DRAFT, title="Unpublished villa")
+    PropertyMediaFactory(property=draft)
+    url = reverse("dashboard-property-preview", args=[draft.uuid])
+    data = client.get(url).json()
+    assert data["title"] == "Unpublished villa"
+    assert data["status"] == "draft"
+    assert len(data["media"]) == 1 and data["cover_image"]
+    assert data["location"]["area"] == draft.area.name
+    # Public page doesn't show drafts; the preview is staff only.
+    assert api.get(reverse("property-detail", args=[draft.slug])).status_code == 404
+    api.force_authenticate(None)
+    assert api.get(url).status_code == 403
