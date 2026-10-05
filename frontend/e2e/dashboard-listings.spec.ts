@@ -189,3 +189,31 @@ test("type an unlisted area, preview, then publish from the preview", async ({
     .click();
   await page.waitForURL((url) => url.pathname === "/dashboard/properties");
 });
+
+test("a blocked save names the fields and shows the first one", async ({
+  page,
+}) => {
+  await signIn(page, "/dashboard/properties/new");
+  await page.getByLabel("Title", { exact: true }).fill("E2E Blocked Save");
+  await choose(page, "Deal", "For sale");
+  await choose(page, "Property type", /^Residential Land/);
+  await page
+    .getByLabel("Description", { exact: true })
+    .fill("A plot used to check what happens when a save is blocked.");
+  await page.getByText("Price on request (don't show a price)").click();
+  await choose(page, "County", "Kajiado");
+  await choose(page, "Area", "Kitengela");
+  // Too long, inside the collapsed "Search engine settings".
+  const settings = page.getByText("Search engine settings (optional)");
+  await settings.click();
+  await page.getByLabel("SEO title", { exact: true }).fill("x".repeat(80));
+  await settings.click();
+  await expect(page.getByLabel("SEO title", { exact: true })).toBeHidden();
+
+  await page.getByRole("button", { name: "Save and preview" }).click();
+  await expect(
+    page.getByText("Not saved yet. Please check: SEO title."),
+  ).toBeVisible();
+  await expect(page.getByLabel("SEO title", { exact: true })).toBeFocused();
+  expect(page.url()).toMatch(/\/dashboard\/properties\/new$/);
+});

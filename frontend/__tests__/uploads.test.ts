@@ -34,9 +34,9 @@ describe("photoAdvice", () => {
     [1600, 1200, undefined], // 4:3, the ideal
     [1920, 1080, undefined], // 16:9 is fine too
     [null, null, undefined], // unknown size
-    [1200, 1600, "Portrait"],
-    [800, 600, "Small"],
-    [3000, 1000, "Very wide"],
+    [1200, 1600, "portrait"],
+    [800, 600, "small"],
+    [3000, 1000, "very wide"],
   ])("%s × %s", (width, height, expected) => {
     const advice = photoAdvice(width, height);
     if (expected) expect(advice).toMatch(expected);

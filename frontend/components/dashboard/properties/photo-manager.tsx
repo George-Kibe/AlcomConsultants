@@ -21,9 +21,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   GripVerticalIcon,
   ImagePlusIcon,
+  InfoIcon,
   StarIcon,
   Trash2Icon,
-  TriangleAlertIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -153,8 +153,8 @@ function SortablePhoto({
           className="object-cover"
         />
         {advice && (
-          <span className="absolute inset-x-2 bottom-2 flex items-center gap-1 rounded-md bg-amber-50/95 px-2 py-1 text-xs font-medium text-amber-900">
-            <TriangleAlertIcon className="size-3.5 shrink-0" aria-hidden />
+          <span className="bg-background/90 text-muted-foreground absolute inset-x-2 bottom-2 flex items-center gap-1 rounded-md px-2 py-1 text-xs">
+            <InfoIcon className="size-3.5 shrink-0" aria-hidden />
             {advice}
           </span>
         )}
