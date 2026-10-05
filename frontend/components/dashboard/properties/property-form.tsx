@@ -2,10 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon, EyeIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useMemo } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Controller, useForm, useWatch, type FieldPath } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -48,6 +48,7 @@ type ApiProperty = components["schemas"]["DashboardProperty"];
 
 const errorBody = (result: object) => (result as { error?: unknown }).error;
 const NONE = "__none__"; // Radix Select can't use "" as a value
+const NEW_AREA = "__new__";
 
 type Props = { property?: ApiProperty };
 
@@ -66,6 +67,8 @@ export function PropertyForm({ property }: Props) {
   const { register, control, handleSubmit, setValue, setError, formState } =
     form;
   const { errors, isDirty, isSubmitting } = formState;
+  // The area isn't in the list: type it instead (added to the county on save).
+  const [typingArea, setTypingArea] = useState(false);
 
   // Warn before leaving with unsaved changes.
   useEffect(() => {
@@ -112,7 +115,12 @@ export function PropertyForm({ property }: Props) {
         throw fail(result.response.status, errorBody(result));
       return result.data!;
     },
-    onSuccess: (saved, values) => {
+    onSuccess: async (saved, values) => {
+      // A typed area is now in the list; load it before showing the saved form.
+      if (values.new_area) {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.lookups });
+        setTypingArea(false);
+      }
       void queryClient.invalidateQueries({ queryKey: queryKeys.properties });
       void queryClient.invalidateQueries({ queryKey: queryKeys.overview });
       queryClient.setQueryData(queryKeys.property(saved.uuid), saved);
@@ -160,6 +168,19 @@ export function PropertyForm({ property }: Props) {
     onError: () => toast.error("Couldn't delete this listing."),
   });
 
+  // Unsaved changes are saved first (a new listing as a draft), so the preview is current.
+  const openPreview = () => {
+    const href = (uuid: string) => `/dashboard/properties/${uuid}/preview`;
+    if (property && !isDirty) return router.push(href(property.uuid));
+    void handleSubmit(
+      (values) =>
+        save.mutate(isNew ? { ...values, status: "draft" } : values, {
+          onSuccess: (saved) => router.push(href(saved.uuid)),
+        }),
+      () => toast.error("Please fix the highlighted fields."),
+    )();
+  };
+
   const submit = (status?: ListingFormValues["status"]) =>
     handleSubmit(
       (values) => save.mutate(status ? { ...values, status } : values),
@@ -205,7 +226,16 @@ export function PropertyForm({ property }: Props) {
           )}
         </div>
         {property && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={save.isPending}
+              onClick={openPreview}
+            >
+              <EyeIcon data-icon="inline-start" />
+              {isDirty ? "Save and preview" : "Preview"}
+            </Button>
             {visible && (
               <Button asChild variant="outline">
                 <Link href={`/properties/${property.slug}`} target="_blank">
@@ -510,7 +540,7 @@ export function PropertyForm({ property }: Props) {
 
       <Section
         title="Location"
-        description="Choose the county first, then the area."
+        description="Choose the county first, then the area. If the area isn't listed, type it."
       >
         <div className="grid gap-4 sm:grid-cols-3">
           <Field
@@ -551,44 +581,81 @@ export function PropertyForm({ property }: Props) {
           <Field
             label="Area"
             htmlFor={f("area")}
-            error={fieldError("area")}
+            error={fieldError("area") ?? fieldError("new_area")}
             hint={
-              county && county.areas.length === 0
-                ? "No areas yet for this county — add one in the admin."
-                : undefined
+              typingArea
+                ? "Added to the list for this county when you save."
+                : county && county.areas.length === 0
+                  ? "No areas listed for this county yet: choose “Not listed? Type it”."
+                  : undefined
             }
           >
-            <Controller
-              control={control}
-              name="area"
-              render={({ field }) => (
-                <Select
-                  value={field.value || undefined}
-                  disabled={!county}
-                  onValueChange={(v) => {
-                    field.onChange(v);
-                    setValue("neighbourhood", "", { shouldDirty: true });
+            {typingArea ? (
+              <div className="flex flex-col gap-1.5">
+                <Input
+                  id={f("area")}
+                  placeholder="e.g. Kitisuru"
+                  autoComplete="off"
+                  autoFocus
+                  aria-invalid={!!(errors.area || errors.new_area)}
+                  className="h-11"
+                  {...register("new_area")}
+                />
+                <button
+                  type="button"
+                  className="text-primary self-start text-sm font-medium underline-offset-4 hover:underline"
+                  onClick={() => {
+                    setTypingArea(false);
+                    setValue("new_area", "", { shouldDirty: true });
                   }}
                 >
-                  <SelectTrigger
-                    id={f("area")}
-                    className="h-11 w-full"
-                    aria-invalid={!!errors.area}
+                  Choose from the list instead
+                </button>
+              </div>
+            ) : (
+              <Controller
+                control={control}
+                name="area"
+                render={({ field }) => (
+                  <Select
+                    value={field.value || undefined}
+                    disabled={!county}
+                    onValueChange={(v) => {
+                      setValue("neighbourhood", "", { shouldDirty: true });
+                      if (v === NEW_AREA) {
+                        field.onChange("");
+                        setTypingArea(true);
+                      } else field.onChange(v);
+                    }}
                   >
-                    <SelectValue
-                      placeholder={county ? "Choose…" : "Choose a county first"}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {county?.areas.map((a) => (
-                      <SelectItem key={a.id} value={String(a.id)}>
-                        {a.name}
+                    <SelectTrigger
+                      id={f("area")}
+                      className="h-11 w-full"
+                      aria-invalid={!!errors.area}
+                    >
+                      <SelectValue
+                        placeholder={
+                          county ? "Choose…" : "Choose a county first"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {county?.areas.map((a) => (
+                        <SelectItem key={a.id} value={String(a.id)}>
+                          {a.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem
+                        value={NEW_AREA}
+                        className="text-primary font-medium"
+                      >
+                        Not listed? Type it…
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            )}
           </Field>
           <Field
             label="Neighbourhood (optional)"
@@ -825,6 +892,16 @@ export function PropertyForm({ property }: Props) {
               onClick={() => void submit("draft")()}
             >
               Save as draft
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="xl"
+              disabled={save.isPending}
+              onClick={openPreview}
+            >
+              <EyeIcon data-icon="inline-start" />
+              Save and preview
             </Button>
             <Button
               type="button"

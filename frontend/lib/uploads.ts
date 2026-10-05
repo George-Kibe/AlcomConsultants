@@ -73,3 +73,20 @@ export function uploadToCloudinary(
     xhr.send(body);
   });
 }
+
+/** Shape that fits every photo slot on the site (cards, gallery, mobile strip). */
+export const PHOTO_GUIDE =
+  "Best: landscape 4:3, at least 1600 × 1200 px. Keep the main subject near the centre; some views crop the edges.";
+const MIN_PHOTO_WIDTH = 1200;
+
+/** A short warning for a photo that won't look its best, or undefined. */
+export function photoAdvice(
+  width?: number | null,
+  height?: number | null,
+): string | undefined {
+  if (!width || !height) return undefined;
+  if (height > width) return "Portrait: the top and bottom will be cut off";
+  if (width < MIN_PHOTO_WIDTH) return "Small: may look blurry on big screens";
+  if (width / height > 2) return "Very wide: the sides will be cut off";
+  return undefined;
+}

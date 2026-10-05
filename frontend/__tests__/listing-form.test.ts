@@ -40,6 +40,13 @@ describe("listingSchema", () => {
     expect(result.error!.issues.map((i) => i.path[0])).toContain(field);
   });
 
+  test("an area not in the list can be typed instead", () => {
+    expect(
+      listingSchema.safeParse({ ...valid, area: "", new_area: "Kitisuru" })
+        .success,
+    ).toBe(true);
+  });
+
   test("price may be empty when on request", () => {
     expect(
       listingSchema.safeParse({ ...valid, price: "", price_on_request: true })
@@ -73,6 +80,21 @@ describe("toPayload / fromApi", () => {
       agent: 5,
       project: null,
     });
+  });
+
+  test("a typed area is sent with its county, without a neighbourhood", () => {
+    const payload = toPayload({
+      ...valid,
+      area: "",
+      new_area: "Kitisuru",
+      neighbourhood: "4",
+    });
+    expect(payload).toMatchObject({
+      new_area: "Kitisuru",
+      new_area_county: 47,
+      neighbourhood: null,
+    });
+    expect(payload).not.toHaveProperty("area");
   });
 
   test("round-trips through the API shape", () => {

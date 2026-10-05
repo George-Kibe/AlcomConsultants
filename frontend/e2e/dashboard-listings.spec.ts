@@ -123,3 +123,69 @@ test("save a draft, then delete it", async ({ page }) => {
   await page.getByLabel("Search properties", { exact: true }).fill(title);
   await expect(page.getByText("No properties match.")).toBeVisible();
 });
+
+test("type an unlisted area, preview, then publish from the preview", async ({
+  page,
+  request,
+}) => {
+  const title = `E2E Preview Cottage ${Date.now()}`;
+  // A fixed name: later runs reuse the area instead of adding another.
+  const area = "E2E Test Area";
+  await signIn(page, "/dashboard/properties/new");
+  await page.getByLabel("Title", { exact: true }).fill(title);
+  await choose(page, "Deal", "For sale");
+  await choose(page, "Property type", /^Residential Land/);
+  await page
+    .getByLabel("Description", { exact: true })
+    .fill("Half-acre plot with a view, in an area not yet in the list.");
+  await page.getByText("Price on request (don't show a price)").click();
+  await choose(page, "County", "Kajiado");
+  await choose(page, "Area", "Not listed? Type it…");
+  await page.getByLabel("Area", { exact: true }).fill(area);
+
+  // Saved as a draft, then shown as visitors would see it.
+  await page.getByRole("button", { name: "Save and preview" }).click();
+  await page.waitForURL(/\/dashboard\/properties\/[0-9a-f-]{36}\/preview$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+  await expect(page.getByText(`${area}, Kajiado`).first()).toBeVisible();
+  await expect(
+    page.getByText(/Visitors can't, until you publish/),
+  ).toBeVisible();
+  const search = () =>
+    request.get(`/api/v1/properties/?q=${encodeURIComponent(title)}`);
+  expect((await (await search()).json()).results).toHaveLength(0);
+
+  // The search card; its link opens the page preview, not the public page.
+  await page.getByRole("button", { name: "Search card" }).click();
+  const card = page.getByRole("article").filter({ hasText: title });
+  await expect(card).toBeVisible();
+  await card.getByRole("link").first().click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+  expect(page.url()).toMatch(/\/preview$/);
+
+  // Publish straight from the preview.
+  await page.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(
+    page.getByText("Published. It's now on the website."),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /View on site/ })).toBeVisible();
+  const found = (await (await search()).json()).results;
+  expect(found).toHaveLength(1);
+  expect(found[0].location.area).toBe(area);
+
+  // The typed area is now in the list, selected on the edit page.
+  await page.getByRole("link", { name: "Back to editing" }).click();
+  // Wait for the refreshed listing (the form redraws when it arrives).
+  await expect(page.getByLabel("Status", { exact: true })).toHaveText(
+    "Published",
+  );
+  await expect(page.getByLabel("Area", { exact: true })).toHaveText(area);
+
+  // Clean up.
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click();
+  await page.waitForURL((url) => url.pathname === "/dashboard/properties");
+});

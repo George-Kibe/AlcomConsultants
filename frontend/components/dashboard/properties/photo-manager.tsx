@@ -23,6 +23,7 @@ import {
   ImagePlusIcon,
   StarIcon,
   Trash2Icon,
+  TriangleAlertIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -52,6 +53,8 @@ import {
 import { ApiError, api, unwrap } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 import {
+  PHOTO_GUIDE,
+  photoAdvice,
   rejectReason,
   uploadToCloudinary,
   type UploadSignature,
@@ -127,6 +130,8 @@ function SortablePhoto({
   });
 
   const isCover = index === 0 && item.kind === "image";
+  const advice =
+    item.kind === "image" ? photoAdvice(item.width, item.height) : undefined;
   const label = `Photo ${index + 1}${item.alt_text ? `: ${item.alt_text}` : ""}`;
 
   return (
@@ -147,6 +152,12 @@ function SortablePhoto({
           sizes="(min-width: 1024px) 240px, 45vw"
           className="object-cover"
         />
+        {advice && (
+          <span className="absolute inset-x-2 bottom-2 flex items-center gap-1 rounded-md bg-amber-50/95 px-2 py-1 text-xs font-medium text-amber-900">
+            <TriangleAlertIcon className="size-3.5 shrink-0" aria-hidden />
+            {advice}
+          </span>
+        )}
         {isCover && (
           <span className="bg-brand-navy absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-semibold text-white">
             Cover
@@ -393,6 +404,9 @@ export function PhotoManager({ propertyUuid }: { propertyUuid: string }) {
         <span className="font-medium">Drop photos here or click to choose</span>
         <span className="text-muted-foreground text-xs">
           JPG, PNG, WebP, AVIF or HEIC · up to 20 MB each
+        </span>
+        <span className="text-muted-foreground max-w-md text-xs">
+          {PHOTO_GUIDE}
         </span>
         <input
           ref={inputRef}
