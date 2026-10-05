@@ -239,3 +239,40 @@ export function toPayload(v: ListingFormValues): ListingPayload {
     seo_description: v.seo_description.trim(),
   };
 }
+
+/** Field names as the form labels them, in form order (for "Please check: …"). */
+export const FIELD_LABELS: Partial<Record<keyof ListingFormValues, string>> = {
+  title: "Title",
+  deal_type: "Deal",
+  property_type: "Property type",
+  description: "Description",
+  price: "Price",
+  price_unit: "Price is",
+  bedrooms: "Bedrooms",
+  bathrooms: "Bathrooms",
+  parking_spaces: "Parking",
+  built_area_sqm: "Built area",
+  land_area: "Land size",
+  land_area_unit: "Land size unit",
+  furnishing: "Furnishing",
+  amenities: "Amenities",
+  county: "County",
+  area: "Area",
+  new_area: "Area",
+  neighbourhood: "Neighbourhood",
+  lat: "Latitude",
+  lng: "Longitude",
+  agent: "Staff contact",
+  project: "Development project",
+  video_url: "Video link",
+  status: "Status",
+  seo_title: "SEO title",
+  seo_description: "SEO description",
+};
+
+/** The invalid fields among `names`, in form order, with their labels. */
+export function invalidFields(names: string[]) {
+  return (Object.keys(FIELD_LABELS) as (keyof ListingFormValues)[])
+    .filter((n) => names.includes(n))
+    .map((name) => ({ name, label: FIELD_LABELS[name]! }));
+}

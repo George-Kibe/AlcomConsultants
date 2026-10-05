@@ -33,6 +33,7 @@ import {
   STATUSES,
   emptyListing,
   fromApi,
+  invalidFields,
   listingSchema,
   toPayload,
   type ListingFormValues,
@@ -136,19 +137,16 @@ export function PropertyForm({ property }: Props) {
       error: ApiError & { fieldErrors?: Record<string, string[] | string> },
     ) => {
       const fields = error.fieldErrors ?? {};
-      let shown = false;
+      const names: string[] = [];
       for (const [name, messages] of Object.entries(fields)) {
         const message = Array.isArray(messages) ? messages[0] : messages;
         if (name in emptyListing) {
           setError(name as FieldPath<ListingFormValues>, { message });
-          shown = true;
+          names.push(name);
         }
       }
-      toast.error(
-        shown
-          ? "Please fix the highlighted fields."
-          : "Couldn't save. Please try again.",
-      );
+      if (names.length) showInvalid(names);
+      else toast.error("Couldn't save. Please try again.");
     },
   });
 
@@ -177,17 +175,30 @@ export function PropertyForm({ property }: Props) {
         save.mutate(isNew ? { ...values, status: "draft" } : values, {
           onSuccess: (saved) => router.push(href(saved.uuid)),
         }),
-      () => toast.error("Please fix the highlighted fields."),
+      (errs) => showInvalid(Object.keys(errs)),
     )();
   };
 
   const submit = (status?: ListingFormValues["status"]) =>
     handleSubmit(
       (values) => save.mutate(status ? { ...values, status } : values),
-      () => toast.error("Please fix the highlighted fields."),
+      (errs) => showInvalid(Object.keys(errs)),
     );
 
   const f = (name: string) => `${id}-${name}`;
+
+  /** Name the fields that stop the save, and bring the first one into view. */
+  function showInvalid(names: string[]) {
+    const fields = invalidFields(names);
+    if (!fields.length) return toast.error("Couldn't save. Please try again.");
+    const labels = [...new Set(fields.map((x) => x.label))];
+    toast.error(`Not saved yet. Please check: ${labels.join(", ")}.`);
+    const first = fields[0].name === "new_area" ? "area" : fields[0].name;
+    const el = document.getElementById(f(first));
+    el?.closest("details")?.setAttribute("open", ""); // e.g. the SEO section
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    el?.focus({ preventScroll: true });
+  }
   const fieldError = (name: keyof ListingFormValues) =>
     errors[name]?.message as string | undefined;
   const visible =

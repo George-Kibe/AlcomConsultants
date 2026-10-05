@@ -4,6 +4,7 @@ import { formatListingPrice } from "@/lib/format";
 import {
   emptyListing,
   fromApi,
+  invalidFields,
   listingSchema,
   toPayload,
 } from "@/lib/listing-form";
@@ -125,4 +126,12 @@ test("formatListingPrice", () => {
   expect(formatListingPrice(5000000, "per_acre")).toBe("KES 5,000,000 / acre");
   expect(formatListingPrice(null)).toBe("Price on request");
   expect(formatListingPrice(1000, "total", true)).toBe("Price on request");
+});
+
+test("invalidFields lists problems in form order, with labels", () => {
+  expect(invalidFields(["seo_title", "new_area", "title", "nope"])).toEqual([
+    { name: "title", label: "Title" },
+    { name: "new_area", label: "Area" },
+    { name: "seo_title", label: "SEO title" },
+  ]);
 });

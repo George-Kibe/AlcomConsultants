@@ -94,6 +94,20 @@ test("upload photos, set the cover, describe, reorder and delete", async ({
   await page.getByRole("button", { name: "Delete photo" }).click();
   await expect(photos).toHaveCount(1);
 
+  // Small photos only get a tip: saving and previewing still work.
+  await expect(photos.first().getByText(/Tip: small photo/)).toBeVisible();
+  const title = page.getByLabel("Title", { exact: true });
+  await title.fill(`${await title.inputValue()} with garden`);
+  await page.getByRole("button", { name: "Save and preview" }).click();
+  await page.waitForURL(/\/preview$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "with garden",
+  );
+  await page.getByRole("link", { name: "Back to editing" }).click();
+  await expect(
+    page.getByRole("button", { name: "Preview", exact: true }),
+  ).toBeVisible();
+
   // Clean up the draft (and its remaining photo).
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await page
