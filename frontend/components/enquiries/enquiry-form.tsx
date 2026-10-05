@@ -255,225 +255,235 @@ export function EnquiryForm({
     }
   }
 
-  return (
-    <form
-      onSubmit={(e) => void submit(e)}
-      noValidate
-      className={cn("grid gap-4", !compact && "sm:grid-cols-2")}
-    >
-      {property && (
-        <p className="bg-muted/70 rounded-lg px-3 py-2 text-sm sm:col-span-2">
-          About <strong>{property.reference}</strong> · {property.title}
-        </p>
-      )}
-      <Field id={f("name")} label="Your name" error={err("name")}>
-        <Input
-          id={f("name")}
-          name="name"
-          autoComplete="name"
-          defaultValue={me?.full_name ?? ""}
-          required
-          aria-invalid={!!err("name")}
-          aria-describedby={describedBy("name")}
-          className="h-11"
-        />
-      </Field>
-      <Field id={f("email")} label="Email" error={err("email")}>
-        <Input
-          id={f("email")}
-          name="email"
-          type="email"
-          autoComplete="email"
-          defaultValue={me?.email ?? ""}
-          required
-          aria-invalid={!!err("email")}
-          aria-describedby={describedBy("email")}
-          className="h-11"
-        />
-      </Field>
-      <Field
-        id={f("phone")}
-        label="Phone (optional)"
-        error={err("phone")}
-        className={compact ? undefined : "sm:col-span-2"}
-      >
-        <Input
-          id={f("phone")}
-          name="phone"
-          type="tel"
-          autoComplete="tel"
-          defaultValue={me?.phone ?? ""}
-          aria-invalid={!!err("phone")}
-          aria-describedby={describedBy("phone")}
-          className="h-11"
-        />
-      </Field>
+  // Two columns on wider screens. The compact form (the property page sidebar) goes by
+  // the width of its box instead, so it stays one column in the narrow sidebar.
+  const twoColumns = compact ? "@lg:grid-cols-2" : "sm:grid-cols-2";
+  const fullRow = compact ? "@lg:col-span-2" : "sm:col-span-2";
 
-      {(kind === "valuation" || kind === "management") && (
-        <Field id={f("type")} label="Type of property">
-          <Select value={propertyType} onValueChange={setPropertyType}>
-            <SelectTrigger id={f("type")} className="h-11 w-full">
-              <SelectValue placeholder="Choose…" />
-            </SelectTrigger>
-            <SelectContent>
-              {PROPERTY_TYPES.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-      )}
-      {(kind === "valuation" || kind === "management" || kind === "survey") && (
-        <Field
-          id={f("location")}
-          label={kind === "survey" ? "Where is the land?" : "Where is it?"}
-          error={err("location")}
-          hint="Area and county, e.g. Kitengela, Kajiado"
-        >
+  return (
+    <div className="@container">
+      <form
+        onSubmit={(e) => void submit(e)}
+        noValidate
+        className={cn("grid gap-4", twoColumns)}
+      >
+        {property && (
+          <p
+            className={cn("bg-muted/70 rounded-lg px-3 py-2 text-sm", fullRow)}
+          >
+            About <strong>{property.reference}</strong> · {property.title}
+          </p>
+        )}
+        <Field id={f("name")} label="Your name" error={err("name")}>
           <Input
-            id={f("location")}
-            name="location"
+            id={f("name")}
+            name="name"
+            autoComplete="name"
+            defaultValue={me?.full_name ?? ""}
             required
-            aria-invalid={!!err("location")}
-            aria-describedby={
-              describedBy("location") ?? `${f("location")}-hint`
-            }
+            aria-invalid={!!err("name")}
+            aria-describedby={describedBy("name")}
             className="h-11"
           />
         </Field>
-      )}
-      {kind === "valuation" && (
-        <Field
-          id={f("purpose")}
-          label="What is the valuation for?"
-          className="sm:col-span-2"
-        >
-          <Select value={purpose} onValueChange={setPurpose}>
-            <SelectTrigger id={f("purpose")} className="h-11 w-full">
-              <SelectValue placeholder="Choose…" />
-            </SelectTrigger>
-            <SelectContent>
-              {config.data.purposes.map((p) => (
-                <SelectItem key={String(p.value)} value={String(p.value)}>
-                  {String(p.label)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Field id={f("email")} label="Email" error={err("email")}>
+          <Input
+            id={f("email")}
+            name="email"
+            type="email"
+            autoComplete="email"
+            defaultValue={me?.email ?? ""}
+            required
+            aria-invalid={!!err("email")}
+            aria-describedby={describedBy("email")}
+            className="h-11"
+          />
         </Field>
-      )}
-      {kind === "management" && (
         <Field
-          id={f("units")}
-          label="Number of units (optional)"
-          error={err("units")}
-          className="sm:col-span-2"
+          id={f("phone")}
+          label="Phone (optional)"
+          error={err("phone")}
+          className={fullRow}
         >
           <Input
-            id={f("units")}
-            name="units"
-            type="number"
-            min={1}
-            inputMode="numeric"
-            className="h-11 sm:max-w-40"
+            id={f("phone")}
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            defaultValue={me?.phone ?? ""}
+            aria-invalid={!!err("phone")}
+            aria-describedby={describedBy("phone")}
+            className="h-11"
           />
         </Field>
-      )}
 
-      <Field
-        id={f("message")}
-        label={
-          kind === "contact" || kind === "assets"
-            ? "How can we help?"
-            : "Message (optional)"
-        }
-        error={err("message")}
-        className={compact ? undefined : "sm:col-span-2"}
-      >
-        <Textarea
-          id={f("message")}
-          name="message"
-          rows={compact ? 3 : 5}
-          maxLength={3000}
-          defaultValue={defaultMessage}
-          required={kind === "contact" || kind === "assets"}
-          aria-invalid={!!err("message")}
-          aria-describedby={describedBy("message")}
-        />
-      </Field>
-
-      {/* Honeypot: hidden from people and assistive technology; bots fill it in. */}
-      <div
-        aria-hidden
-        className="absolute -left-[9999px] h-px w-px overflow-hidden"
-      >
-        <label>
-          Website
-          <input name="website" tabIndex={-1} autoComplete="off" />
-        </label>
-      </div>
-
-      <div className={cn("flex flex-col gap-2", !compact && "sm:col-span-2")}>
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id={f("consent")}
-            checked={consent}
-            onCheckedChange={(c) => setConsent(c === true)}
-            aria-invalid={!!err("consent")}
-            aria-describedby={describedBy("consent")}
-            className="mt-0.5"
-          />
-          <Label htmlFor={f("consent")} className="leading-snug font-normal">
-            <span>
-              {config.data.consent_text.replace(/ Privacy Policy\.$/, " ")}
-              <Link href="/privacy" className="text-primary underline">
-                Privacy Policy
-              </Link>
-              .
-            </span>
-          </Label>
-        </div>
-        {err("consent") && (
-          <p
-            id={`${f("consent")}-error`}
-            className="text-destructive text-sm"
-            role="alert"
-          >
-            {err("consent")}
-          </p>
+        {(kind === "valuation" || kind === "management") && (
+          <Field id={f("type")} label="Type of property">
+            <Select value={propertyType} onValueChange={setPropertyType}>
+              <SelectTrigger id={f("type")} className="h-11 w-full">
+                <SelectValue placeholder="Choose…" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROPERTY_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
         )}
-      </div>
+        {(kind === "valuation" ||
+          kind === "management" ||
+          kind === "survey") && (
+          <Field
+            id={f("location")}
+            label={kind === "survey" ? "Where is the land?" : "Where is it?"}
+            error={err("location")}
+            hint="Area and county, e.g. Kitengela, Kajiado"
+          >
+            <Input
+              id={f("location")}
+              name="location"
+              required
+              aria-invalid={!!err("location")}
+              aria-describedby={
+                describedBy("location") ?? `${f("location")}-hint`
+              }
+              className="h-11"
+            />
+          </Field>
+        )}
+        {kind === "valuation" && (
+          <Field
+            id={f("purpose")}
+            label="What is the valuation for?"
+            className={fullRow}
+          >
+            <Select value={purpose} onValueChange={setPurpose}>
+              <SelectTrigger id={f("purpose")} className="h-11 w-full">
+                <SelectValue placeholder="Choose…" />
+              </SelectTrigger>
+              <SelectContent>
+                {config.data.purposes.map((p) => (
+                  <SelectItem key={String(p.value)} value={String(p.value)}>
+                    {String(p.label)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        )}
+        {kind === "management" && (
+          <Field
+            id={f("units")}
+            label="Number of units (optional)"
+            error={err("units")}
+            className={fullRow}
+          >
+            <Input
+              id={f("units")}
+              name="units"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              className="h-11 sm:max-w-40"
+            />
+          </Field>
+        )}
 
-      {siteKey && (
-        <div className={compact ? undefined : "sm:col-span-2"}>
-          <Turnstile
-            siteKey={siteKey}
-            onToken={setTurnstileToken}
-            resetKey={attempt}
-          />
-        </div>
-      )}
-
-      {problem && (
-        <Alert
-          variant="destructive"
-          role="alert"
-          className={compact ? undefined : "sm:col-span-2"}
+        <Field
+          id={f("message")}
+          label={
+            kind === "contact" || kind === "assets"
+              ? "How can we help?"
+              : "Message (optional)"
+          }
+          error={err("message")}
+          className={fullRow}
         >
-          <AlertDescription>{problem}</AlertDescription>
-        </Alert>
-      )}
+          <Textarea
+            id={f("message")}
+            name="message"
+            rows={compact ? 3 : 5}
+            maxLength={3000}
+            defaultValue={defaultMessage}
+            required={kind === "contact" || kind === "assets"}
+            aria-invalid={!!err("message")}
+            aria-describedby={describedBy("message")}
+          />
+        </Field>
 
-      <Button
-        type="submit"
-        size="xl"
-        disabled={busy}
-        className={cn("justify-self-start", compact && "w-full")}
-      >
-        {busy ? "Sending…" : submitLabel}
-      </Button>
-    </form>
+        {/* Honeypot: hidden from people and assistive technology; bots fill it in. */}
+        <div
+          aria-hidden
+          className="absolute -left-[9999px] h-px w-px overflow-hidden"
+        >
+          <label>
+            Website
+            <input name="website" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+
+        <div className={cn("flex flex-col gap-2", fullRow)}>
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id={f("consent")}
+              checked={consent}
+              onCheckedChange={(c) => setConsent(c === true)}
+              aria-invalid={!!err("consent")}
+              aria-describedby={describedBy("consent")}
+              className="mt-0.5"
+            />
+            <Label htmlFor={f("consent")} className="leading-snug font-normal">
+              <span>
+                {config.data.consent_text.replace(/ Privacy Policy\.$/, " ")}
+                <Link href="/privacy" className="text-primary underline">
+                  Privacy Policy
+                </Link>
+                .
+              </span>
+            </Label>
+          </div>
+          {err("consent") && (
+            <p
+              id={`${f("consent")}-error`}
+              className="text-destructive text-sm"
+              role="alert"
+            >
+              {err("consent")}
+            </p>
+          )}
+        </div>
+
+        {siteKey && (
+          <div className={fullRow}>
+            <Turnstile
+              siteKey={siteKey}
+              onToken={setTurnstileToken}
+              resetKey={attempt}
+            />
+          </div>
+        )}
+
+        {problem && (
+          <Alert variant="destructive" role="alert" className={fullRow}>
+            <AlertDescription>{problem}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button
+          type="submit"
+          size="xl"
+          disabled={busy}
+          className={cn(
+            "justify-self-start",
+            compact && "w-full @lg:col-span-2 @lg:w-auto",
+          )}
+        >
+          {busy ? "Sending…" : submitLabel}
+        </Button>
+      </form>
+    </div>
   );
 }
