@@ -5,7 +5,9 @@ Local:  ./local.sh test
 Live:   MAIL_TEST_INFO_PASSWORD=... MAIL_TEST_NOREPLY_PASSWORD=... \
           [MAIL_TEST_EXTERNAL_TO=you@gmail.com] python3 test_mail.py
         (MAIL_TEST_PASSWORD sets both at once; MAIL_TEST_SKIP_RELAY=1 when running on the
-        mail server itself, where port 25 traffic comes from a trusted address)
+        mail server itself, where port 25 traffic comes from a trusted address;
+        MAIL_TEST_INBOX=test@… with MAIL_TEST_INBOX_PASSWORD uses a temporary mailbox in
+        place of info@, so its password isn't needed)
 
 Checks: authenticated sending on 465 (implicit TLS; Mailu keeps 587/STARTTLS off), delivery to an IMAP inbox,
 DKIM signing, wrong passwords rejected, no open relay on port 25, viruses rejected,
@@ -25,8 +27,11 @@ DOMAIN = "alcomconsultants.co.ke"
 HOST = os.environ.get("MAIL_TEST_HOST", f"mail.{DOMAIN}")
 PASSWORD = os.environ.get("MAIL_TEST_PASSWORD", "")
 # Separate passwords per mailbox (as setup.sh creates them); default: MAIL_TEST_PASSWORD.
+INBOX = os.environ.get("MAIL_TEST_INBOX", f"info@{DOMAIN}")
 PASSWORDS = {
-    f"info@{DOMAIN}": os.environ.get("MAIL_TEST_INFO_PASSWORD", PASSWORD),
+    INBOX: os.environ.get(
+        "MAIL_TEST_INBOX_PASSWORD", os.environ.get("MAIL_TEST_INFO_PASSWORD", PASSWORD)
+    ),
     f"noreply@{DOMAIN}": os.environ.get("MAIL_TEST_NOREPLY_PASSWORD", PASSWORD),
 }
 SMTP, SMTPS, IMAPS = map(int, os.environ.get("MAIL_TEST_PORTS", "25,465,993").split(","))
@@ -81,7 +86,7 @@ def wait_for(user, subject, timeout=90):
 
 def delivery():
     subject = f"test {uuid.uuid4().hex[:8]}"
-    submit(message(f"info@{DOMAIN}", f"noreply@{DOMAIN}", subject), f"info@{DOMAIN}")
+    submit(message(INBOX, f"noreply@{DOMAIN}", subject), INBOX)
     raw = wait_for(f"noreply@{DOMAIN}", subject)
     assert "DKIM-Signature:" in raw and f"d={DOMAIN}" in raw, "message is not DKIM-signed"
     return "delivered, DKIM-signed"
@@ -89,8 +94,7 @@ def delivery():
 
 def wrong_password():
     try:
-        submit(message(f"info@{DOMAIN}", f"noreply@{DOMAIN}", "x"), f"info@{DOMAIN}",
-               password="definitely-wrong")
+        submit(message(INBOX, f"noreply@{DOMAIN}", "x"), INBOX, password="definitely-wrong")
     except smtplib.SMTPAuthenticationError:
         return "rejected"
     raise AssertionError("login succeeded with a wrong password")
@@ -106,11 +110,11 @@ def no_open_relay():
 
 
 def virus_rejected():
-    msg = message(f"info@{DOMAIN}", f"noreply@{DOMAIN}", "eicar test")
+    msg = message(INBOX, f"noreply@{DOMAIN}", "eicar test")
     msg.add_attachment(EICAR.encode(), maintype="application", subtype="octet-stream",
                        filename="eicar.com")
     try:
-        submit(msg, f"info@{DOMAIN}")
+        submit(msg, INBOX)
     except smtplib.SMTPDataError as exc:
         return f"{exc.smtp_code}"
     raise AssertionError("message with a virus was accepted")

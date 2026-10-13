@@ -93,6 +93,20 @@ MAIL_TEST_NOREPLY_PASSWORD="$(awk '/^noreply@/{print $2}' /root/mail-credentials
 MAIL_TEST_SKIP_RELAY=1 MAIL_TEST_EXTERNAL_TO=you@gmail.com python3 test_mail.py
 ```
 
+Once the credentials file is deleted, test with a temporary mailbox instead of `info@` (no one's password is needed), then remove it:
+
+```bash
+cd /opt/alcom/deploy/mail
+PW="$(openssl rand -base64 18)"
+docker compose exec -T admin flask mailu user mailtest alcomconsultants.co.ke "$PW"
+MAIL_TEST_INBOX=mailtest@alcomconsultants.co.ke MAIL_TEST_INBOX_PASSWORD="$PW" \
+MAIL_TEST_NOREPLY_PASSWORD="$(grep '^EMAIL_HOST_PASSWORD=' /opt/alcom/.env | cut -d= -f2-)" \
+MAIL_TEST_SKIP_RELAY=1 MAIL_TEST_EXTERNAL_TO=you@gmail.com python3 test_mail.py
+docker compose exec -T admin flask mailu user-delete -r mailtest@alcomconsultants.co.ke
+```
+
+`test_mail.py` only shows that a message was handed over. Confirm that Gmail accepted the external test message: `docker compose logs --since 5m smtp | grep 'status='` should show `relay=gmail-smtp-in… status=sent (250 …)`.
+
 Then check from another machine that the server is **not an open relay**. Each line stops at the recipient check, so nothing is sent:
 
 ```bash
@@ -126,4 +140,5 @@ Then open the message in Gmail → ⋮ → *Show original*. SPF, DKIM and DMARC 
 | Mail clients complain about the certificate | `docker compose logs front`; the cert exists in `edge_letsencrypt` at `live/mail.alcomconsultants.co.ke/`. |
 | Website emails fail | Check `EMAIL_*` in `/opt/alcom/.env`, then `docker compose -f compose.yaml -f compose.prod.yaml logs backend worker`. The noreply@ account must exist and not be rate-limited (`MESSAGE_RATELIMIT` in `mailu.env`). `DEFAULT_FROM_EMAIL` must be `noreply@…`, the mailbox the site signs in as: Mailu rejects other senders. |
 | Webmail: TLS "internal error"; edge log says `cannot load certificate … Permission denied` | The webmail vhost loads its certificate in an Nginx worker (uid/gid 101). Run `deploy/edge/cert-permissions.sh`. `setup.sh` and `renew-certs.sh` run it automatically. |
+| Nothing goes out or comes in; webmail gets "Delayed Mail" saying `Name service error for name=gmail.com type=MX: Host not found, try again` | The mail resolver can't verify DNS. `docker compose exec resolver dig @127.0.0.1 +dnssec . SOA` must show `ad` in its flags; `docker compose logs resolver` shows `failed to prime trust anchor` when it can't. On 2026-10-11 this happened because the root zone switched to a new DNSSEC key that the resolver image didn't know. The resolver now loads the keys in `overrides/unbound/root-anchors.txt` (from IANA's [root-anchors.xml](https://data.iana.org/root-anchors/root-anchors.xml)) on every start. If IANA publishes another key, add it there, run `docker compose up -d resolver`, then resend the queue with `docker compose exec smtp postqueue -f`. The resolver's health check now fails while DNS can't be verified, so `docker compose ps` shows it. |
 | Gmail accepts (`250 OK` in `docker compose logs smtp`) but the mail never shows up | Usually missing reverse DNS on a new server. Check the PTR, and use the Port25 report above. |
