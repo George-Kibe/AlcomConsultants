@@ -26,6 +26,20 @@ services:
     restart: always
     env_file: mailu.env
     logging: *logging
+    # Start from IANA's current root keys: the image only trusts the 2017 key, and since the
+    # root zone switched to the 2024 key (2026-10-11) every lookup failed, stopping all mail.
+    volumes:
+      - ./overrides/unbound/root-anchors.txt:/etc/unbound/root-anchors.txt:ro
+    command:
+      - /bin/sh
+      - -c
+      - install -o unbound -g unbound -m 644 /etc/unbound/root-anchors.txt /etc/unbound/trusted-key.key && exec /start.py
+    # Healthy only when answers are DNSSEC-validated (the image's check passed on failures).
+    healthcheck:
+      test: ["CMD-SHELL", "dig @127.0.0.1 +dnssec . SOA | grep -q 'flags:.* ad' || exit 1"]
+      interval: 1m
+      timeout: 10s
+      start_period: 30s
     networks:
       default:
         ipv4_address: 192.168.203.254
@@ -100,9 +114,10 @@ services:
     volumes:
       - clamav:/var/lib/clamav
     healthcheck:
-      test: ["CMD-SHELL", "kill -0 `cat /tmp/clamd.pid` && kill -0 `cat /tmp/freshclam.pid`"]
-      interval: 10s
-      timeout: 5s
+      # The image's own check: asks clamd to answer PING (it writes no pid files to check).
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 1m
+      timeout: 10s
       retries: 3
       start_period: 120s
 
